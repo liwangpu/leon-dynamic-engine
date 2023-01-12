@@ -1,0 +1,29 @@
+.stretch {
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+  height: 100%;
+  // background-color: #FFF;
+
+  .area() {
+    display: flex;
+    flex-flow: column nowrap;
+    background-color: #FFF;
+  }
+
+
+  &__left-area {
+    .area();
+    margin-right: 2px;
+  }
+
+  &__middle-area {
+    flex: 1;
+    .area();
+  }
+
+  &__right-area {
+    .area();
+    margin-left: 2px;
+  }
+}

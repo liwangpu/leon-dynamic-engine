@@ -3,10 +3,10 @@ import { memo, useMemo } from 'react';
 import SimpleNavsPage, { INavItem } from './components/SimpleNavsPage';
 import { ComponentPackageContext } from './contexts';
 import { IComponentPackage } from '@tiangong/core';
-// import { ComponentPackage as PrimaryComponentMarket } from '@tiangong/primary-component-package';
+import { ComponentPackage as PrimaryComponentMarket } from '@tiangong/primary-component-package';
 
 const packages: Array<IComponentPackage> = [
-  // PrimaryComponentMarket.getInstance(),
+  PrimaryComponentMarket.getInstance(),
 ];
 
 const App: React.FC = memo(() => {

@@ -4,6 +4,7 @@
   "projects": {
     "component-test": "apps/component-test",
     "core": "libs/core",
+    "primary-component-package": "libs/primary-component-package",
     "renderer": "libs/renderer"
   }
 }
