@@ -150,7 +150,9 @@ const ComponentRenderWrapper = (Component: ComponentType<any>) => {
               pagePresentationUtil.dragPreviewNode.innerHTML = componentTitle;
               pagePresentationUtil.dragPreviewNode.classList.remove('hidden');
               dataTransfer.setDragImage(pagePresentationUtil.dragPreviewNode, 0, 0);
-              dataTransfer.setData('Text', JSON.stringify(conf));
+              if (conf) {
+                dataTransfer.setData('Text', JSON.stringify(conf));
+              }
               currentConf = _.cloneDeep(conf);
             },
             onAdd: async (evt: Sortable.SortableEvent) => {
