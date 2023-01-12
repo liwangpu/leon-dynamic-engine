@@ -10,17 +10,33 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": [
+      "es2017",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@tiangong/core": [
+        "libs/core/src/index.ts"
+      ],
       "@tiangong/primary-component-package": [
         "libs/primary-component-package/src/index.ts"
       ],
-      "@tiangong/core": ["libs/core/src/index.ts"],
-      "@tiangong/renderer": ["libs/renderer/src/index.ts"]
+      "@tiangong/renderer": [
+        "libs/renderer/src/index.ts"
+      ],
+      "@tiangong/primary-plugin": [
+        "libs/primary-plugin/src/index.tsx"
+      ],
+      "@tiangong/editor": [
+        "libs/editor/src/index.ts"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

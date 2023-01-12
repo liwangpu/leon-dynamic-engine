@@ -1,0 +1,133 @@
+.page-presentation {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  &__util-container {
+    width: 0 !important;
+    height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+  }
+}
+
+:global {
+  @dynamic-component-border-size: 1.5px;
+
+  .editor-dynamic-component {
+    position: relative !important;
+    border: @dynamic-component-border-size dotted transparent;
+    // padding: 2px 8px;
+
+    &--active {
+      border-style: solid;
+      border-color: #3871E0;
+    }
+
+    &--hover {
+      border-color: #3871E0;
+    }
+
+    &--error {
+      border-style: solid;
+      border-color: red;
+    }
+  }
+
+  @component-dragging-size: 4px;
+
+  .editor-dynamic-component-container {
+    border: 1px solid transparent;
+    // padding: 8px;
+
+    &--horizontal {
+      .editor-sortable-ghost {
+        &.dragging {
+          @s: @component-dragging-size;
+          flex: 0 0 @s  !important;
+          width: @s  !important;
+          height: 100% !important;
+          max-width: @s  !important;
+          min-width: @s  !important;
+          max-height: 100% !important;
+          min-height: 100% !important;
+          padding: 0 !important;
+          border-width: 0 !important;
+          overflow: hidden !important;
+        }
+      }
+    }
+
+    &--dragging {
+      border-color: #52c41a !important;
+      background-color: #f6ffed !important;
+    }
+
+    .editor-sortable-ghost {
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: #205DD9;
+        width: 100%;
+        height: 100%;
+        border-radius: 2px;
+      }
+
+      &.dragging {
+        @s: @component-dragging-size;
+        flex: 0 0 @s ;
+        height: @s ;
+        max-height: @s ;
+        min-height: @s ;
+        padding: 0 0 0 12px;
+        border-width: 0;
+        overflow: hidden;
+        z-index: 999;
+      }
+    }
+  }
+
+  #editor-component-context-menu {
+    position: fixed;
+    display: none;
+    width: 150px;
+    box-shadow: 0 2px 8px 0 rgba(7, 12, 20, .12);
+    background-color: #fff;
+
+    &.active {
+      display: block;
+    }
+  }
+
+  #component-drag-preview-node {
+    position: fixed;
+    width: 118px;
+    height: 36px;
+    border: 1px solid #e6eaf0;
+    border-radius: 4px;
+    background-color: #fff;
+    padding: 0 8px;
+    font-size: 12px;
+    line-height: 36px;
+    overflow: hidden;
+    text-align: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-all;
+
+    &.hidden {
+      display: none;
+    }
+  }
+
+  .editor-component-hover-disabled {
+    .editor-dynamic-component {
+      border-color: transparent !important;
+    }
+  }
+}

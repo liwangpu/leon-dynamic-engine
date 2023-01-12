@@ -1,0 +1,29 @@
+.setting-panel-container {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0 12px 12px;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  &--hidden{
+    display: none !important;
+  }
+
+  &__empty-placeholder {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__common-shortcut{
+    font-size: 16px;
+    cursor: pointer;
+    &:hover{
+      color: #1890ff;
+    }
+  }
+}

@@ -6,7 +6,8 @@
     "build:core": "nx build core",
     "build:renderer": "nx build renderer",
     "start": "npm run start:component-test",
-    "start:component-test": "nx serve component-test"
+    "start:component-test": "nx serve component-test",
+    "start:editor-test": "nx serve editor-test"
   },
   "private": true,
   "dependencies": {

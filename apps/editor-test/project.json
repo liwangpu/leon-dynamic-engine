@@ -1,0 +1,95 @@
+{
+  "name": "editor-test",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/editor-test/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/editor-test",
+        "index": "apps/editor-test/src/index.html",
+        "baseHref": "/",
+        "main": "apps/editor-test/src/main.tsx",
+        "polyfills": "apps/editor-test/src/polyfills.ts",
+        "tsConfig": "apps/editor-test/tsconfig.app.json",
+        "assets": [
+          "apps/editor-test/src/favicon.ico",
+          "apps/editor-test/src/assets"
+        ],
+        "styles": [
+          "apps/editor-test/src/styles.less"
+        ],
+        "scripts": [],
+        "webpackConfig": "@nrwl/react/plugins/webpack"
+      },
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        },
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/editor-test/src/environments/environment.ts",
+              "with": "apps/editor-test/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/webpack:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "editor-test:build",
+        "hmr": true,
+        "port": 8102
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "editor-test:build:development"
+        },
+        "production": {
+          "buildTarget": "editor-test:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "apps/editor-test/**/*.{ts,tsx,js,jsx}"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "apps/editor-test/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

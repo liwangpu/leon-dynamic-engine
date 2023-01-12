@@ -1,0 +1,80 @@
+@sidebarSize: 44px;
+
+.plugin-panel {
+  position: relative;
+  display: flex;
+  min-width: @sidebarSize;
+  height: 100%;
+  overflow: hidden;
+
+  &__sidebar {
+    width: @sidebarSize;
+    padding-top: 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: #3871E0;
+  }
+
+  &__content {
+    width: 200px;
+    flex: 1;
+    display: flex;
+    flex-flow: column nowrap;
+    border-right: 1px solid #F0F0F0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+.nav {
+  position: relative;
+  width: @sidebarSize;
+  height: @sidebarSize;
+  cursor: pointer;
+  user-select: none;
+
+  &:not(:last-of-type) {
+    margin-bottom: 12px;
+  }
+
+  &--active {
+    background: #487FE3;
+
+    &::after {
+      height: 100%;
+    }
+  }
+
+  &__icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: @sidebarSize;
+    height: @sidebarSize;
+    font-size: 18px;
+    color: #fff;
+
+    &--active {
+      // color: #2468F2;
+    }
+  }
+}
+
+.panel {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  &--hidden {
+    display: none;
+  }
+}
+
+.panel-top-area {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  border-bottom: 1px solid #F0F0F0;
+}

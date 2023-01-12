@@ -3,8 +3,11 @@
   "version": 2,
   "projects": {
     "component-test": "apps/component-test",
+    "editor-test": "apps/editor-test",
     "core": "libs/core",
     "primary-component-package": "libs/primary-component-package",
-    "renderer": "libs/renderer"
+    "renderer": "libs/renderer",
+    "primary-plugin": "libs/primary-plugin",
+    "editor": "libs/editor"
   }
 }

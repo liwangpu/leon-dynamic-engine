@@ -1,0 +1,148 @@
+.page-management {
+  position: relative;
+  // display: flex;
+  // flex-flow: column nowrap;
+  width: 100%;
+  height: 100%;
+  padding: 10px 16px;
+  overflow: hidden;
+
+  &__title {
+    margin: 0;
+    padding: 0;
+    color: #000;
+    font-size: 16px;
+    line-height: 48px;
+
+    &>span {
+      margin-left: 4px;
+    }
+  }
+
+  &__header {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-end;
+  }
+
+  &__content {
+    padding: 8px 0;
+    // overflow-x: hidden;
+    // overflow-y: auto;
+  }
+
+}
+
+.search-input {
+  width: 160px;
+}
+
+.page-group {
+  display: block;
+
+  &:not(:last-of-type) {
+    margin-bottom: 20px;
+  }
+
+  &__title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 200px);
+    grid-template-rows: minmax(min-content, max-content);
+    grid-column-gap: 16px;
+    grid-row-gap: 14px;
+    justify-content: start;
+    padding: 8px 0 0;
+  }
+}
+
+.pageCommon() {
+  display: flex;
+  width: 200px;
+  height: 120px;
+  border: 1px solid #cacdd1;
+  border-radius: 4px;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background-color: #f0fffe;
+  }
+}
+
+.page {
+  .pageCommon();
+  position: relative;
+  flex-flow: column nowrap;
+  padding: 8px;
+
+  &:hover {
+
+    // background-color: pink;
+    .page__tools {
+      display: block !important;
+    }
+  }
+
+  &__title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    padding: 0;
+  }
+
+  &__info {
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+
+    &:not(:last-of-type) {
+      margin-bottom: 2px;
+    }
+  }
+
+  &__tools {
+    position: absolute;
+    display: none;
+    top: 0;
+    right: 0;
+    // width: 60px;
+    // height: 32px;
+    padding: 0 6px 0 0;
+    // background-color: pink
+  }
+}
+
+.page-adding-button {
+  .pageCommon();
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+  cursor: pointer;
+  user-select: none;
+
+
+  &:hover {
+    color: var(--primary-color);
+  }
+}
+
+.tool-button {
+  margin-left: 4px;
+
+  &--deleted {
+    &:hover {
+      color: red !important;
+    }
+  }
+
+  &:hover {
+    color: var(--primary-color);
+  }
+
+}
