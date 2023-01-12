@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@dynamic-engine/core": ["libs/core/src/index.ts"]
+      "@tiangong/core": ["libs/core/src/index.ts"],
+      "@tiangong/renderer": ["libs/renderer/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
