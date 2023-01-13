@@ -156,6 +156,7 @@ const ComponentRenderWrapper = (Component: ComponentType<any>) => {
               currentConf = _.cloneDeep(conf);
             },
             onAdd: async (evt: Sortable.SortableEvent) => {
+              // debugger;
               const dragEvt: DragEvent = (evt as any).originalEvent;
               const containerSlotProperty: string = evt.to.getAttribute('data-dynamic-component-container');
               const confStr = dragEvt.dataTransfer.getData('Text');
@@ -169,6 +170,7 @@ const ComponentRenderWrapper = (Component: ComponentType<any>) => {
               conf = await slot.verifyAdding(conf.type, conf);
               // 新增的组件可能会有插槽组件数据,这里需要解析一下插槽配置
               const addComponent = (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {
+                // debugger;
                 const slotProperties = slot.getSlotProperties(subConf.type);
                 const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
                 store.treeStore.addComponent(pureConf, parentId, index, slotProperty);
@@ -229,7 +231,7 @@ const ComponentRenderWrapper = (Component: ComponentType<any>) => {
     }, [childrenIds]);
 
     return (
-      <Component configuration={conf} children={props['children']} />
+      <Component configuration={conf} />
     );
   }));
 
@@ -245,7 +247,6 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
     const [activeClassAdded, setActivedClassAdded] = useState(false);
     const componentId = props.configuration.id;
     const activeComponentId = store.interactionStore.activeComponentId;
-
     useEffect(() => {
       const nel = dom.getComponentDom(componentId);
       if (!nel) { return; }
@@ -295,7 +296,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
     }, [activeComponentId]);
 
     return (
-      <Component configuration={props.configuration} children={props['children']} />
+      <Component configuration={props.configuration}/>
     );
   }));
 

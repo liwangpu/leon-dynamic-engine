@@ -21,7 +21,7 @@ const Configuration = types.model({
     setConfig: (conf: IComponentConfiguration) => {
       self.type = conf.type;
       self.title = conf.title;
-      self.origin = { ...conf };
+      self.origin = self.origin ? { ...self.origin, ...conf } : { ...conf, id: self.id };
     }
   }));
 

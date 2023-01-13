@@ -1,5 +1,5 @@
 import { IComponentConfiguration } from '@tiangong/core';
-import React, { ComponentType, memo, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { ComponentType, memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import styles from './index.module.less';
 import { Empty } from 'antd';
 import { EditorContext } from '../../contexts';
@@ -63,24 +63,17 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
 
     const { store } = useContext(EditorContext);
     const configuration = store.configurationStore.selectComponentConfigurationWithoutChildren(props.componentId); // 不包含插槽等属性
-    const configurationRef = useRef(configuration);
-    useLayoutEffect(() => {
-      // 深比较，判断是否相等
-      if (!_.isEqual(configuration, configurationRef.current)) {
-        configurationRef.current = configuration;
-      }
-    }, [configuration]);
-    const valueChange = useCallback(_.debounce(config => {
-      store.configurationStore.updateComponentConfiguration(config);
+
+    const valueChange = useCallback(_.debounce(conf => {
+      store.configurationStore.updateComponentConfiguration({ ...configuration, ...conf });
     }, 250), []);
 
-    const onValueChange = useCallback((config: IComponentConfiguration) => {
-      configurationRef.current = config;
-      valueChange(config);
+    const onValueChange = useCallback((conf: IComponentConfiguration) => {
+      valueChange(conf);
     }, [valueChange]);
 
     return (
-      <ComponentSettingPanel value={configurationRef.current} onChange={onValueChange} />
+      <ComponentSettingPanel value={configuration} onChange={onValueChange} />
     );
   }));
 
