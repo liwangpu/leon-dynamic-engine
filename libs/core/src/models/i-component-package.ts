@@ -17,6 +17,7 @@ export interface IDynamicComponentProps<T = IComponentConfiguration> {
 export interface IComponentConfigurationPanelProps<T = IComponentConfiguration> {
   value: T;
   onChange(configuration: T): void;
+  parentType?: string;
 }
 
 export interface IRunTimePackageModule {

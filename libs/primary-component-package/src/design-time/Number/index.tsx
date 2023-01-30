@@ -14,7 +14,7 @@ const NumberField: React.FC<IDynamicComponentProps<INumberComponentConfiguration
   const conf = props.configuration;
 
   return (
-    <div className={styles['number']} data-dynamic-component={conf.id}>
+    <div className={styles['number']}>
       <label className={styles['number__title']}>{conf.title}</label>
       <div className={styles['number__input']}>
         {conf.placeholder || '请输入数字'}

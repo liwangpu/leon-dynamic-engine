@@ -30,6 +30,40 @@ const EditorStore = types.model({
         self.interactionStore.editingComponentIds.push(pageId);
       }
     }
+  },
+  deleteComponent: (componentId: string) => {
+    if (!self.treeStore.trees.has(componentId)) { return; }
+    const _delete = (id: string) => {
+      if (!self.treeStore.trees.has(id)) { return; }
+      const tree = self.treeStore.trees.get(id);
+
+      if (tree.slots) {
+        // const slotProperties = Object.keys();
+        // console.log(`slotProperties:`,slotProperties);
+        // for (let property of slotProperties) {
+        //   const componentIds = tree.slots[property];
+        //   // console.log(`title:`, property, componentIds);
+        // }
+        tree.slots.forEach(v => {
+          v.forEach(bid => {
+            _delete(bid);
+          });
+        });
+      }
+      self.interactionStore.editingComponentIds.remove(id);
+      self.treeStore.trees.delete(id);
+      self.configurationStore.configurations.delete(id);
+    };
+
+    // 删除组件在父容器所占的位置
+    const currentTree = self.treeStore.trees.get(componentId);
+    if (currentTree.parentId) {
+      const parentTree = self.treeStore.trees.get(currentTree.parentId);
+      parentTree.slots.get(currentTree.slotProperty).remove(componentId);
+      self.interactionStore.activeComponent(currentTree.parentId);
+    }
+
+    _delete(componentId);
   }
 }));
 

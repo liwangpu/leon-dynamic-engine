@@ -27,5 +27,4 @@ export class PagePresentationUtilContextProvider {
     this._componentHoverPath.pop();
   }
 
-
 }

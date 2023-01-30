@@ -5,9 +5,10 @@
     "component-test": "apps/component-test",
     "editor-test": "apps/editor-test",
     "core": "libs/core",
-    "primary-component-package": "libs/primary-component-package",
     "renderer": "libs/renderer",
+    "editor": "libs/editor",
     "primary-plugin": "libs/primary-plugin",
-    "editor": "libs/editor"
+    "primary-component-package": "libs/primary-component-package",
+    "editor-shared": "libs/editor-shared"
   }
 }

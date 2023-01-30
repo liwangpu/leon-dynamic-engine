@@ -26,7 +26,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
     if (!conf.columns || !conf.columns.length) { return null; }
     return conf.columns.map(c => (
       <CustomRenderDynamicComponent key={c.id} configuration={c}>
-        <div className={styles['col']} data-dynamic-component={c.id} title={c.title}>
+        <div className={styles['col']} title={c.title}>
           <div className={styles['col__header']}>{c.title}</div>
           <div className={classnames(
             styles['col__content'],
@@ -38,7 +38,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
   }, [conf.columns]);
 
   return (
-    <div className={styles['table']} data-dynamic-component={conf.id}>
+    <div className={styles['table']}>
       <div className={styles['table__header']}>
         <p className={styles['table__title']}>{conf.title || '表格'}</p>
         <div className={styles['operators']} data-dynamic-component-container='operators' data-dynamic-container-direction='horizontal' data-dynamic-container-owner={conf.id}>
@@ -57,7 +57,9 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
             <div className={classnames(
               styles['col__header'],
               styles['col__header--operator']
-            )}>操作</div>
+            )}>
+              <span>操作</span>
+            </div>
             <div className={classnames(
               styles['col__content'],
               styles['col__content--operator']

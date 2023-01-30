@@ -209,7 +209,12 @@ PageDetail.displayName = 'PageDetail';
 export default PageDetail;
 
 async function generatePageConfiguration(formValue: IFormValue, models: Array<IBusinessIModel>): Promise<IComponentConfiguration> {
-  const conf: IComponentConfiguration = { ...formValue, children: [] };
+  const conf: IComponentConfiguration = {
+    ...formValue,
+    width: '100%',
+    height: '100%',
+    children: []
+  };
   const businessModel = models.find(b => b.key === formValue.businessModel);
   delete conf['layout'];
   switch (formValue.layout) {
@@ -233,7 +238,6 @@ async function generatePageConfiguration(formValue: IFormValue, models: Array<IB
           id: GenerateShortId(),
           type: ComponentTypes.block,
           title: '基础信息',
-          columns: 2,
           children: businessModel.fields.map(f => ({
             id: GenerateShortId(),
             type: 'text',

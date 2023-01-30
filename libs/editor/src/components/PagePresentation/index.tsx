@@ -10,6 +10,7 @@ import { EventTopicEnum } from '../../enums';
 import { SubSink } from 'subsink';
 import Sortable from 'sortablejs';
 import * as _ from 'lodash';
+import { ComponentToolBarWrapper } from '../ComponentToolBar';
 
 const COMPONENT_HOVER_DISABLED = 'editor-component-hover-disabled';
 const COMPONENT_CONTAINER_DRAGGING = 'editor-dynamic-component-container--dragging';
@@ -26,10 +27,53 @@ const componentFactory: IDynamicComponentFactory = {
 
 const PagePresentation: React.FC = memo(observer(() => {
 
-  const { store, event, dom, slot } = useContext(EditorContext);
+  const { event, dom, slot } = useContext(EditorContext);
   const presentationUtil = useMemo(() => new PagePresentationUtilContextProvider(), []);
-  const schema = store.configurationStore.selectComponentConfigurationWithoutChildren(store.interactionStore.pageComponentId);
   const presentationRef = useRef<HTMLDivElement>();
+  // const toolbarRef = React.createRef<HTMLDivElement>();
+  // const toolbar = useMemo<IComponentToolBarContext>(() => {
+  //   let latestActiveComponentId: string = null;
+
+  //   const calculateToolBarPosition = (componentId: string) => {
+  //     const toolbarHost = toolbarRef.current;
+  //     const componentHost = dom.getComponentHost(componentId);
+  //     if (!componentHost || !toolbarHost) { return; }
+  //     let rect = componentHost.getBoundingClientRect();
+  //     // toolbarHost.style.width = `${rect.width}px`;
+  //     // toolbarHost.style.height = `${rect.height}px`;
+  //     toolbarHost.style.top = `${rect.top - 32}px`;
+  //     toolbarHost.style.left = `${rect.left + rect.width - 160}px`;
+  //   };
+  //   const componentIntersecting = new Map<string, boolean>();
+
+  //   return {
+  //     active(id: string) {
+  //       // calculateToolBarPosition(id);
+  //       latestActiveComponentId = id;
+  //       this.toggleStatus(true);
+  //     },
+  //     toggleStatus(enabled: boolean) {
+  //       if (!toolbarRef.current) { return; }
+  //       // console.log(`componentIntersecting:`, componentIntersecting);
+  //       if (enabled) {
+  //         if (!componentIntersecting.has(latestActiveComponentId) || componentIntersecting.get(latestActiveComponentId)) {
+  //           this.reposition();
+  //           toolbarRef.current.classList.add('show');
+  //         } else {
+  //           toolbarRef.current.classList.remove('show');
+  //         }
+  //       } else {
+  //         toolbarRef.current.classList.remove('show');
+  //       }
+  //     },
+  //     reposition() {
+  //       calculateToolBarPosition(latestActiveComponentId);
+  //     },
+  //     setIntersecting(componentId, intersecting) {
+  //       componentIntersecting.set(componentId, intersecting);
+  //     },
+  //   };
+  // }, []);
 
   useEffect(() => {
     const subs = new SubSink();
@@ -38,8 +82,8 @@ const PagePresentation: React.FC = memo(observer(() => {
 
     function getComponentSlotDoms(componentType: string): { matchedSlotDoms: Array<HTMLElement>, notMatchedSlotDoms: Array<HTMLElement> } {
       const matchedSlotProperties = slot.getMatchedSlotProperties(componentType);
-      const matchedSlotDoms = dom.getComponentMatchedSlotDom(matchedSlotProperties);
-      const allSlotDoms = dom.getAllComponentSlotDoms();
+      const matchedSlotDoms = dom.getComponentMatchedSlotHost(matchedSlotProperties);
+      const allSlotDoms = dom.getAllComponentSlotHosts();
       const notMatchedSlotDoms = _.difference(allSlotDoms, matchedSlotDoms);
       return { matchedSlotDoms, notMatchedSlotDoms };
     }
@@ -78,11 +122,11 @@ const PagePresentation: React.FC = memo(observer(() => {
     subs.sink = event.message
       .pipe(filter(e => e.topic === EventTopicEnum.componentHovering))
       .subscribe(({ data: componentId }: { data: string, topic: EventTopicEnum }) => {
-        const lastDom = dom.getComponentDom(lastHoveringComponentId);
+        const lastDom = dom.getComponentHost(lastHoveringComponentId);
         if (lastDom) {
           lastDom.classList.remove(COMPONENT_HOVER_CLASSNAME);
         }
-        const currentDom = dom.getComponentDom(componentId);
+        const currentDom = dom.getComponentHost(componentId);
         if (currentDom) {
           currentDom.classList.add(COMPONENT_HOVER_CLASSNAME);
         }
@@ -94,14 +138,52 @@ const PagePresentation: React.FC = memo(observer(() => {
     };
   }, []);
 
+  // useEffect(() => {
+  //   let lastResizeAt = Date.now();
+  //   let resizeTimeout = null;
+  //   let isFirst = true;
+  //   const scrollDetecting = () => {
+  //     if (isFirst) {
+  //       isFirst = false;
+  //       return;
+  //     }
+  //     if (Date.now() - lastResizeAt > 100) {
+  //       toolbar.toggleStatus(false);
+  //     }
+
+  //     lastResizeAt = Date.now()
+  //     if (resizeTimeout) {
+  //       clearTimeout(resizeTimeout);
+  //     }
+
+  //     resizeTimeout = setTimeout(function () {
+  //       if (Date.now() - lastResizeAt > 99) {
+  //         toolbar.toggleStatus(true);
+  //       }
+  //     }, 100);
+  //   }
+
+  //   const resizeObs = new ResizeObserver(() => {
+  //     scrollDetecting();
+  //   });
+
+  //   resizeObs.observe(presentationRef.current);
+  //   return () => {
+  //     resizeObs.disconnect();
+  //     // disposer();
+  //     // subscription.unsubscribe();
+  //   };
+  // }, []);
+
   return (
     <div className={styles['page-presentation']} ref={presentationRef}>
       <DynamicComponentFactoryContext.Provider value={componentFactory}>
         <PagePresentationUtilContext.Provider value={presentationUtil}>
-          {schema && <_Renderer schema={schema} />}
-          <div className={styles['page-presentation__util-container']}>
-            <div id='component-drag-preview-node' className='hidden' ref={e => presentationUtil.setDragPreviewNode(e)}></div>
-          </div>
+            <RendererImplement />
+            <ComponentToolBarWrapper />
+            <div className={styles['page-presentation__util-container']}>
+              <div id='component-drag-preview-node' className='hidden' ref={e => presentationUtil.setDragPreviewNode(e)}></div>
+            </div>
         </PagePresentationUtilContext.Provider >
       </DynamicComponentFactoryContext.Provider>
     </div>
@@ -109,5 +191,16 @@ const PagePresentation: React.FC = memo(observer(() => {
 }));
 
 PagePresentation.displayName = 'PagePresentation';
+
+const RendererImplement: React.FC = memo(observer(() => {
+  const { store } = useContext(EditorContext);
+  const schema = store.configurationStore.selectComponentConfigurationWithoutChildren(store.interactionStore.pageComponentId);
+
+  return (
+    <_Renderer schema={schema} />
+  );
+}));
+
+RendererImplement.displayName = 'RendererImplement';
 
 export default PagePresentation;

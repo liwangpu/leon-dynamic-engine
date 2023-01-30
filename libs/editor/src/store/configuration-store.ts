@@ -45,7 +45,12 @@ export const ConfigurationStore = types.model({
       const parent: EditorStoreModel = getParent(self);
       const tree = parent.treeStore.trees.get(id);
       const slotComponetIds = tree.selectSlotComponetIds(slotProperty);
-      return slotComponetIds.map(bid => self.configurations.get(bid).toData());
+      const confs = [];
+      slotComponetIds.forEach(bid => {
+        if (!self.configurations.has(bid)) { return; }
+        confs.push(self.configurations.get(bid).toData());
+      });
+      return confs;
     },
     selectComponentTitle: (id: string): string => {
       const parent: EditorStoreModel = getParent(self) as any;

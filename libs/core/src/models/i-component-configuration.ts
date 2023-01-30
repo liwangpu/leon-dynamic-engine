@@ -6,7 +6,8 @@ export interface IComponentConfiguration {
   width?: string;
   // validators?: ComponentValidatorRule[];
   // eventBindings?: IComponentEventBinding[];
-  size?: { width?: number; height?: number; };
+  // size?: { width?: number; height?: number; };
+  gridColumnSpan?: string;
   children?: IComponentConfiguration[];
   [key: string]: any;
 }

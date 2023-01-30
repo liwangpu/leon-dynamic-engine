@@ -7,9 +7,8 @@ import styles from './index.module.less';
 const Text: React.FC<IDynamicComponentProps<ITextComponentConfiguration>> = memo(observer(props => {
 
   const conf = props.configuration;
-
   return (
-    <div className={styles['text']} data-dynamic-component={conf.id}>
+    <div className={styles['text']}>
       <label className={styles['text__title']}>{conf.title}</label>
       <div className={styles['text__input']}>
         {conf.placeholder || '请输入文本'}

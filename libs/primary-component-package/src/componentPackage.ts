@@ -1,18 +1,5 @@
 import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from '@tiangong/core';
-
-export enum ComponentTypes {
-  listPage = 'list-page',
-  detailPage = 'detail-page',
-  button = 'button',
-  buttonGroup = 'button-group',
-  text = 'text',
-  block = 'block',
-  tabs = 'tabs',
-  tab = 'tab',
-  table = 'table',
-  form = 'form',
-  number = 'number'
-}
+import { ComponentTypes } from './enums';
 
 export class ComponentPackage implements IComponentPackage {
 
@@ -62,10 +49,6 @@ export class ComponentPackage implements IComponentPackage {
       {
         type: ComponentTypes.table,
         title: '表格'
-      },
-      {
-        type: ComponentTypes.form,
-        title: '表单'
       }
     ];
   }
@@ -100,8 +83,6 @@ export class ComponentPackage implements IComponentPackage {
         return import('./run-time/Number');
       case ComponentTypes.table:
         return import('./run-time/Table');
-      case ComponentTypes.form:
-        return import('./run-time/Form');
       default:
         return null;
     }

@@ -1,4 +1,5 @@
 import { IComponentDiscovery } from '@tiangong/core';
+import { EditorStoreModel } from '../store';
 import { IDomManager } from './i-dom-manager';
 import { IEventManager } from './i-event-manager';
 import { IProjectManager } from './i-project-manager';
@@ -14,6 +15,7 @@ export interface PluginRegisterContext {
   skeleton: ISkeletonManager;
   project: IProjectManager;
   componentDiscovery: IComponentDiscovery;
+  store: EditorStoreModel;
   dom: IDomManager;
   event: IEventManager;
   slot: ISlotManager;

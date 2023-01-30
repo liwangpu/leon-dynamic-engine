@@ -63,7 +63,7 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
 
     const { store } = useContext(EditorContext);
     const configuration = store.configurationStore.selectComponentConfigurationWithoutChildren(props.componentId); // 不包含插槽等属性
-
+    const parentType = store.treeStore.selectParentComponentType(props.componentId);
     const valueChange = useCallback(_.debounce(conf => {
       store.configurationStore.updateComponentConfiguration({ ...configuration, ...conf });
     }, 250), []);
@@ -73,7 +73,7 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
     }, [valueChange]);
 
     return (
-      <ComponentSettingPanel value={configuration} onChange={onValueChange} />
+      <ComponentSettingPanel value={configuration} parentType={parentType} onChange={onValueChange} />
     );
   }));
 

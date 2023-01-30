@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import React, { memo, useContext, useEffect, useRef, useState, ComponentType } from 'react';
 import { DataStoreContext } from '../../contexts';
 import * as _ from 'lodash';
+import { useComponentStyle } from '../../hooks';
 
 const DynamicComponent: React.FC<IDynamicComponentProps> = memo(observer(props => {
   const conf = props.configuration;
@@ -41,6 +42,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<IDynamicComponentProps>)
   const wrapper: React.FC<IDynamicComponentProps> = memo(observer(props => {
     const store = useContext(DataStoreContext);
     const { setData } = useDataCenter();
+    const style = useComponentStyle(props.configuration);
     const field = _.get(props, 'configuration.field');
     const value = store.data.get(field);
     const visible = store.getFieldVisible(field);
@@ -51,7 +53,11 @@ const EditorUIEffectWrapper = (Component: ComponentType<IDynamicComponentProps>)
     };
     return (
       <>
-        {visible && <Component configuration={props.configuration} disabled={disabled} value={value} onChange={onChange} />}
+        {visible && (
+          <div className='dynamic-component' style={style} >
+            <Component configuration={props.configuration} disabled={disabled} value={value} onChange={onChange} />
+          </div>
+        )}
       </>
     );
   }));

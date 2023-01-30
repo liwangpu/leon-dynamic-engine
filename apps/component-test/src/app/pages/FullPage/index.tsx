@@ -8,43 +8,48 @@ const INITIAL_SCHEMA: IComponentConfiguration = {
   id: 'p1',
   type: 'detail-page',
   title: '测试页面',
-  operators: [
-    {
-      id: 'b1',
-      type: 'button',
-      title: '按钮1'
-    }
-  ],
+  width: '100%',
+  height: '100%',
+  // operators: [
+  //   {
+  //     id: 'b1',
+  //     type: 'button',
+  //     title: '按钮1'
+  //   }
+  // ],
   children: [
     {
       id: 'block1',
       type: 'block',
       title: '基础信息',
-      columns: 2,
       children: [
         {
           id: 'text1',
           type: 'text',
           field: 'name',
-          title: '姓名'
+          title: '姓名',
+          gridColumnSpan: '1/2'
         },
         {
           id: 'number1',
           type: 'number',
           field: 'age',
-          title: '年纪'
+          title: '年纪',
+          gridColumnSpan: '1/2'
         },
         {
           id: 'number2',
           type: 'number',
           field: 'height',
-          title: '身高'
+          title: '身高',
+          gridColumnSpan: '1/2'
         },
         {
           id: 'text2',
           type: 'text',
           field: 'remark',
-          title: '备注'
+          title: '备注',
+          gridColumnSpan: '1/2'
         }
       ]
     }

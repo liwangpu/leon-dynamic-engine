@@ -1,9 +1,9 @@
-import { IPlugin, IPluginRegister, PluginRegisterContext, SkeletonAreaEnum } from '@tiangong/editor';
+import { IPluginRegister, SkeletonAreaEnum } from '@tiangong/editor';
 import ComponentGallery, { ComponentGroup } from './components/ComponentGallery';
-import { AppstoreOutlined, DeploymentUnitOutlined, PartitionOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, CodeOutlined, DeploymentUnitOutlined } from '@ant-design/icons';
 import ModelGallery, { IModelFieldNode } from './components/ModelGallery';
-import MutiPageConfiguration from './components/MutiPageConfiguration';
 import { IComponentConfiguration } from '@tiangong/core';
+import SchemaViewer from './components/SchemaViewer';
 
 export function ModelGalleryPluginRegister(modelLoader: () => Promise<Array<IModelFieldNode>>, configurationTransfer: (key: string) => Promise<IComponentConfiguration>): IPluginRegister {
   return (function _ModelGalleryPluginRegister({ skeleton, event }) {
@@ -45,6 +45,24 @@ export function ComponentGalleryPluginRegister(componentGroups: Array<{ title: s
       destroy: async () => {
         skeleton.remove('组件库面板');
       },
+    };
+  });
+}
+
+export function SchemaViewerPluginRegister(): IPluginRegister {
+  return (function _SchemaViewerPluginRegister({ skeleton, project, event }) {
+    return {
+      init: async () => {
+        skeleton.add({
+          title: 'SCHEMA',
+          area: SkeletonAreaEnum.leftArea,
+          icon: <CodeOutlined />,
+          content: <SchemaViewer project={project} event={event} />
+        });
+      },
+      destroy: async () => {
+
+      }
     };
   });
 }

@@ -15,7 +15,7 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(observer(props => {
   }, [conf.children]);
 
   return (
-    <div className={styles['button-group']} data-dynamic-component={conf.id} >
+    <div className={styles['button-group']}>
       <div className={styles['button-group__content']} data-dynamic-component-container='children' data-dynamic-container-owner={conf.id}>
         {ChildrenComponents}
       </div>

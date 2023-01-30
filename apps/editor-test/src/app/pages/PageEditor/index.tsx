@@ -2,15 +2,16 @@ import React, { memo, useCallback, useContext, useMemo } from 'react';
 import styles from './index.module.less';
 import { useLoaderData, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Editor, IPluginRegister, SkeletonAreaEnum } from '@tiangong/editor';
-import { ComponentGalleryPluginRegister, IModelFieldNode, ModelGalleryPluginRegister } from '@tiangong/primary-plugin';
+import { ComponentGalleryPluginRegister, IModelFieldNode, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@tiangong/primary-plugin';
 import { IBusinessIModel, IModelField, ModelRepository } from '../../models';
 import PageEditorOperation from '../../components/PageEditorOperation';
 import { ComponentPackageContext } from '../../contexts';
-import { ComponentTypes, IBlockComponentConfiguration, ITableComponentConfiguration } from '@tiangong/primary-component-package';
+import { ComponentTypes, IBlockComponentConfiguration, ITableComponentConfiguration, ITextComponentConfiguration } from '@tiangong/primary-component-package';
 import { Button } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { GenerateShortId, IComponentConfiguration } from '@tiangong/core';
+import { GridSystemSection } from '@tiangong/editor-shared';
 
 const buttonTypes: Array<ComponentTypes> = [
   ComponentTypes.button,
@@ -93,25 +94,22 @@ const PageEditor: React.FC = memo(() => {
               },
             });
 
-            slot.registerAddingVerification(ComponentTypes.block, async (conf: IBlockComponentConfiguration) => {
-              if (!_.isNumber(conf.columns)) {
-                conf.columns = 1;
-              }
-              // conf.height = 'auto';
+            slot.registerAddingVerification(ComponentTypes.text, async (conf: ITextComponentConfiguration) => {
+              conf.gridColumnSpan = GridSystemSection['1/2'];
               return conf;
             });
 
-            slot.registerAddingVerification(ComponentTypes.buttonGroup, async (conf: IComponentConfiguration) => {
-              // conf.children = [
-              //   {
-              //     id: GenerateShortId(),
-              //     type: ComponentTypes.button,
-              //     title: '按钮'
-              //   }
-              // ];
-              // conf.height = 'auto';
-              return conf;
-            });
+            // slot.registerAddingVerification(ComponentTypes.buttonGroup, async (conf: IComponentConfiguration) => {
+            //   // conf.children = [
+            //   //   {
+            //   //     id: GenerateShortId(),
+            //   //     type: ComponentTypes.button,
+            //   //     title: '按钮'
+            //   //   }
+            //   // ];
+            //   // conf.height = 'auto';
+            //   return conf;
+            // });
 
             // slot.registerAddingVerfication(ComponentTypes.tabs, async (conf: ITabsComponentConfiguration) => {
             //   conf.items = [
@@ -187,7 +185,7 @@ const PageEditor: React.FC = memo(() => {
                 if (id === businessModel) {
                   conf.type = ComponentTypes.block;
                   conf.children = fieldComponents;
-                  (conf as IBlockComponentConfiguration).columns = 2;
+                  // (conf as IBlockComponentConfiguration).columns = 2;
                 } else {
                   conf.type = ComponentTypes.table;
                   (conf as ITableComponentConfiguration).columns = fieldComponents;
@@ -210,6 +208,8 @@ const PageEditor: React.FC = memo(() => {
         }
         return conf;
       }),
+      // schema源码插件
+      SchemaViewerPluginRegister(),
       // 页面返回按钮注册插件
       (function pageReturnPluginRegistry({ skeleton }) {
         return {

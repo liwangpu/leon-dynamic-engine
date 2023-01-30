@@ -22,7 +22,7 @@ const DetailPage: React.FC<IDynamicComponentProps<IPageComponentConfiguration>> 
   }, [conf.children]);
 
   return (
-    <div className={styles['page']} data-dynamic-component={conf.id}>
+    <div className={styles['page']}>
       <div className={styles['page__header']}>
         {NavigationBack}
         <p className={styles['page__title']}>{conf.title}</p>
@@ -30,8 +30,8 @@ const DetailPage: React.FC<IDynamicComponentProps<IPageComponentConfiguration>> 
           {OperatorComponents}
         </div>
       </div>
-      <div className={styles['page__content']} data-dynamic-component-container='children' data-dynamic-container-owner={conf.id} >
-        <div className={styles['wrapper']}>
+      <div className={styles['page__content']}  >
+        <div className={styles['wrapper']} data-dynamic-component-container='children' data-dynamic-container-owner={conf.id}>
           {ChildrenComponents}
         </div>
       </div>

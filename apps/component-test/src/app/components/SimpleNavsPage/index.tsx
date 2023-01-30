@@ -20,7 +20,7 @@ const SimpleNavsPage: React.FC<IPageOperationProps> = memo(observer(props => {
   const RouterLinks = useMemo(() => {
     if (!props.routes) { return; }
     return props.routes.map(r => (
-      <NavLink key={r.title} to={r.path} className={({ isActive }) => isActive ? "nav-item actived" : "nav-item"}>
+      <NavLink key={r.title} to={r.path} className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
         <p>{r.title}</p>
       </NavLink >
     ));

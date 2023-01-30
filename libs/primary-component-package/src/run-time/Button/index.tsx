@@ -1,4 +1,3 @@
-import styles from './index.module.less';
 import { Button as AntdButton } from 'antd';
 import React, { memo } from 'react';
 import { IComponentMetadata, IDynamicComponentProps } from '@tiangong/core';
@@ -13,9 +12,7 @@ const Button: React.FC<IDynamicComponentProps> = memo(observer(props => {
   };
 
   return (
-    <div className={styles['button']} data-dynamic-component={config.id}>
-      <AntdButton className={styles['button']} type="primary" onClick={buttonClick}>{config?.title}</AntdButton>
-    </div>
+    <AntdButton type="primary" onClick={buttonClick}>{config?.title}</AntdButton>
   );
 }));
 

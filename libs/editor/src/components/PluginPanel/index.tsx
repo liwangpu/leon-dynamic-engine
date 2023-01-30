@@ -4,11 +4,11 @@ import { memo, useContext, useMemo, useState } from 'react';
 import { EditorContext } from '../../contexts';
 import React from 'react';
 import classnames from 'classnames';
-import { SkeletonAreaEnum } from '../../enums';
+import { EventTopicEnum, SkeletonAreaEnum } from '../../enums';
 
 const PluginPanel: React.FC = memo(observer(() => {
 
-  const { skeleton } = useContext(EditorContext);
+  const { skeleton, event } = useContext(EditorContext);
   const skeletonGroupOfLeftArea = skeleton.skeletonGroup[SkeletonAreaEnum.leftArea];
   const skeletonGroupOfTopArea = skeleton.skeletonGroup[SkeletonAreaEnum.pluginTopArea];
   const skeletonNames = skeletonGroupOfLeftArea && skeletonGroupOfLeftArea.size > 0 ? Array.from(skeletonGroupOfLeftArea) : [];
@@ -76,8 +76,8 @@ const PluginPanel: React.FC = memo(observer(() => {
         pEl.classList.remove(styles['panel--hidden']);
       }
     }
-
     setActivePanel(name);
+    event.emit(EventTopicEnum.pluginPanelActiving, name);
   };
 
   const addToRefs = (key: string, el: HTMLElement) => {

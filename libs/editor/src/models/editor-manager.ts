@@ -1,4 +1,5 @@
 import { ComponentDiscoveryProvider, IComponentPackage } from '@tiangong/core';
+import { reaction, } from 'mobx';
 import { connectReduxDevtools } from 'mst-middlewares';
 import { createStore } from '../store';
 import { DomManager } from './dom-manager';

@@ -15,7 +15,7 @@ const Number: React.FC<IDynamicComponentProps<ITextComponentConfiguration>> = me
   };
 
   return (
-    <div className={styles['item']} data-dynamic-component={conf.id}>
+    <div className={styles['item']}>
       <label className={styles['item__title']}>{conf.title}</label>
       <InputNumber className={styles['item__input']} placeholder={conf.placeholder || '请输入数值'} value={props.value} onChange={onChange} />
     </div>

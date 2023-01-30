@@ -1,10 +1,10 @@
 .block {
   display: flex;
   flex-flow: column nowrap;
-  // height: 150px;
   min-height: 100px;
   padding: 12px;
   background-color: #fff;
+
 
   &__title {
     margin: 0;
@@ -23,5 +23,9 @@
     display: grid;
     overflow-x: hidden;
     overflow-y: auto;
+
+    &>* {
+      grid-column-start: span 24;
+    }
   }
 }
