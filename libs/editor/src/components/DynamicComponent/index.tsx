@@ -99,7 +99,6 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
 
     const { store, dom, event, slot } = useContext(EditorContext);
     const pagePresentationUtil = useContext(PagePresentationUtilContext);
-    // const toolbar = useContext(ComponentToolBarContext);
     const conf = props.configuration;
     const style = useComponentStyle(props.configuration);
     const componentRef = useRef<HTMLDivElement>(null);
