@@ -1,10 +1,8 @@
 import React from 'react';
-import { DataStoreModel } from '../store';
-
-export const DataStoreContext = React.createContext<DataStoreModel>(null);
+import { EditorStoreModel } from '../store';
 
 export interface IDataStoreCollocation {
-  hosting(store: DataStoreModel): void;
+  hosting(store: EditorStoreModel): void;
 }
 
 export const DataStoreCollocationContext = React.createContext<IDataStoreCollocation>(null);

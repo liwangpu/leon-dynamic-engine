@@ -6,5 +6,5 @@ export * from './models/i-event-manager';
 export * from './models/i-slot-manager';
 export * from './enums/skeleton-area';
 export * from './enums/event-topic';
-import { EditorStoreModel } from './store';
-export type { EditorStoreModel }
+export * from './contexts/data-store-collocation';
+export type { EditorStoreModel } from './store';

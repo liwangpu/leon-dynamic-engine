@@ -1,9 +1,9 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useContext, useEffect, useMemo } from 'react';
 import { ComponentDiscoveryContext, ComponentDiscoveryProvider, DataCenterEngineContext, DynamicComponentFactoryContext, IComponentPackage, IDataCenterEngine, IProjectSchema, useDynamicComponentEngine } from '@tiangong/core';
 import { observer } from 'mobx-react-lite';
 import { DynamicComponentFactoryProvider } from '../../models';
 import { createStore } from '../../store';
-import { DataStoreContext } from '../../contexts';
+import { DataStoreCollocationContext, DataStoreContext } from '../../contexts';
 import * as _ from 'lodash';
 
 export interface _RendererProps {
@@ -30,16 +30,23 @@ export const _Renderer: React.FC<_RendererProps> = memo(observer(props => {
   );
 }));
 
-_Renderer.displayName = '_Renderer'; 
+_Renderer.displayName = '_Renderer';
 
 export const Renderer: React.FC<DynamicPageProps> = memo(observer(props => {
   const componentDiscovery = useMemo(() => new ComponentDiscoveryProvider(props.packages), []);
+  const collocationContext = useContext(DataStoreCollocationContext);
   const store = useMemo(() => createStore(), []);
   const dataCenterEngine = useMemo<IDataCenterEngine>(() => ({
     setData: (field, val) => {
       store.setData(field, val);
     }
   }), []);
+
+  useEffect(() => {
+    if (collocationContext) {
+      collocationContext.hosting(store);
+    }
+  }, []);
 
   return (
     <ComponentDiscoveryContext.Provider value={componentDiscovery}>

@@ -60,7 +60,7 @@
   }
 
   @component-dragging-size: 4px;
-
+ 
   .editor-dynamic-component-container {
     border: 1px solid transparent;
 
@@ -155,7 +155,12 @@
   .disable-component-ui-effect {
     border-color: transparent !important;
 
+    .editor-toolbar-wrapper {
+      display: none;
+    }
+
     .editor-dynamic-component {
+      border-color: transparent;
       &::before {
         display: none !important;
       }

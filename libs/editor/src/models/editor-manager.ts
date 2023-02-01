@@ -1,6 +1,4 @@
 import { ComponentDiscoveryProvider, IComponentPackage } from '@tiangong/core';
-import { reaction, } from 'mobx';
-import { connectReduxDevtools } from 'mst-middlewares';
 import { createStore } from '../store';
 import { DomManager } from './dom-manager';
 import { EventManager } from './event-manager';
@@ -18,8 +16,5 @@ export class EditorContextManager implements IEditorContext {
   public readonly slot = new SlotManager(this);
   public readonly store = createStore();
   public readonly componentDiscovery = new ComponentDiscoveryProvider(this.packages);
-  public constructor(private packages: Array<IComponentPackage>) {
-    // 临时测试使用
-    connectReduxDevtools(require("remotedev"), this.store);
-  }
+  public constructor(private packages: Array<IComponentPackage>) { }
 }

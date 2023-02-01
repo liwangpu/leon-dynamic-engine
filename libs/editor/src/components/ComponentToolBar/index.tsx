@@ -6,11 +6,11 @@ import { EditorContext } from '../../contexts';
 import { SubSink } from 'subsink';
 import { delay, filter, map } from 'rxjs';
 import { EventTopicEnum } from '../../enums';
-import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { IDomManager } from '../../models';
+import { Button } from 'antd';
 
-const TOOLBAR_WRAPPER_SHOW_CLASS = styles['toolbar-wrapper--show'];
+const TOOLBAR_WRAPPER_SHOW_CLASS = 'editor-toolbar-wrapper--show';
 
 class ToolBar {
 
@@ -141,18 +141,18 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
   }, []);
 
   return (
-    <div className={styles['toolbar-wrapper']} ref={wrapperRef}>
+    <div className='editor-toolbar-wrapper' ref={wrapperRef}>
       <ComponentToolBar />
     </div>
   );
 });
+
 
 const ComponentToolBar: React.FC = memo(observer(() => {
   const { store } = useContext(EditorContext);
   const activeComponentId = store.interactionStore.activeComponentId;
 
   const deleteComponent = () => {
-    // console.log(`id:`, activeComponentId);
     store.deleteComponent(activeComponentId);
   };
 

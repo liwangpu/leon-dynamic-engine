@@ -1,19 +1,15 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { getSnapshot, IDisposer, onAction } from 'mobx-state-tree';
 import * as _ from 'lodash';
 import { EditorContextManager, IEditorContext, IPlugin, IPluginRegister } from '../../models';
-import { EditorContext } from '../../contexts';
+import { DataStoreCollocationContext, EditorContext } from '../../contexts';
 import Banner from '../Banner';
 import PluginPanel from '../PluginPanel';
 import { _Renderer } from '@tiangong/renderer';
 import PagePresentation from '../PagePresentation';
 import { ComponentDiscoveryContext, IComponentPackage } from '@tiangong/core';
 import ComponentSettingPanel from '../ComponentSettingPanel';
-import { EditorStoreModel } from '../../store';
-import { combineLatest, combineLatestWith, filter, first, map, switchMap } from 'rxjs';
-import { EventTopicEnum } from '../../enums';
 
 export interface IEditorProps {
   packages: Array<IComponentPackage>;
@@ -23,51 +19,16 @@ export interface IEditorProps {
 export const Editor: React.FC<IEditorProps> = memo(observer(props => {
 
   const [initialized, setInitialized] = useState(false);
+  const collocationContext = useContext(DataStoreCollocationContext);
   const editor = useMemo<IEditorContext>(() => {
     const cxt = new EditorContextManager(props.packages);
     return cxt;
   }, []);
 
   useEffect(() => {
-    // if (!initialized) { return; }
-    // const subscription = editor.event.message
-    //   // .pipe(filter(evt => evt.topic === EventTopicEnum.componentDomInit))
-    //   .subscribe(evt => {
-    //     console.log(`topic:`, evt.topic, evt.data);
-    //     // console.log(`init:`, evt.data);
-    //   });
-    // const subscription = editor.event.message
-    //   .pipe(filter(evt => evt.topic === EventTopicEnum.resetStore), map(evt => evt.data as { activeComponentId: string }))
-    //   .pipe(switchMap(({ activeComponentId }) => {
-    //     return editor.event.message.pipe(filter(evt => evt.topic === EventTopicEnum.componentDomInit && evt.data === activeComponentId), first()).pipe(map(evt => evt.data))
-    //   }))
-    //   .subscribe(activeComponentId => {
-    //     console.log(`activeComponentId:`, activeComponentId);
-    //     console.log(`dom:`,editor.dom.getComponentHost(activeComponentId));
-    //   });
-
-    // combineLatest([
-
-    // ])
-
-    // const disposer = onAction(editor.store, act => {
-    //   if (act.name !== 'setState') { return; }
-    //   // console.log(`act:`, act);
-    //   // console.log(`active:`, editor.store.interactionStore.activeComponentId);
-    //   // editor.event.emit(EventTopicEnum.resetStore, { activeComponentId: editor.store.interactionStore.activeComponentId });
-    //   // console.log(`path:`, act.path, typeof act.path, act.path === '');
-    //   // console.log(`name:`, act.name);
-
-
-    // }, true);
-
-    return () => {
-      // disposer();
-      // subscription.unsubscribe();
-    };
-  }, []);
-
-  useEffect(() => {
+    if (collocationContext) {
+      collocationContext.hosting(editor.store);
+    }
     const plugins: Array<IPlugin> = [];
     for (let pluginRegister of props.plugins) {
       const plugin = pluginRegister(editor);
