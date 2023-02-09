@@ -1,4 +1,4 @@
-import { ComponentDiscoveryContext, IDynamicComponentProps, useDataCenter } from '@tiangong/core';
+import { ComponentDiscoveryContext, IDynamicComponentProps, useDataCenter } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import React, { memo, useContext, useEffect, useRef, useState, ComponentType } from 'react';
 import { DataStoreContext } from '../../contexts';

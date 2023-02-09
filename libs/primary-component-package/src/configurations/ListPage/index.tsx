@@ -1,9 +1,9 @@
 import styles from './index.module.less';
 import { Form, Input, Tabs } from 'antd';
 import React, { memo, useCallback, useEffect } from 'react';
-import { IComponentConfigurationPanelProps } from '@tiangong/core';
+import { IComponentConfigurationPanelProps } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
-import { ConfigItem } from '@tiangong/editor-shared';
+import { ConfigItem } from '@lowcode-engine/component-configuration-shared';
 
 const PageConfiguration: React.FC<IComponentConfigurationPanelProps> = memo(observer(props => {
   const conf = props.value;

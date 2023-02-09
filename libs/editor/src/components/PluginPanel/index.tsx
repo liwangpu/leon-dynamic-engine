@@ -10,7 +10,7 @@ const PluginPanel: React.FC = memo(observer(() => {
 
   const { skeleton, event } = useContext(EditorContext);
   const skeletonGroupOfLeftArea = skeleton.skeletonGroup[SkeletonAreaEnum.leftArea];
-  const skeletonGroupOfTopArea = skeleton.skeletonGroup[SkeletonAreaEnum.pluginTopArea];
+  // const skeletonGroupOfTopArea = skeleton.skeletonGroup[SkeletonAreaEnum.pluginTopArea];
   const skeletonNames = skeletonGroupOfLeftArea && skeletonGroupOfLeftArea.size > 0 ? Array.from(skeletonGroupOfLeftArea) : [];
   const firstPanelName = skeletonNames[0];
   const [activePanel, setActivePanel] = useState<string>(firstPanelName);
@@ -24,25 +24,34 @@ const PluginPanel: React.FC = memo(observer(() => {
   }, [skeletonGroupOfLeftArea]);
   const [Icons, Panels] = useMemo(() => {
     if (!skeletonGroupOfLeftArea?.size) { return []; }
-    const _Icons = skeletonNames.map(n => (
-      <div key={n} className={classnames(
-        styles['nav'],
-        {
-          [styles['nav--active']]: n === activePanel
-        }
-      )} onClick={() => handleActivePanel(n)}>
-        <div className={
-          classnames(
-            styles['nav__icon'],
-            {
-              [styles['nav__icon--active']]: n === activePanel
-            }
-          )
-        }>
-          {skeleton.skeletonMap.get(n)?.icon}
+    const _Icons = skeletonNames.map(n => {
+      const IconElement = skeleton.skeletonMap.get(n).icon;
+      const title = skeleton.skeletonMap.get(n).title;
+      return (
+        <div key={n} className={classnames(
+          styles['nav'],
+          {
+            [styles['nav--active']]: n === activePanel
+          }
+        )} onClick={() => handleActivePanel(n)}>
+          <div className={
+            classnames(
+              styles['nav__icon'],
+              {
+                [styles['nav__icon--active']]: n === activePanel
+              }
+            )
+          }>
+            {IconElement}
+          </div>
+          {title && (
+            <div className={styles['nav__title']}>
+              {title}
+            </div>
+          )}
         </div>
-      </div>
-    ));
+      )
+    });
 
     const _Panels = visiblePanels.map(n => (
       <div key={n} className={styles['panel']} ref={(e: any) => addToRefs(n, e)}>
@@ -52,14 +61,14 @@ const PluginPanel: React.FC = memo(observer(() => {
     return [_Icons, _Panels];
   }, [skeletonGroupOfLeftArea, activePanel]);
 
-  const TopAreaSkeleton = useMemo(() => {
-    if (!skeletonGroupOfTopArea?.size) { return null; }
-    return [...skeletonGroupOfTopArea.values()].map(n => (
-      <React.Fragment key={n}>
-        {skeleton.skeletonMap.get(n)?.content}
-      </React.Fragment>
-    ));
-  }, [skeletonGroupOfTopArea]);
+  // const TopAreaSkeleton = useMemo(() => {
+  //   if (!skeletonGroupOfTopArea?.size) { return null; }
+  //   return [...skeletonGroupOfTopArea.values()].map(n => (
+  //     <React.Fragment key={n}>
+  //       {skeleton.skeletonMap.get(n)?.content}
+  //     </React.Fragment>
+  //   ));
+  // }, [skeletonGroupOfTopArea]);
 
   const handleActivePanel = (name: string) => {
     visiblePanels.forEach(pName => {
@@ -92,9 +101,9 @@ const PluginPanel: React.FC = memo(observer(() => {
         {Icons}
       </div>
       <div className={styles['plugin-panel__content']}>
-        <div className={styles['panel-top-area']}>
+        {/* <div className={styles['panel-top-area']}>
           {TopAreaSkeleton}
-        </div>
+        </div> */}
         {Panels}
       </div>
     </div>

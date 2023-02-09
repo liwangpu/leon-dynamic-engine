@@ -1,4 +1,4 @@
-import { IProjectSchema } from '@tiangong/core';
+import { IProjectSchema } from '@lowcode-engine/core';
 import { generateDesignState, nestComponentTree } from '../store';
 import { IEditorContext } from './i-editor-context';
 import { getSnapshot, IDisposer, onAction } from 'mobx-state-tree';

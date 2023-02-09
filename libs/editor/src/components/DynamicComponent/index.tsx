@@ -1,11 +1,11 @@
-import { ComponentDiscoveryContext, GenerateShortId, IComponentConfiguration } from '@tiangong/core';
+import { ComponentDiscoveryContext, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import React, { memo, useContext, useEffect, useRef, useState, ComponentType, useMemo } from 'react';
 import Sortable from 'sortablejs';
 import { EditorContext, PagePresentationUtilContext } from '../../contexts';
 import { EventTopicEnum } from '../../enums';
 import * as _ from 'lodash';
-import { useComponentStyle } from '@tiangong/renderer';
+import { useComponentStyle } from '@lowcode-engine/renderer';
 import classnames from 'classnames';
 
 export interface IDynamicComponentProps {
@@ -134,7 +134,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
           pagePresentationUtil.componentHover(componentId);
           event.emit(EventTopicEnum.componentHovering, pagePresentationUtil.hoveredComponentId);
         };
-  
+
         const componentMouseleaveHandler = (e: MouseEvent) => {
           e.stopPropagation();
           pagePresentationUtil.componentUnHover();
@@ -348,6 +348,9 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
         }
       )} data-dynamic-component={componentId} style={style} ref={componentRef}>
         <div className='toolbar-intersecting-flag' ref={toolbarIntersectingFlagRef}></div>
+        <div className='dragdrop-placeholder-flag'></div>
+        <div className='presentation-flag presentation-flag__activated-state'></div>
+        <div className='presentation-flag presentation-flag__hovering-state'></div>
         <Component configuration={props.configuration} children={props['children']} />
       </div>
     );

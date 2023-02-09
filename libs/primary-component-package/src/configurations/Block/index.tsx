@@ -1,9 +1,9 @@
 import styles from './index.module.less';
 import { Button as AntdButton, Form, Input, Tabs } from 'antd';
 import { memo, useCallback } from 'react';
-import { IComponentConfigurationPanelProps } from '@tiangong/core';
+import { IComponentConfigurationPanelProps } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
-import { ConfigItem } from '@tiangong/editor-shared';
+import { ConfigItem } from '@lowcode-engine/component-configuration-shared';
 
 const ButtonConfiguration: React.FC<IComponentConfigurationPanelProps> = memo(observer(props => {
   const conf = props.value;

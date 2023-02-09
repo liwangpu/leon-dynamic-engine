@@ -1,9 +1,9 @@
 import styles from './index.module.less';
 import React, { memo, useContext, useEffect, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Renderer } from '@tiangong/renderer';
+import { Renderer } from '@lowcode-engine/renderer';
 import { ComponentPackageContext } from '../../contexts';
-import { IComponentConfiguration } from '@tiangong/core';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 import JSONEditor from 'jsoneditor';
 import 'jsoneditor/dist/jsoneditor.css';
 import * as _ from 'lodash';

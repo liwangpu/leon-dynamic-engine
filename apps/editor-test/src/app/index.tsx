@@ -2,9 +2,9 @@ import styles from './index.module.less';
 import { Outlet } from "react-router-dom";
 import { memo } from 'react';
 import { ComponentPackageContext } from './contexts';
-import { IComponentPackage } from '@tiangong/core';
-import { ComponentPackage as PrimaryComponentMarket } from '@tiangong/primary-component-package';
-import { DataStoreCollocationContext, EditorStoreModel, IDataStoreCollocation } from '@tiangong/editor';
+import { IComponentPackage } from '@lowcode-engine/core';
+import { ComponentPackage as PrimaryComponentMarket } from '@lowcode-engine/primary-component-package';
+import { DataStoreCollocationContext, EditorStoreModel, IDataStoreCollocation } from '@lowcode-engine/editor';
 import { connectReduxDevtools } from 'mst-middlewares';
 
 const packages: Array<IComponentPackage> = [

@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from '@tiangong/core';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 import { useMemo } from 'react';
 import { GRID_SYSTEM_SECTION_TOTAL } from '../consts';
 

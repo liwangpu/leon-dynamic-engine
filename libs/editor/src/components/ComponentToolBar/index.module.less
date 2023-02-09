@@ -6,7 +6,7 @@
     width: 1px;
     height: 1px;
     visibility: hidden;
-
+    z-index: 9999;
     &--show {
       visibility: visible;
     }
@@ -16,10 +16,8 @@
 .toolbar {
   position: absolute;
   right: 0;
-  bottom: 4px;
-  // width: 50px;
-  // height: 28px;
-  background-color: pink;
+  bottom: 2px;
+  z-index: 9999;
 }
 
 .component-tools {
@@ -28,10 +26,8 @@
   left: 0;
   width: 0;
   height: 0;
-  // border: 2px solid #3871E0;
   width: 160px;
   height: 32px;
-  background-color: orange;
   visibility: hidden;
 
   &:global(.show) {

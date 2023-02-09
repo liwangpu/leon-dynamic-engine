@@ -1,8 +1,8 @@
-import { IPluginRegister, SkeletonAreaEnum } from '@tiangong/editor';
+import { IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
 import ComponentGallery, { ComponentGroup } from './components/ComponentGallery';
 import { AppstoreOutlined, CodeOutlined, DeploymentUnitOutlined } from '@ant-design/icons';
 import ModelGallery, { IModelFieldNode } from './components/ModelGallery';
-import { IComponentConfiguration } from '@tiangong/core';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 import SchemaViewer from './components/SchemaViewer';
 
 export function ModelGalleryPluginRegister(modelLoader: () => Promise<Array<IModelFieldNode>>, configurationTransfer: (key: string) => Promise<IComponentConfiguration>): IPluginRegister {
@@ -11,14 +11,14 @@ export function ModelGalleryPluginRegister(modelLoader: () => Promise<Array<IMod
       init: async () => {
         const fieldNodes = await modelLoader();
         skeleton.add({
-          title: '模型面板',
+          title: '模型',
           area: SkeletonAreaEnum.leftArea,
           icon: <DeploymentUnitOutlined />,
           content: <ModelGallery event={event} fieldNodes={fieldNodes} configurationTransfer={configurationTransfer} />
         });
       },
       destroy: async () => {
-        skeleton.remove('模型面板');
+        skeleton.remove('模型');
       }
     };
   });
@@ -36,14 +36,14 @@ export function ComponentGalleryPluginRegister(componentGroups: Array<{ title: s
         })) as any;
 
         skeleton.add({
-          title: '组件库面板',
+          title: '组件',
           area: SkeletonAreaEnum.leftArea,
           icon: <AppstoreOutlined />,
           content: <ComponentGallery groups={groups} event={event} />
         });
       },
       destroy: async () => {
-        skeleton.remove('组件库面板');
+        skeleton.remove('组件');
       },
     };
   });
@@ -54,7 +54,7 @@ export function SchemaViewerPluginRegister(): IPluginRegister {
     return {
       init: async () => {
         skeleton.add({
-          title: 'SCHEMA',
+          title: '元数据',
           area: SkeletonAreaEnum.leftArea,
           icon: <CodeOutlined />,
           content: <SchemaViewer project={project} event={event} />

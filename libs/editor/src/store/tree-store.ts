@@ -1,7 +1,7 @@
 import { getParent, Instance, SnapshotIn, types } from "mobx-state-tree";
 import * as _ from 'lodash';
 import { values } from 'mobx';
-import { IComponentConfiguration } from '@tiangong/core';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 import { EditorStoreModel } from './editor-store';
 
 const ComponentTree = types.model({

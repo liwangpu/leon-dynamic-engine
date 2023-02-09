@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from '@tiangong/core';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 
 export interface ISlotPropertyMatch {
   accepts?: Array<string>;

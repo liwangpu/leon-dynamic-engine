@@ -1,9 +1,9 @@
 import React, { memo, useContext, useEffect, useMemo, useRef } from 'react';
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { _Renderer } from '@tiangong/renderer';
+import { _Renderer } from '@lowcode-engine/renderer';
 import { EditorContext, PagePresentationUtilContext, PagePresentationUtilContextProvider } from '../../contexts';
-import { DynamicComponentFactoryContext, IComponentConfiguration, IDynamicComponentFactory } from '@tiangong/core';
+import { DynamicComponentFactoryContext, IComponentConfiguration, IDynamicComponentFactory } from '@lowcode-engine/core';
 import { DynamicComponentCustomRenderer, DynamicComponent } from '../DynamicComponent';
 import { filter, map } from 'rxjs/operators';
 import { EventTopicEnum } from '../../enums';
@@ -104,7 +104,7 @@ const PagePresentation: React.FC = memo(observer(() => {
     subs.sink = event.message
       .pipe(filter(e => e.topic === EventTopicEnum.componentStartDragging || e.topic === EventTopicEnum.componentEndDragging))
       .pipe(filter(e => e.data))
-      .subscribe(({ topic, data }: { topic: EventTopicEnum, data: IComponentConfiguration }) => {
+      .subscribe(({ topic, data }) => {
         if (topic === EventTopicEnum.componentStartDragging) {
           // 关闭组件激活和悬浮特效
           componentUIEffectToggler.disable();

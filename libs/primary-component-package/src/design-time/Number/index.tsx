@@ -4,7 +4,7 @@
  * @date:2022-12-09
  */
 import React, { memo } from 'react';
-import { IDynamicComponentProps } from '@tiangong/core';
+import { IDynamicComponentProps } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import { INumberComponentConfiguration } from '../../models';
 import styles from './index.module.less';

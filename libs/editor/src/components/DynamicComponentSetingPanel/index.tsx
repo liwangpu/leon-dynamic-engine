@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from '@tiangong/core';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 import React, { ComponentType, memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import styles from './index.module.less';
 import { Empty } from 'antd';

@@ -1,4 +1,4 @@
-import { ComponentDiscoveryProvider, IComponentPackage } from '@tiangong/core';
+import { ComponentDiscoveryProvider, IComponentPackage } from '@lowcode-engine/core';
 import { createStore } from '../store';
 import { DomManager } from './dom-manager';
 import { EventManager } from './event-manager';
@@ -15,6 +15,8 @@ export class EditorContextManager implements IEditorContext {
   public readonly event = new EventManager(this);
   public readonly slot = new SlotManager(this);
   public readonly store = createStore();
-  public readonly componentDiscovery = new ComponentDiscoveryProvider(this.packages);
-  public constructor(private packages: Array<IComponentPackage>) { }
+  public readonly componentDiscovery;
+  public constructor(packages: Array<IComponentPackage>) {
+    this.componentDiscovery = new ComponentDiscoveryProvider(packages);
+  }
 }

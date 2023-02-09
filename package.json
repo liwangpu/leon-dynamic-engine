@@ -5,9 +5,10 @@
   "scripts": {
     "build:core": "nx build core",
     "build:renderer": "nx build renderer",
+    "build:component-test": "nx build component-test",
     "start": "npm run start:editor-test",
     "start:component-test": "nx serve component-test",
-    "start:editor-test": "nx serve editor-test"
+    "start:editor-test": "nx serve editor-test --host=0.0.0.0"
   },
   "private": true,
   "dependencies": {

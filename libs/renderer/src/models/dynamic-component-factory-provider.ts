@@ -1,4 +1,4 @@
-import { IDynamicComponentFactory, IDynamicComponentProps } from '@tiangong/core';
+import { IDynamicComponentFactory, IDynamicComponentProps } from '@lowcode-engine/core';
 import { ComponentType } from 'react';
 import DynamicComponent from '../components/DynamicComponent';
 

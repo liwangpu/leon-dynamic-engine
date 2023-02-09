@@ -1,4 +1,4 @@
-import { IDynamicComponentProps } from '@tiangong/core';
+import { IDynamicComponentProps } from '@lowcode-engine/core';
 import { InputNumber } from 'antd';
 import { observer } from 'mobx-react-lite';
 import React, { memo } from 'react';

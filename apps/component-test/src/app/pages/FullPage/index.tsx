@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react';
 import styles from './index.module.less';
 import RealTimeRenderer from '../../components/RealTimeRenderer';
-import { IComponentConfiguration, IProjectSchema } from '@tiangong/core';
+import { IComponentConfiguration, IProjectSchema } from '@lowcode-engine/core';
 import { Button } from 'antd';
 
 const INITIAL_SCHEMA: IComponentConfiguration = {

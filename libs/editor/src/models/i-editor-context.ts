@@ -1,4 +1,4 @@
-import { IComponentDiscovery } from '@tiangong/core';
+import { IComponentDiscovery } from '@lowcode-engine/core';
 import { EditorStoreModel } from '../store';
 import { IDomManager } from './i-dom-manager';
 import { IEventManager } from './i-event-manager';

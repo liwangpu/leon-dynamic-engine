@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from '@tiangong/core';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 import * as _ from 'lodash';
 import { SnapshotIn } from 'mobx-state-tree';
 import { generateDesignState } from './util';

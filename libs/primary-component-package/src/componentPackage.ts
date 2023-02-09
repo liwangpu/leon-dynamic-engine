@@ -1,4 +1,4 @@
-import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from '@tiangong/core';
+import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from '@lowcode-engine/core';
 import { ComponentTypes } from './enums';
 
 export class ComponentPackage implements IComponentPackage {

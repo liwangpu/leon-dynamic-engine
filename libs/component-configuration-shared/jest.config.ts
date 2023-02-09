@@ -1,10 +1,10 @@
 /* eslint-disable */
 export default {
-  displayName: 'editor-shared',
+  displayName: '@lowcode-engine/component-configuration-shared',
   preset: '../../jest.preset.js',
   transform: {
     '^.+\\.[tj]sx?$': 'babel-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/libs/editor-shared',
+  coverageDirectory: '../../coverage/libs/component-configuration-shared',
 };

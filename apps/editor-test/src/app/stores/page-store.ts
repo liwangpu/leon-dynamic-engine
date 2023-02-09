@@ -1,4 +1,4 @@
-// import { IComponentConfiguration } from '@tiangong/core';
+// import { IComponentConfiguration } from '@lowcode-engine/core';
 import { types, flow } from "mobx-state-tree";
 import { PageRepository } from '../models';
 

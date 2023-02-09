@@ -9,6 +9,6 @@
     "editor": "libs/editor",
     "primary-plugin": "libs/primary-plugin",
     "primary-component-package": "libs/primary-component-package",
-    "editor-shared": "libs/editor-shared"
+    "component-configuration-shared": "libs/component-configuration-shared"
   }
 }

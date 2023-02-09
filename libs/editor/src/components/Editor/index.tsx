@@ -6,9 +6,9 @@ import { EditorContextManager, IEditorContext, IPlugin, IPluginRegister } from '
 import { DataStoreCollocationContext, EditorContext } from '../../contexts';
 import Banner from '../Banner';
 import PluginPanel from '../PluginPanel';
-import { _Renderer } from '@tiangong/renderer';
+import { _Renderer } from '@lowcode-engine/renderer';
 import PagePresentation from '../PagePresentation';
-import { ComponentDiscoveryContext, IComponentPackage } from '@tiangong/core';
+import { ComponentDiscoveryContext, IComponentPackage } from '@lowcode-engine/core';
 import ComponentSettingPanel from '../ComponentSettingPanel';
 
 export interface IEditorProps {
@@ -57,22 +57,20 @@ export const Editor: React.FC<IEditorProps> = memo(observer(props => {
       {initialized && (
         <ComponentDiscoveryContext.Provider value={editor.componentDiscovery}>
           <div className={styles['editor']}>
-            <div className={styles['plugin-container']}>
-              <PluginPanel />
+            <div className={styles['editor__header']}>
+              <Banner />
             </div>
             <div className={styles['editor__content']}>
-              <div className={styles['content-top-part']}>
-                <Banner />
+              <div className={styles['plugin-container']}>
+                <PluginPanel />
               </div>
-              <div className={styles['content-bottom-part']}>
-                <div className={styles['renderer-container']}>
-                  <div className={styles['renderer-container__wrapper']}>
-                    <PagePresentation />
-                  </div>
+              <div className={styles['renderer-container']}>
+                <div className={styles['renderer-container__wrapper']}>
+                  <PagePresentation />
                 </div>
-                <div className={styles['setter-container']}>
-                  <ComponentSettingPanel />
-                </div>
+              </div>
+              <div className={styles['setter-container']}>
+                <ComponentSettingPanel />
               </div>
             </div>
           </div>

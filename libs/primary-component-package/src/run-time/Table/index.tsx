@@ -1,4 +1,4 @@
-import { IDynamicComponentProps, useDynamicComponentEngine } from '@tiangong/core';
+import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import { Button, Table as AntdTable } from 'antd';
 import React, { memo, useMemo } from 'react';

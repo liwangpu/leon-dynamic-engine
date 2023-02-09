@@ -18,6 +18,85 @@ body {
   height: 100%;
 }
 
+:root {
+  // ----------------- 主色调序列 -----------------
+
+  // 主题色调色板基础颜色,不要直接使用该变量
+  --lce-theme-palettes-base-color: #5588ee;
+
+  // 调色板的10挡色阶是基于主题色算出的颜色
+  // 在组件样式定义中,可以直接使用这10挡颜色的变量
+  --lce-theme-palettes-step-1: #f0f7ff;
+  --lce-theme-palettes-step-2: #f0f7ff;
+  --lce-theme-palettes-step-3: #d6e8ff;
+  --lce-theme-palettes-step-4: #adceff;
+  --lce-theme-palettes-step-5: #82aefa;
+  --lce-theme-palettes-step-6: #5588ee;
+  --lce-theme-palettes-step-7: #3e67c7;
+  --lce-theme-palettes-step-8: #2a49a1;
+  --lce-theme-palettes-step-9: #1a307a;
+  --lce-theme-palettes-step-10: #111e54;
+
+  // 以下是调色板色阶的一些别名,可以直接使用
+
+  // 主题色
+  --lce-primary-color: var(--lce-theme-palettes-step-6);
+  // 主题色-变暗
+  --lce-primary-color-darken: var(--lce-theme-palettes-step-7);
+  // 主题色-变亮
+  --lce-primary-color-lighten: var(--lce-theme-palettes-step-5);
+  // 主题色-浅色
+  --lce-primary-color-light: var(--lce-theme-palettes-step-4);
+  // 主题色-超浅色
+  --lce-primary-color-lightest: var(--lce-theme-palettes-step-1);
+
+  // ----------------- 中性色序列 -----------------
+
+  // 全局背景色
+  --lce-global-background: #f5f6f8;
+  // 分隔线颜色
+  --lce-separator: #e6e8ee;
+  // 分割内容背景
+  --lce-separator-background: #fafbfc;
+  // 边框颜色
+  --lce-border-color: #dde0e6;
+  // 占位符 | 无效
+  --lce-placeholder-color: #c6ccd6;
+  // 图标颜色
+  --lce-icon-color: #999faa;
+  // 说明 | 详情
+  --lce-description-color: #606570;
+  // 标题 | 正文
+  --lce-text-color: #303339;
+  // hover背景色
+  --lce-hover-background: rgba(11, 32, 74, 0.04);
+  // disabled background color
+  --lce-disabled-background: #f5f5f5;
+
+  // ----------------- 辅助色序列 -----------------
+
+  // 强提醒
+  --lce-error-color: #ff5555;
+  // 弱提醒
+  --lce-warning-color: #ffa800;
+  // 消息提醒
+  --lce-info-color: #0099ff;
+  // 有效提醒
+  --lce-success-color: #22bb44;
+  // 无效提醒
+  --lce-invalid-color: #c6ccd6;
+
+  // ----------------- 字体序列 -----------------
+
+  // ----------------- 其他 -----------------
+  --lce-link-text-color: #5588ee;
+
+  // ----------------- 滚动条 -----------------
+  --lce-vertical-scroll-size: 3px;
+  --lce-horizontal-scroll-size: 8px;
+  --lce-scroll-active-size: 8px;
+}
+
 // 滚动条
 
 ::-webkit-scrollbar {

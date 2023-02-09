@@ -14,34 +14,21 @@
 }
 
 :global {
-  @dynamic-component-border-size: 1.5px;
 
   .editor-dynamic-component {
     position: relative !important;
-    border: @dynamic-component-border-size dotted transparent;
-
-    &::before {
-      @offset: -1.5px;
-      content: '';
-      position: absolute;
-      top: @offset;
-      left: @offset;
-      right: @offset;
-      bottom: @offset;
-      border: 2px solid #3871E0;
-      pointer-events: none;
-      visibility: hidden;
-      z-index: 1;
-    }
+    overflow: hidden;
 
     &--active {
-      &::before {
-        visibility: visible !important;
+      &>.presentation-flag__activated-state {
+        visibility: visible;
       }
     }
 
     &--hover {
-      border-color: #3871E0;
+      &>.presentation-flag__hovering-state {
+        visibility: visible;
+      }
     }
 
     &--error {
@@ -59,8 +46,52 @@
     z-index: -1;
   }
 
+  .dragdrop-placeholder-flag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: none;
+    background-color: var(--lce-primary-color);
+    border-radius: 2px;
+    z-index: 999;
+  }
+
+  .presentation-flag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    visibility: hidden;
+    z-index: 99;
+
+    &__activated-state {
+      border: 2px solid var(--lce-primary-color);
+      z-index: 100;
+    }
+
+    &__hovering-state {
+      border: 1.5px dotted var(--lce-primary-color);
+
+      &::after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        pointer-events: none;
+        background-color: var(--lce-primary-color-lightest);
+        opacity: 0.5;
+        content: '';
+      }
+    }
+  }
+
   @component-dragging-size: 4px;
- 
+
   .editor-dynamic-component-container {
     border: 1px solid transparent;
 
@@ -89,17 +120,6 @@
 
     .editor-sortable-ghost {
 
-      &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        background-color: #205DD9;
-        width: 100%;
-        height: 100%;
-        border-radius: 2px;
-      }
-
       &.dragging {
         @s: @component-dragging-size;
         flex: 0 0 @s ;
@@ -113,6 +133,10 @@
 
         &>.toolbar-intersecting-flag {
           display: none !important;
+        }
+
+        &>.dragdrop-placeholder-flag {
+          display: block !important;
         }
       }
     }
@@ -160,9 +184,8 @@
     }
 
     .editor-dynamic-component {
-      border-color: transparent;
-      &::before {
-        display: none !important;
+      .presentation-flag {
+        visibility: hidden !important;
       }
     }
   }

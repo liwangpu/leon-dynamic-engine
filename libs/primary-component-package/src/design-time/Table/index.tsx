@@ -1,4 +1,4 @@
-import { IDynamicComponentProps, useDynamicComponentEngine } from '@tiangong/core';
+import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import React, { memo, useMemo } from 'react';
 import classnames from 'classnames';
@@ -19,6 +19,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
 
   const OperatorColumn = useMemo(() => {
     if (!conf.operatorColumn || !conf.operatorColumn.length) { return null; }
+    if (!conf.enableOperator) { return null; }
     return conf.operatorColumn.map(c => (<DynamicComponent key={c.id} configuration={c} />))
   }, [conf.operatorColumn]);
 
@@ -46,28 +47,47 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
         </div>
       </div>
       <div className={styles['table__content']}>
+        {conf.lineNumber && (
+          <div className={classnames(
+            styles['custom-column'],
+            styles['custom-column--line-number']
+          )}>
+            <div className={classnames(
+              styles['col'],
+              'line-number-col'
+            )}>
+              <div className={styles['col__header']}>序号</div>
+              <div className={classnames(
+                styles['col__content'],
+                styles['col__content--data'],
+              )}>-</div>
+            </div>
+          </div>
+        )}
         <div className={styles['columns']} data-dynamic-component-container='columns' data-dynamic-container-direction='horizontal' data-dynamic-container-owner={conf.id}>
           {Columns}
         </div>
-        <div className={styles['operator-column']}>
-          <div className={classnames(
-            styles['col'],
-            styles['col--operator'],
-          )}>
+        {conf.enableOperator && (
+          <div className={styles['custom-column']}>
             <div className={classnames(
-              styles['col__header'],
-              styles['col__header--operator']
+              styles['col'],
+              styles['col--operator'],
             )}>
-              <span>操作</span>
-            </div>
-            <div className={classnames(
-              styles['col__content'],
-              styles['col__content--operator']
-            )} data-dynamic-component-container='operatorColumn' data-dynamic-container-owner={conf.id}>
-              {OperatorColumn}
+              <div className={classnames(
+                styles['col__header'],
+                styles['col__header--operator']
+              )}>
+                <span>操作</span>
+              </div>
+              <div className={classnames(
+                styles['col__content'],
+                styles['col__content--operator']
+              )} data-dynamic-component-container='operatorColumn' data-dynamic-container-owner={conf.id}>
+                {OperatorColumn}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

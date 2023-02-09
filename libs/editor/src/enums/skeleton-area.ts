@@ -1,5 +1,8 @@
 export enum SkeletonAreaEnum {
   topArea = 'topArea',
   leftArea = 'leftArea',
-  pluginTopArea = 'pluginTopArea'
+  pluginTopArea = 'pluginTopArea',
+  topLeftArea = 'topLeftArea',
+  topMiddleArea = 'topMiddleArea',
+  topRightArea = 'topRightArea',
 }

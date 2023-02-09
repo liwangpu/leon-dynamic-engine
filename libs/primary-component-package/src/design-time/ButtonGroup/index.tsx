@@ -1,7 +1,7 @@
 import styles from './index.module.less';
 import { Button as AntdButton } from 'antd';
 import React, { memo, useMemo } from 'react';
-import { IDynamicComponentProps, useDynamicComponentEngine } from '@tiangong/core';
+import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import { useNavigationBack } from '../../hooks';
 

@@ -1,17 +1,17 @@
 import React, { memo, useCallback, useContext, useMemo } from 'react';
 import styles from './index.module.less';
 import { useLoaderData, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Editor, IPluginRegister, SkeletonAreaEnum } from '@tiangong/editor';
-import { ComponentGalleryPluginRegister, IModelFieldNode, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@tiangong/primary-plugin';
+import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
+import { ComponentGalleryPluginRegister, IModelFieldNode, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
 import { IBusinessIModel, IModelField, ModelRepository } from '../../models';
 import PageEditorOperation from '../../components/PageEditorOperation';
 import { ComponentPackageContext } from '../../contexts';
-import { ComponentTypes, IBlockComponentConfiguration, ITableComponentConfiguration, ITextComponentConfiguration } from '@tiangong/primary-component-package';
+import { ComponentTypes, IBlockComponentConfiguration, ITableComponentConfiguration, ITextComponentConfiguration } from '@lowcode-engine/primary-component-package';
 import { Button } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { GenerateShortId, IComponentConfiguration } from '@tiangong/core';
-import { GridSystemSection } from '@tiangong/editor-shared';
+import { GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
+import { GridSystemSection } from '@lowcode-engine/component-configuration-shared';
 
 const buttonTypes: Array<ComponentTypes> = [
   ComponentTypes.button,
@@ -216,7 +216,7 @@ const PageEditor: React.FC = memo(() => {
           init: async () => {
             skeleton.add({
               title: 'page-editor-info',
-              area: SkeletonAreaEnum.pluginTopArea,
+              area: SkeletonAreaEnum.topLeftArea,
               content: (
                 <Button type="text" icon={<ArrowLeftOutlined />} onClick={goBack} size='small'>返回</Button>
               )
@@ -233,7 +233,7 @@ const PageEditor: React.FC = memo(() => {
           init: async () => {
             skeleton.add({
               title: 'page-operation',
-              area: SkeletonAreaEnum.topArea,
+              area: SkeletonAreaEnum.topRightArea,
               content: <PageEditorOperation project={project} />
             });
           },

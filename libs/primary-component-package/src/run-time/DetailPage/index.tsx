@@ -1,4 +1,4 @@
-import { IDynamicComponentProps, useDynamicComponentEngine } from '@tiangong/core';
+import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { memo, useMemo } from 'react';
 import { IPageComponentConfiguration } from '../../models';
 import { observer } from 'mobx-react-lite';

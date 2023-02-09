@@ -41,10 +41,26 @@
   }
 
   &__title {
-    font-size: 12px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #101319;
+    letter-spacing: 0;
+    line-height: 22px;
     font-weight: 600;
     margin: 0;
     padding: 0;
+
+    &::before {
+      position: relative;
+      top: 1px;
+      width: 3px;
+      height: 12px;
+      margin: 0 8px 0 0;
+      background-color: var(--lce-primary-color);
+      content: '';
+    }
   }
 
   &__icon {
@@ -62,7 +78,7 @@
     grid-template-columns: repeat(2, 1fr);
     column-gap: 16px;
     row-gap: 12px;
-    padding: 0 0 4px;
+    padding: 12px 0 12px;
     user-select: none;
 
     &--folded {

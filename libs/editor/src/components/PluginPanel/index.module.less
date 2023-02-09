@@ -1,4 +1,4 @@
-@sidebarSize: 44px;
+@sidebarSize: 48px;
 
 .plugin-panel {
   position: relative;
@@ -12,7 +12,8 @@
     padding-top: 20px;
     overflow-y: auto;
     overflow-x: hidden;
-    background-color: #3871E0;
+    background: #F7F8FA;
+    border-right: 1px solid #E5E7EC;
   }
 
   &__content {
@@ -20,7 +21,7 @@
     flex: 1;
     display: flex;
     flex-flow: column nowrap;
-    border-right: 1px solid #F0F0F0;
+    border-right: 1px solid #E5E7EC;
     overflow-y: auto;
     overflow-x: hidden;
   }
@@ -28,17 +29,19 @@
 
 .nav {
   position: relative;
-  width: @sidebarSize;
-  height: @sidebarSize;
+  width: 100%;
+  height: 78px;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
   user-select: none;
-
-  &:not(:last-of-type) {
-    margin-bottom: 12px;
-  }
+  color: #868D9C;
 
   &--active {
-    background: #487FE3;
+    background: var(--lce-primary-color-lightest);
+    color: var(--lce-primary-color);
 
     &::after {
       height: 100%;
@@ -49,14 +52,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: @sidebarSize;
-    height: @sidebarSize;
     font-size: 18px;
-    color: #fff;
+  }
 
-    &--active {
-      // color: #2468F2;
-    }
+  &__title {
+    padding: 9px 0 0;
+    font-size: 12px;
+    font-weight: 600;
   }
 }
 

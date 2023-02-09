@@ -1,4 +1,4 @@
-import { IProjectSchema } from '@tiangong/core';
+import { IProjectSchema } from '@lowcode-engine/core';
 import { IDisposer } from 'mobx-state-tree';
 
 export interface IProjectManager {

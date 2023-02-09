@@ -2,10 +2,10 @@ import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
 import { memo, useCallback } from 'react';
 import React from 'react';
-import { IProjectManager } from '@tiangong/editor';
+import { IProjectManager } from '@lowcode-engine/editor';
 import { PageRepository } from '../../models';
 import { Button, notification } from 'antd';
-import { IProjectSchema } from '@tiangong/core';
+import { IProjectSchema } from '@lowcode-engine/core';
 import { ClearOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -53,9 +53,9 @@ const PageEditorOperation: React.FC<PageOperationProps> = memo(observer(props =>
 
   return (
     <div className={styles['page-operation']}>
-      <Button type="default" icon={<EyeOutlined />} onClick={previewPage} size='small'>预览</Button>
-      <Button type="primary" danger icon={<SaveOutlined />} onClick={clear} size='small'>清空</Button>
-      <Button type="primary" icon={<ClearOutlined />} onClick={saveSchema} size='small'>保存</Button>
+      <Button type="default" icon={<EyeOutlined />} onClick={previewPage} >预览</Button>
+      <Button type="primary" danger icon={<SaveOutlined />} onClick={clear} >清空</Button>
+      <Button type="primary" icon={<ClearOutlined />} onClick={saveSchema} >保存</Button>
     </div>
   );
 }));

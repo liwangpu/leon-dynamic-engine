@@ -3,12 +3,12 @@ import { observer } from 'mobx-react-lite';
 import { memo } from 'react';
 import React from 'react';
 import { DownOutlined } from '@ant-design/icons';
-import { Tree, Input } from 'antd';
+import { Tree } from 'antd';
 import { useEffect } from 'react';
 import Sortable from 'sortablejs';
 import { useMemo } from 'react';
-import { EventTopicEnum, IEventManager } from '@tiangong/editor';
-import { IComponentConfiguration } from '@tiangong/core';
+import { EventTopicEnum, IEventManager } from '@lowcode-engine/editor';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 
 export interface IModelFieldNode {
   key: string;
@@ -76,7 +76,6 @@ const ModelGallery: React.FC<IModelGalleryProps> = memo(observer(props => {
     <div className={styles['model-gallery']}>
       <div className={styles['content-panel-header']}>
         <p className={styles['content-panel-header__title']}>模型</p>
-        <Input placeholder="输入关键词查询组件" allowClear={true} size='small' />
         <div className={styles['field-panel']}>
           <Tree
             showLine={true}

@@ -1,5 +1,5 @@
 import styles from './index.module.less';
-import { IDynamicComponentProps, useDynamicComponentEngine } from '@tiangong/core';
+import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { memo, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useNavigationBack } from '../../hooks';

@@ -18,23 +18,23 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@tiangong/core": [
+      "@lowcode-engine/core": [
         "libs/core/src/index.ts"
       ],
-      "@tiangong/primary-component-package": [
+      "@lowcode-engine/primary-component-package": [
         "libs/primary-component-package/src/index.ts"
       ],
-      "@tiangong/renderer": [
+      "@lowcode-engine/renderer": [
         "libs/renderer/src/index.ts"
       ],
-      "@tiangong/primary-plugin": [
+      "@lowcode-engine/primary-plugin": [
         "libs/primary-plugin/src/index.tsx"
       ],
-      "@tiangong/editor": [
+      "@lowcode-engine/editor": [
         "libs/editor/src/index.ts"
       ],
-      "@tiangong/editor-shared": [
-        "libs/editor-shared/src/index.ts"
+      "@lowcode-engine/component-configuration-shared": [
+        "libs/component-configuration-shared/src/index.ts"
       ]
     }
   },

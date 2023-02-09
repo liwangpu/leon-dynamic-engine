@@ -1,27 +1,27 @@
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { memo, useContext, useMemo } from 'react';
-import { EditorContext } from '../../contexts';
+import { memo } from 'react';
 import React from 'react';
 import { SkeletonAreaEnum } from '../../enums';
+import { useAreaSkeleton } from '../../hooks';
 
 const Banner: React.FC = memo(observer(() => {
 
-  const { skeleton } = useContext(EditorContext);
-  const skeletonGroup = skeleton.skeletonGroup[SkeletonAreaEnum.topArea];
-
-  const TopAreaSkeleton = useMemo(() => {
-    if (!skeletonGroup?.size) { return null; }
-    return [...skeletonGroup.values()].map(n => (
-      <React.Fragment key={n}>
-        {skeleton.skeletonMap.get(n)?.content}
-      </React.Fragment>
-    ));
-  }, [skeletonGroup]);
+  const { areaSkeleton: LeftAreaSkeleton } = useAreaSkeleton(SkeletonAreaEnum.topLeftArea);
+  const { areaSkeleton: MiddleAreaSkeleton } = useAreaSkeleton(SkeletonAreaEnum.topMiddleArea);
+  const { areaSkeleton: RightAreaSkeleton } = useAreaSkeleton(SkeletonAreaEnum.topRightArea);
 
   return (
     <div className={styles['banner']}>
-      {TopAreaSkeleton}
+      <div className={styles['banner__left']}>
+        {LeftAreaSkeleton}
+      </div>
+      <div className={styles['banner__middle']}>
+        {MiddleAreaSkeleton}
+      </div>
+      <div className={styles['banner__right']}>
+        {RightAreaSkeleton}
+      </div>
     </div>
   );
 }));

@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from '@tiangong/core';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 import { getParent, Instance, types } from "mobx-state-tree";
 import { EditorStoreModel } from './editor-store';
 import * as _ from 'lodash';

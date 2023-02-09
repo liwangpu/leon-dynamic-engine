@@ -1,7 +1,7 @@
 import styles from './index.module.less';
 import { Form, Input } from 'antd';
 import React, { memo, useCallback } from 'react';
-import { IComponentConfigurationPanelProps } from '@tiangong/core';
+import { IComponentConfigurationPanelProps } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 
 const PageConfiguration: React.FC<IComponentConfigurationPanelProps> = memo(observer((props) => {

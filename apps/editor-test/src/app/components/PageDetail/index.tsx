@@ -3,11 +3,11 @@ import styles from './index.module.less';
 import { Button, Form, Input, Radio, Select } from 'antd';
 import { observer } from 'mobx-react-lite';
 import classNames from 'classnames';
-import { ComponentTypes } from '@tiangong/primary-component-package';
+import { ComponentTypes } from '@lowcode-engine/primary-component-package';
 import { StoreContext } from '../../contexts';
 import { IBusinessIModel } from '../../models';
 import { useParams } from 'react-router-dom';
-import { GenerateShortId, IComponentConfiguration } from '@tiangong/core';
+import { GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
 import { getSnapshot } from 'mobx-state-tree';
 
 enum LayoutType {

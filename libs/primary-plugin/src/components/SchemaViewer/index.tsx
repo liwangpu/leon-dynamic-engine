@@ -4,7 +4,7 @@ import { memo, useCallback, useEffect, useRef } from 'react';
 import React from 'react';
 import JSONEditor from 'jsoneditor';
 import 'jsoneditor/dist/jsoneditor.css';
-import { EventTopicEnum, IEventManager, IProjectManager } from '@tiangong/editor';
+import { EventTopicEnum, IEventManager, IProjectManager } from '@lowcode-engine/editor';
 import * as _ from 'lodash';
 import { delay, distinctUntilChanged, filter, map } from 'rxjs';
 

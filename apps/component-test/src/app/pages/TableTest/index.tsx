@@ -2,7 +2,7 @@ import React, { memo, useEffect, useLayoutEffect, useState } from 'react';
 import { faker } from '@faker-js/faker';
 import styles from './index.module.less';
 import RealTimeRenderer from '../../components/RealTimeRenderer';
-import { IComponentConfiguration } from '@tiangong/core';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 
 const INITIAL_SCHEMA: IComponentConfiguration = {
   id: 'table1',

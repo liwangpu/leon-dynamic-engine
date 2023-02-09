@@ -1,7 +1,7 @@
 import styles from './index.module.less';
 import { Tabs as AntdTabs } from 'antd';
 import React, { memo, useMemo } from 'react';
-import { GenerateShortId, IComponentConfigurationProvider, IDynamicComponentProps, useDynamicComponentEngine } from '@tiangong/core';
+import { GenerateShortId, IComponentConfigurationProvider, IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import { ITabsComponentConfiguration } from '../../models';
 

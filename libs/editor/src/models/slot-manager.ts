@@ -1,4 +1,4 @@
-import { IComponentConfiguration } from '@tiangong/core';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 import { IEditorContext } from './i-editor-context';
 import { ISlotManager, ISlotPropertyDefinition } from './i-slot-manager';
 

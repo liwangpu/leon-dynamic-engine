@@ -1,13 +1,12 @@
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import React from 'react';
 import Sortable from 'sortablejs';
 import classnames from 'classnames';
-import { DownOutlined } from '@ant-design/icons';
-import { Input } from 'antd';
-import { IComponentConfiguration, IComponentDescription } from '@tiangong/core';
-import { EventTopicEnum, IEventManager } from '@tiangong/editor';
+import { UpOutlined } from '@ant-design/icons';
+import { IComponentConfiguration, IComponentDescription } from '@lowcode-engine/core';
+import { EventTopicEnum, IEventManager } from '@lowcode-engine/editor';
 
 export type ComponentGroup = {
   title: string;
@@ -29,9 +28,8 @@ const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(observer(pr
   }, []);
 
   const toggleComponentGroupFoldedState = (title: string) => {
-    // setComponentGroupFoldedState({ ...componentGroupFoldedState, [title]: !componentGroupFoldedState[title] });
+    setComponentGroupFoldedState({ ...componentGroupFoldedState, [title]: !componentGroupFoldedState[title] });
   };
-
 
   const listenComponentDragging = useCallback(() => {
     const containerEl: HTMLElement = optionalGroupContainerEl.current as any;
@@ -73,44 +71,42 @@ const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(observer(pr
     };
   }, []);
 
-  const OptionalGroups = useMemo(() => {
-    return props.groups.map(group => (
-      <div className={styles['component-group']} key={group.title}>
-        <div className={classnames(
-          styles['component-group__folder']
-        )} onClick={() => toggleComponentGroupFoldedState(group.title)}>
-          <p className={styles['component-group__title']}>{group.title}</p>
-          <DownOutlined className={classnames(
-            styles['component-group__icon'],
-            {
-              [styles['component-group__icon--folded']]: componentGroupFoldedState[group.title]
-            }
-          )} />
-        </div>
-        <div className={classnames(
-          styles['component-group__component-list'],
+  const OptionalGroups = props.groups.map(group => (
+    <div className={styles['component-group']} key={group.title}>
+      <div className={classnames(
+        styles['component-group__folder']
+      )} onClick={() => toggleComponentGroupFoldedState(group.title)}>
+        <p className={styles['component-group__title']}>{group.title}</p>
+        <UpOutlined className={classnames(
+          styles['component-group__icon'],
           {
-            [styles['component-group__component-list--folded']]: componentGroupFoldedState[group.title]
+            [styles['component-group__icon--folded']]: componentGroupFoldedState[group.title]
           }
-        )}>
-          {group.components.map(c => (
-            <div className={classnames(
-              styles['optional-component'],
-              'optional-component'
-            )} key={c.type} title={c.title} data-type={c.type}>
-              <p className={styles['optional-component__title']}>{c.title}</p>
-            </div>
-          ))}
-        </div>
-      </div >
-    ))
-  }, [props.groups]);
+        )} />
+      </div>
+      <div className={classnames(
+        styles['component-group__component-list'],
+        {
+          [styles['component-group__component-list--folded']]: componentGroupFoldedState[group.title]
+        }
+      )}>
+        {group.components.map(c => (
+          <div className={classnames(
+            styles['optional-component'],
+            'optional-component'
+          )} key={c.type} title={c.title} data-type={c.type}>
+            <p className={styles['optional-component__title']}>{c.title}</p>
+            <div className='dragdrop-placeholder-flag'></div>
+          </div>
+        ))}
+      </div>
+    </div >
+  ));
 
   return (
     <div className={styles['optional-component-panel']}>
       <div className={styles['content-panel-header']}>
         <p className={styles['content-panel-header__title']}>组件库</p>
-        <Input placeholder="输入关键词查询组件" allowClear={true} size='small' />
       </div>
       <div className={styles['optional-list']} ref={optionalGroupContainerEl}>
         {OptionalGroups}

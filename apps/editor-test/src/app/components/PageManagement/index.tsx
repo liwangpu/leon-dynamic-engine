@@ -5,11 +5,11 @@ import React, { memo, useCallback, useContext, useMemo, useState } from 'react';
 import { Button, Input, Modal } from 'antd';
 import { StoreContext } from '../../contexts';
 import { observer } from 'mobx-react-lite';
-import { IComponentConfiguration } from '@tiangong/core';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 import PageDetail from '../PageDetail';
 import { values } from 'mobx';
 import classnames from 'classnames';
-import { ComponentTypes } from '@tiangong/primary-component-package';
+import { ComponentTypes } from '@lowcode-engine/primary-component-package';
 
 const PageGroupInfos = [
   {

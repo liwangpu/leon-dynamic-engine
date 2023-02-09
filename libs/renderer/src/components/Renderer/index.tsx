@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useMemo } from 'react';
-import { ComponentDiscoveryContext, ComponentDiscoveryProvider, DataCenterEngineContext, DynamicComponentFactoryContext, IComponentPackage, IDataCenterEngine, IProjectSchema, useDynamicComponentEngine } from '@tiangong/core';
+import { ComponentDiscoveryContext, ComponentDiscoveryProvider, DataCenterEngineContext, DynamicComponentFactoryContext, IComponentPackage, IDataCenterEngine, IProjectSchema, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import { DynamicComponentFactoryProvider } from '../../models';
 import { createStore } from '../../store';

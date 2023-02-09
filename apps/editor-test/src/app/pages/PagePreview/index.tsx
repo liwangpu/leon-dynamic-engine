@@ -3,8 +3,8 @@ import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ComponentPackageContext, StoreContext } from '../../contexts';
-import { Renderer } from '@tiangong/renderer';
-import { INavigationBackContext, NavigationBackContext } from '@tiangong/primary-component-package';
+import { Renderer } from '@lowcode-engine/renderer';
+import { INavigationBackContext, NavigationBackContext } from '@lowcode-engine/primary-component-package';
 import { Button } from 'antd';
 import { ArrowLeftOutlined, EditOutlined } from '@ant-design/icons';
 
