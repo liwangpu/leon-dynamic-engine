@@ -3,7 +3,7 @@ import { Form, Input, Tabs } from 'antd';
 import { memo, useCallback } from 'react';
 import { IComponentConfigurationPanelProps } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
-import { BlockItemSize, ConfigItem } from '@lowcode-engine/component-configuration-shared';
+import { BlockItemSize, ConfigItem, ComponentContextSelector } from '@lowcode-engine/component-configuration-shared';
 import { ComponentTypes } from '../../enums';
 
 const ButtonConfiguration: React.FC<IComponentConfigurationPanelProps> = memo(observer(props => {
@@ -41,13 +41,19 @@ const ButtonConfiguration: React.FC<IComponentConfigurationPanelProps> = memo(ob
                     </Form.Item>
                   </ConfigItem>
 
-                  {props.parentType === ComponentTypes.block && (
+                  <ComponentContextSelector parent={ComponentTypes.block}>
                     <ConfigItem title="宽度">
                       <Form.Item name="gridColumnSpan" noStyle={true}>
                         <BlockItemSize />
                       </Form.Item>
                     </ConfigItem>
-                  )}
+                  </ComponentContextSelector>
+
+                  <ComponentContextSelector parent={ComponentTypes.table} slotProperty='columns'>
+                    <ConfigItem title="111111">
+                      测试测试
+                    </ConfigItem>
+                  </ComponentContextSelector>
                 </div>
               ),
             },

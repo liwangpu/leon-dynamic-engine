@@ -1,7 +1,20 @@
-import { IEditorContext } from './i-editor-context';
-import { ISkeleton, ISkeletonManager } from './i-skeleton-manager';
+import { IEditorContext } from './editor-manager';
 import { makeAutoObservable } from 'mobx';
 import { SkeletonAreaEnum } from '../enums';
+
+export interface ISkeleton {
+  title: string;
+  area: SkeletonAreaEnum;
+  icon?: React.ReactNode;
+  content: React.ReactNode;
+}
+
+export interface ISkeletonManager {
+  skeletonMap: Map<string, ISkeleton>;
+  skeletonGroup: { [name in SkeletonAreaEnum]?: Set<string> };
+  add(st: ISkeleton): void;
+  remove(name: string): void;
+}
 
 export class SkeletonManager implements ISkeletonManager{
 

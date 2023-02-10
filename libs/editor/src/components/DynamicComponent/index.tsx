@@ -97,7 +97,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
 
   const wrapper: React.FC<IDynamicComponentProps> = memo(observer(props => {
 
-    const { store, dom, event, slot } = useContext(EditorContext);
+    const { store, dom, event, slot, configurationAddingHandler } = useContext(EditorContext);
     const pagePresentationUtil = useContext(PagePresentationUtilContext);
     const conf = props.configuration;
     const style = useComponentStyle(props.configuration);
@@ -234,11 +234,12 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
               const container2SlotProperty = dom.getSlotDomProperty(evt.to);
               if (!getMatchedSlotProperties.some(p => p === container2SlotProperty)) { return; }
               conf.id = GenerateShortId();
-              conf = await slot.verifyAdding(conf.type, conf);
               // 新增的组件可能会有插槽组件数据,这里需要解析一下插槽配置
-              const addComponent = (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {
+              const addComponent = async (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {
                 const slotProperties = slot.getSlotProperties(subConf.type);
-                const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
+                let pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
+                const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
+                pureConf = await configurationAddingHandler.handle(pureConf, parentConf);
                 store.treeStore.addComponent(pureConf, parentId, index, slotProperty);
                 for (let sp of slotProperties) {
                   const components: Array<IComponentConfiguration> = subConf[sp] || [];

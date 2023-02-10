@@ -37,6 +37,12 @@ const ButtonConfiguration: React.FC<IComponentConfigurationPanelProps> = memo(ob
                       <Input placeholder="请输入标题" />
                     </Form.Item>
                   </ConfigItem>
+
+                  <ConfigItem title="编码">
+                    <Form.Item name="code" noStyle={true}>
+                      <Input placeholder="请输入编码" />
+                    </Form.Item>
+                  </ConfigItem>
                 </div>
               ),
             },

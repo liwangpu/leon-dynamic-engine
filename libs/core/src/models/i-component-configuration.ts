@@ -1,6 +1,7 @@
 export interface IComponentConfiguration {
   id?: string;
   type: string | null;
+  code?: string;
   title?: string;
   height?: string;
   width?: string;

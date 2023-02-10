@@ -1,8 +1,8 @@
 import { IComponentConfiguration } from '@lowcode-engine/core';
-import React, { ComponentType, memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { ComponentType, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './index.module.less';
 import { Empty } from 'antd';
-import { EditorContext } from '../../contexts';
+import { ComponentSettingItemContext, EditorContext, ISettingItemContext } from '../../contexts';
 import { observer } from 'mobx-react-lite';
 import * as _ from 'lodash';
 import classnames from 'classnames';
@@ -64,6 +64,15 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
     const { store } = useContext(EditorContext);
     const configuration = store.configurationStore.selectComponentConfigurationWithoutChildren(props.componentId); // 不包含插槽等属性
     const parentType = store.treeStore.selectParentComponentType(props.componentId);
+    const parentSlotProperty = store.treeStore.selectParentSlotProperty(props.componentId);
+    const settingItemCxt = useMemo(() => {
+      let ctx: ISettingItemContext = {
+        type: configuration.type,
+        parentType,
+        slotProperty: parentSlotProperty
+      };
+      return ctx;
+    }, [configuration.type, parentType, parentSlotProperty]);
     const valueChange = useCallback(_.debounce(conf => {
       store.configurationStore.updateComponentConfiguration({ ...configuration, ...conf });
     }, 250), []);
@@ -73,7 +82,9 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
     }, [valueChange]);
 
     return (
-      <ComponentSettingPanel value={configuration} parentType={parentType} onChange={onValueChange} />
+      <ComponentSettingItemContext.Provider value={settingItemCxt}>
+        <ComponentSettingPanel value={configuration} parentType={parentType} onChange={onValueChange} />
+      </ComponentSettingItemContext.Provider>
     );
   }));
 

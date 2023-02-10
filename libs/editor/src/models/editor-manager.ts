@@ -1,11 +1,22 @@
-import { ComponentDiscoveryProvider, IComponentPackage } from '@lowcode-engine/core';
-import { createStore } from '../store';
-import { DomManager } from './dom-manager';
-import { EventManager } from './event-manager';
-import { IEditorContext } from './i-editor-context';
-import { ProjectSchemaManager } from './project-schema-manager';
-import { SkeletonManager } from './skeleton-manager';
-import { SlotManager } from './slot-manager';
+import { ComponentDiscoveryProvider, IComponentDiscovery, IComponentPackage } from '@lowcode-engine/core';
+import { createStore, EditorStoreModel } from '../store';
+import { ConfigurationAddingHandlerManager } from './configuration-handler-manager';
+import { DomManager, IDomManager } from './dom-manager';
+import { EventManager, IEventManager } from './event-manager';
+import { IProjectManager, ProjectSchemaManager } from './project-schema-manager';
+import { ISkeletonManager, SkeletonManager } from './skeleton-manager';
+import { ISlotManager, SlotManager } from './slot-manager';
+
+export interface IEditorContext {
+  skeleton: ISkeletonManager;
+  project: IProjectManager;
+  store: EditorStoreModel;
+  componentDiscovery: IComponentDiscovery;
+  dom: IDomManager;
+  event: IEventManager;
+  slot: ISlotManager;
+  configurationAddingHandler: ConfigurationAddingHandlerManager;
+}
 
 export class EditorContextManager implements IEditorContext {
 
@@ -14,6 +25,7 @@ export class EditorContextManager implements IEditorContext {
   public readonly dom = new DomManager(this);
   public readonly event = new EventManager(this);
   public readonly slot = new SlotManager(this);
+  public readonly configurationAddingHandler = new ConfigurationAddingHandlerManager(this);
   public readonly store = createStore();
   public readonly componentDiscovery;
   public constructor(packages: Array<IComponentPackage>) {

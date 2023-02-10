@@ -13,9 +13,10 @@ const packages: Array<IComponentPackage> = [
 ];
 
 const dataStoreCollocation: IDataStoreCollocation = {
-  hosting(store: EditorStoreModel) {
-    connectReduxDevtools(require("remotedev"), store);
-  }
+  hosting(s: EditorStoreModel) {
+    // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+    connectReduxDevtools(require("remotedev"), s);
+  },
 };
 
 const App: React.FC = memo(() => {

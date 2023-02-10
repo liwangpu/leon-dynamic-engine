@@ -1,10 +1,11 @@
 import { IComponentDiscovery } from '@lowcode-engine/core';
 import { EditorStoreModel } from '../store';
-import { IDomManager } from './i-dom-manager';
-import { IEventManager } from './i-event-manager';
-import { IProjectManager } from './i-project-manager';
-import { ISkeletonManager } from './i-skeleton-manager';
-import { ISlotManager } from './i-slot-manager';
+import { IDomManager } from './dom-manager';
+import { IEventManager } from './event-manager';
+import { IProjectManager } from './project-schema-manager';
+import { ISkeletonManager } from './skeleton-manager';
+import { ISlotManager } from './slot-manager';
+import { IConfigurationAddingHandlerManager } from './configuration-handler-manager';
 
 export interface IPlugin {
   init(): Promise<void>;
@@ -19,6 +20,7 @@ export interface PluginRegisterContext {
   dom: IDomManager;
   event: IEventManager;
   slot: ISlotManager;
+  configurationAddingHandler: IConfigurationAddingHandlerManager;
 }
 
 export interface IPluginRegister {

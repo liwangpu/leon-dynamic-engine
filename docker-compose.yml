@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+
+  editor-test-app:
+    container_name: editor-test-app-c
+    image: registry.cn-shanghai.aliyuncs.com/leon-pu/react-dynamic-engine-app:latest
+    build: ./
+    ports:
+      - "8801:80"

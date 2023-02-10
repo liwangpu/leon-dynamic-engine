@@ -10,7 +10,6 @@ const PluginPanel: React.FC = memo(observer(() => {
 
   const { skeleton, event } = useContext(EditorContext);
   const skeletonGroupOfLeftArea = skeleton.skeletonGroup[SkeletonAreaEnum.leftArea];
-  // const skeletonGroupOfTopArea = skeleton.skeletonGroup[SkeletonAreaEnum.pluginTopArea];
   const skeletonNames = skeletonGroupOfLeftArea && skeletonGroupOfLeftArea.size > 0 ? Array.from(skeletonGroupOfLeftArea) : [];
   const firstPanelName = skeletonNames[0];
   const [activePanel, setActivePanel] = useState<string>(firstPanelName);
@@ -61,15 +60,6 @@ const PluginPanel: React.FC = memo(observer(() => {
     return [_Icons, _Panels];
   }, [skeletonGroupOfLeftArea, activePanel]);
 
-  // const TopAreaSkeleton = useMemo(() => {
-  //   if (!skeletonGroupOfTopArea?.size) { return null; }
-  //   return [...skeletonGroupOfTopArea.values()].map(n => (
-  //     <React.Fragment key={n}>
-  //       {skeleton.skeletonMap.get(n)?.content}
-  //     </React.Fragment>
-  //   ));
-  // }, [skeletonGroupOfTopArea]);
-
   const handleActivePanel = (name: string) => {
     visiblePanels.forEach(pName => {
       if (pName !== name && panelRefMap.has(pName)) {
@@ -101,9 +91,6 @@ const PluginPanel: React.FC = memo(observer(() => {
         {Icons}
       </div>
       <div className={styles['plugin-panel__content']}>
-        {/* <div className={styles['panel-top-area']}>
-          {TopAreaSkeleton}
-        </div> */}
         {Panels}
       </div>
     </div>

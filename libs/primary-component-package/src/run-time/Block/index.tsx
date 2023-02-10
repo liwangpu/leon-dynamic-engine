@@ -5,7 +5,6 @@ import { GRID_SYSTEM_SECTION_TOTAL } from '../../consts';
 import { IBlockComponentConfiguration } from '../../models';
 import styles from './index.module.less';
 
-
 const Block: React.FC<IDynamicComponentProps<IBlockComponentConfiguration>> = memo(observer(props => {
 
   const conf = props.configuration;

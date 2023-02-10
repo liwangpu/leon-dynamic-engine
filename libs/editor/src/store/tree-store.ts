@@ -37,6 +37,11 @@ export const TreeStore = types.model({
       const com = self.trees.get(id);
       if (!com.parentId) { return null; }
       return self.trees.get(com.parentId).type;
+    },
+    selectParentSlotProperty: (id: string): string => {
+      if (!self.trees.has(id)) { return null; }
+      const com = self.trees.get(id);
+      return com.slotProperty;
     }
   }))
   .actions(self => ({

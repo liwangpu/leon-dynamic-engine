@@ -94,10 +94,10 @@ const PageEditor: React.FC = memo(() => {
               },
             });
 
-            slot.registerAddingVerification(ComponentTypes.text, async (conf: ITextComponentConfiguration) => {
-              conf.gridColumnSpan = GridSystemSection['1/2'];
-              return conf;
-            });
+            // slot.registerAddingVerification(ComponentTypes.text, async (conf: ITextComponentConfiguration) => {
+            //   conf.gridColumnSpan = GridSystemSection['1/2'];
+            //   return conf;
+            // });
 
             // slot.registerAddingVerification(ComponentTypes.buttonGroup, async (conf: IComponentConfiguration) => {
             //   // conf.children = [
@@ -122,6 +122,25 @@ const PageEditor: React.FC = memo(() => {
             //   return conf;
             // });
           }
+        };
+      }),
+      // 组件元数据处理管道注册插件
+      (function configAddingHandlerPluginRegistry({ configurationAddingHandler }) {
+        return {
+          init: async () => {
+
+            configurationAddingHandler.registerHandler({ parentTypeSelector: ComponentTypes.block, typeSelector: [ComponentTypes.text, ComponentTypes.number] }, async (conf) => {
+              // eslint-disable-next-line no-param-reassign
+              conf.gridColumnSpan = GridSystemSection['1/2'];
+              return conf;
+            });
+
+            configurationAddingHandler.registerHandler({ typeSelector: null }, async (conf) => {
+              // eslint-disable-next-line no-param-reassign
+              conf.code = GenerateShortId();
+              return conf;
+            });
+          },
         };
       }),
       // 文档模型注册插件

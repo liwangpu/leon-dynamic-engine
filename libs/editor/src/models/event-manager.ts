@@ -1,11 +1,18 @@
 import { Observable, Subject } from 'rxjs';
 import { EventTopicEnum } from '../enums';
-import { IEditorContext } from './i-editor-context';
-import { IEventManager } from './i-event-manager';
+import { IEditorContext } from './editor-manager';
 
 export interface IEventMessage {
   topic: string | EventTopicEnum;
   data?: any;
+}
+
+export interface IEventManager {
+
+  get message(): Observable<IEventMessage>;
+
+  emit(topic: string | EventTopicEnum, data?: any): void;
+
 }
 
 export class EventManager implements IEventManager{

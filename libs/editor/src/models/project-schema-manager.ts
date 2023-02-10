@@ -1,12 +1,17 @@
 import { IProjectSchema } from '@lowcode-engine/core';
 import { generateDesignState, nestComponentTree } from '../store';
-import { IEditorContext } from './i-editor-context';
+import { IEditorContext } from './editor-manager';
 import { getSnapshot, IDisposer, onAction } from 'mobx-state-tree';
-import { IProjectManager } from './i-project-manager';
 import * as _ from 'lodash';
 
 const listenPaths = ['/configurationStore', '/treeStore'];
 const listenActions = ['setState'];
+
+export interface IProjectManager {
+  import(schema: IProjectSchema): void;
+  export(): IProjectSchema;
+  monitorSchema(onChange: (schema: IProjectSchema) => void): IDisposer;
+}
 
 export class ProjectSchemaManager implements IProjectManager {
 
