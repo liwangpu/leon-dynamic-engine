@@ -13,6 +13,8 @@ export interface IBaseSetter {
   name: string;
   required?: boolean;
   help?: string;
+  // 开发不需自己设置,表单渲染引擎会自己设置
+  key?: string;
 }
 
 export interface IStringSetter extends IBaseSetter {
@@ -44,11 +46,15 @@ export interface ISetterGroup {
   setter: SetterType.setterGroup;
   title: string;
   children?: Array<ISetter>;
+  // 开发不需自己设置,表单渲染引擎会自己设置
+  key?: string;
 }
 
 export interface ISetterTab {
   title: string;
   children?: Array<ISetterGroup | ISetter>;
+  // 开发不需自己设置,表单渲染引擎会自己设置
+  key?: string;
 }
 
 export interface ISetterMetadata {

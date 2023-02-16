@@ -1,7 +1,11 @@
-import * as shortid from 'shortid';
+import { customAlphabet } from 'nanoid/non-secure';
 
-(shortid as any).characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$');
+const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 8);
 
-export function GenerateShortId(): string {
-  return `_${(shortid as any).generate()}`.replace(/-/g, '_').replace(/\$/g, '_');
+export function GenerateShortId(prefix?: string, size = 8): string {
+  return `${prefix || ''}_${nanoid(size)}`;
+}
+
+export function GenerateComponentId(type: string): string {
+  return `${type.toUpperCase()}_${nanoid(8)}`;
 }

@@ -24,6 +24,7 @@ const ConfigurationPanel: React.FC<IComponentConfigurationPanelProps> = memo(pro
     if (!md) {
       md = MetadataRegedit.getMetadata({ type: setterContext.type })
     }
+    // console.log(`metadata:`, JSON.stringify(md));
     return md;
   }, [setterContext]);
 
@@ -34,7 +35,7 @@ const ConfigurationPanel: React.FC<IComponentConfigurationPanelProps> = memo(pro
   return (
     <div className='component-configuration-panel'>
       <Form
-        className='editor-conf-form'
+        className='editor-configure-form'
         layout='vertical'
         form={form}
         initialValues={conf}
@@ -60,8 +61,8 @@ const TabsRenderer: React.FC<{ tabs: Array<ISetterTab> }> = memo(({ tabs }) => {
       children: (
         <>
           {t.children && (
-            t.children.map((it, idx) => (
-              <SetterPanelRenderer config={it} key={idx} />
+            t.children.map(it => (
+              <SetterPanelRenderer config={it} key={it.key} />
             ))
           )}
         </>
@@ -89,8 +90,8 @@ const SetterPanelRenderer: React.FC<{ config: ISetter | ISetterGroup }> = memo((
       <div className='configuration-setter-group'>
         <p className='configuration-setter-group__title'>{config.title}</p>
         <div className='configuration-setter-group__content'>
-          {config.children.map((c, idx) => (
-            <SetterPanelRenderer config={c} key={idx} />
+          {config.children.map(c => (
+            <SetterPanelRenderer config={c} key={c.key} />
           ))}
         </div>
       </div>

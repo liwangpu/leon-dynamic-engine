@@ -31,7 +31,7 @@
     "mobx-state-tree": "^5.1.7",
     "remotedev": "^0.2.9",
     "rxjs": "^7.5.7",
-    "shortid": "^2.2.16",
+    "nanoid": "^4.0.1",
     "sortablejs": "^1.15.0",
     "subsink": "^1.0.2"
   },

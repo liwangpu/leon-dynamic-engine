@@ -7,7 +7,7 @@ import { ComponentTypes } from '@lowcode-engine/primary-component-package';
 import { StoreContext } from '../../contexts';
 import { IBusinessIModel } from '../../models';
 import { useParams } from 'react-router-dom';
-import { GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
+import { GenerateComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
 import { getSnapshot } from 'mobx-state-tree';
 
 enum LayoutType {
@@ -221,12 +221,12 @@ async function generatePageConfiguration(formValue: IFormValue, models: Array<IB
     case LayoutType.list:
       conf.children = [
         {
-          id: GenerateShortId(),
+          id: GenerateComponentId(ComponentTypes.table),
           type: ComponentTypes.table,
           title: '列表',
           columns: businessModel.fields.map(f => ({
-            id: GenerateShortId(),
-            type: 'text',
+            id: GenerateComponentId(ComponentTypes.text),
+            type: ComponentTypes.text,
             title: f.title
           }))
         }
@@ -235,12 +235,12 @@ async function generatePageConfiguration(formValue: IFormValue, models: Array<IB
     case LayoutType.form:
       conf.children = [
         {
-          id: GenerateShortId(),
+          id: GenerateComponentId(ComponentTypes.block),
           type: ComponentTypes.block,
           title: '基础信息',
           children: businessModel.fields.map(f => ({
-            id: GenerateShortId(),
-            type: 'text',
+            id: GenerateComponentId(ComponentTypes.text),
+            type: ComponentTypes.text,
             title: f.title
           }))
         }

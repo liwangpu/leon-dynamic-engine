@@ -1,4 +1,4 @@
-import { ComponentDiscoveryContext, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
+import { ComponentDiscoveryContext, GenerateComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo } from 'react';
 import Sortable from 'sortablejs';
@@ -233,7 +233,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
               const getMatchedSlotProperties = slot.getMatchedSlotProperties(conf.type);
               const container2SlotProperty = dom.getSlotDomProperty(evt.to);
               if (!getMatchedSlotProperties.some(p => p === container2SlotProperty)) { return; }
-              conf.id = GenerateShortId();
+              conf.id = GenerateComponentId(conf.type);
               // 新增的组件可能会有插槽组件数据,这里需要解析一下插槽配置
               const addComponent = async (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {
                 const slotProperties = slot.getSlotProperties(subConf.type);
