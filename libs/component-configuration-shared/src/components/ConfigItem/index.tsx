@@ -1,7 +1,4 @@
 import styles from './index.module.less';
-import { Button as AntdButton, Form, Input } from 'antd';
-import { memo } from 'react';
-import { IComponentConfigurationPanelProps } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 
 export type ConfigItemProps = {
@@ -9,7 +6,7 @@ export type ConfigItemProps = {
   children?: React.ReactNode;
 };
 
-export const ConfigItem: React.FC<ConfigItemProps> = memo(observer(props => {
+export const ConfigItem: React.FC<ConfigItemProps> = observer(props => {
   return (
     <div className={styles['config-item']}>
       {props.title && (
@@ -22,5 +19,5 @@ export const ConfigItem: React.FC<ConfigItemProps> = memo(observer(props => {
       )}
     </div >
   );
-}));
+});
 

@@ -2,7 +2,7 @@ import { IComponentConfiguration } from '@lowcode-engine/core';
 import React, { ComponentType, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './index.module.less';
 import { Empty } from 'antd';
-import { ComponentSettingItemContext, EditorContext, ISettingItemContext } from '../../contexts';
+import { ComponentSetterPanelContext, EditorContext, ISetterPanelContext } from '../../contexts';
 import { observer } from 'mobx-react-lite';
 import * as _ from 'lodash';
 import classnames from 'classnames';
@@ -66,10 +66,10 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
     const parentType = store.treeStore.selectParentComponentType(props.componentId);
     const parentSlotProperty = store.treeStore.selectParentSlotProperty(props.componentId);
     const settingItemCxt = useMemo(() => {
-      let ctx: ISettingItemContext = {
+      let ctx: ISetterPanelContext = {
         type: configuration.type,
         parentType,
-        slotProperty: parentSlotProperty
+        slot: parentSlotProperty
       };
       return ctx;
     }, [configuration.type, parentType, parentSlotProperty]);
@@ -82,9 +82,9 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
     }, [valueChange]);
 
     return (
-      <ComponentSettingItemContext.Provider value={settingItemCxt}>
+      <ComponentSetterPanelContext.Provider value={settingItemCxt}>
         <ComponentSettingPanel value={configuration} parentType={parentType} onChange={onValueChange} />
-      </ComponentSettingItemContext.Provider>
+      </ComponentSetterPanelContext.Provider>
     );
   }));
 

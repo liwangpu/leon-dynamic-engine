@@ -4,6 +4,7 @@ import React, { memo, useMemo } from 'react';
 import classnames from 'classnames';
 import { ITableComponentConfiguration } from '../../models';
 import styles from './index.module.less';
+import { TableFeature } from '../../enums';
 
 const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = memo(observer(props => {
 
@@ -12,14 +13,23 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
   const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
   const CustomRenderDynamicComponent = dynamicEngine.getCustomComponentRenderFactory();
 
+  const features = useMemo(() => {
+    const s = new Set<TableFeature>(conf.features || []);
+    return {
+      enableOperator: s.has(TableFeature.operationColumn),
+      enableSerialNumberColumn: s.has(TableFeature.serialNumberColumn),
+      enablePagination: s.has(TableFeature.pagination)
+    };
+  }, [conf.features]);
+
   const Operators = useMemo(() => {
     if (!conf.operators || !conf.operators.length) { return null; }
     return conf.operators.map(c => (<DynamicComponent key={c.id} configuration={c} />))
   }, [conf.operators]);
 
   const OperatorColumn = useMemo(() => {
+    if (!features.enableOperator) { return null; }
     if (!conf.operatorColumn || !conf.operatorColumn.length) { return null; }
-    if (!conf.enableOperator) { return null; }
     return conf.operatorColumn.map(c => (<DynamicComponent key={c.id} configuration={c} />))
   }, [conf.operatorColumn]);
 
@@ -47,7 +57,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
         </div>
       </div>
       <div className={styles['table__content']}>
-        {conf.lineNumber && (
+        {features.enableSerialNumberColumn && (
           <div className={classnames(
             styles['custom-column'],
             styles['custom-column--line-number']
@@ -67,7 +77,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
         <div className={styles['columns']} data-dynamic-component-container='columns' data-dynamic-container-direction='horizontal' data-dynamic-container-owner={conf.id}>
           {Columns}
         </div>
-        {conf.enableOperator && (
+        {features.enableOperator  && (
           <div className={styles['custom-column']}>
             <div className={classnames(
               styles['col'],

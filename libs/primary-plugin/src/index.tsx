@@ -1,6 +1,6 @@
 import { IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
 import ComponentGallery, { ComponentGroup } from './components/ComponentGallery';
-import { AppstoreOutlined, CodeOutlined, DeploymentUnitOutlined } from '@ant-design/icons';
+import { DeploymentUnitOutlined, AppstoreFilled, CodeFilled } from '@ant-design/icons';
 import ModelGallery, { IModelFieldNode } from './components/ModelGallery';
 import { IComponentConfiguration } from '@lowcode-engine/core';
 import SchemaViewer from './components/SchemaViewer';
@@ -38,7 +38,7 @@ export function ComponentGalleryPluginRegister(componentGroups: Array<{ title: s
         skeleton.add({
           title: '组件',
           area: SkeletonAreaEnum.leftArea,
-          icon: <AppstoreOutlined />,
+          icon: <AppstoreFilled />,
           content: <ComponentGallery groups={groups} event={event} />
         });
       },
@@ -56,7 +56,7 @@ export function SchemaViewerPluginRegister(): IPluginRegister {
         skeleton.add({
           title: '元数据',
           area: SkeletonAreaEnum.leftArea,
-          icon: <CodeOutlined />,
+          icon: <CodeFilled />,
           content: <SchemaViewer project={project} event={event} />
         });
       },

@@ -2,7 +2,7 @@ export * from './components/Editor';
 export * from './enums/skeleton-area';
 export * from './enums/event-topic';
 export * from './contexts/data-store-collocation';
-export * from './contexts/component-setting-item';
+export * from './contexts/component-setter-panel';
 export type { IEventMessage, IEventManager } from './models/event-manager';
 export type { IPlugin, PluginRegisterContext, IPluginRegister } from './models/plugin';
 export type { IProjectManager } from './models/project-schema-manager';

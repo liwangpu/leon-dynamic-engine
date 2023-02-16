@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
 import { observer } from 'mobx-react-lite';
-import { ComponentSettingItemContext } from '@lowcode-engine/editor';
+import { ComponentSetterPanelContext } from '@lowcode-engine/editor';
 import * as _ from 'lodash';
 
 export const ComponentContextSelector: React.FC<{ parent: string | Array<string>, slotProperty?: string, children?: React.ReactElement }> = observer(props => {
   if (!props.parent) { return null; }
-  const ctx = useContext(ComponentSettingItemContext);
+  const ctx = useContext(ComponentSetterPanelContext);
   let parentMatched = false;
 
   if (_.isArray(parent)) {
@@ -16,7 +16,7 @@ export const ComponentContextSelector: React.FC<{ parent: string | Array<string>
 
   let slotMatched = true;
   if (props.slotProperty) {
-    slotMatched = ctx.slotProperty === props.slotProperty;
+    slotMatched = ctx.slot=== props.slotProperty;
   }
   return (
     <>

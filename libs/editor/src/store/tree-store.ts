@@ -70,9 +70,6 @@ export const TreeStore = types.model({
       parentTree.updateSlot(slotProperty, newSlotComponentIds);
       tree.parentId = parentId;
       tree.slotProperty = slotProperty;
-      // componentTrees.set(tree.id, tree);
-      // componentTrees.set(originParent.id, originParent);
-      // componentTrees.set(parentTree.id, parentTree);
     }
   }));
 

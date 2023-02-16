@@ -86,7 +86,7 @@ const ModelGallery: React.FC<IModelGalleryProps> = memo(observer(props => {
             treeData={props.fieldNodes as any}
             titleRender={nodeData => (
               <div className='business-field-item' ref={e => registerFieldRef(nodeData.key as string, e)}>
-                <div className='' title={nodeData.title as string} data-field-key={nodeData.key} >
+                <div  title={nodeData.title as string} data-field-key={nodeData.key} >
                   <span>{nodeData.title as any}</span>
                   <div className='dragdrop-placeholder-flag'></div>
                 </div>

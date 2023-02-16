@@ -177,7 +177,7 @@ const PageEditor: React.FC = memo(() => {
           title: '按钮',
           components: [
             ComponentTypes.button,
-            ComponentTypes.buttonGroup
+            // ComponentTypes.buttonGroup
           ]
         }
       ]),
@@ -228,7 +228,7 @@ const PageEditor: React.FC = memo(() => {
         return conf;
       }),
       // schema源码插件
-      SchemaViewerPluginRegister(),
+      // SchemaViewerPluginRegister(),
       // 页面返回按钮注册插件
       (function pageReturnPluginRegistry({ skeleton }) {
         return {

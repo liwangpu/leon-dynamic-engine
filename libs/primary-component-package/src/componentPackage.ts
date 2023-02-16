@@ -1,11 +1,13 @@
 import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from '@lowcode-engine/core';
+import ConfigurationPanel from './configurations/ConfigurationPanel';
 import { ComponentTypes } from './enums';
 
 export class ComponentPackage implements IComponentPackage {
 
   name = 'PrimaryComponentPackage';
-  protected static instance: ComponentPackage;
-  protected constructor() {
+  private static instance: ComponentPackage;
+  private loadConfigurationCommonStyle = false;
+  private constructor() {
     //
   }
 
@@ -116,28 +118,7 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentConfigurationModule(type: ComponentTypes, platform: string): Promise<IConfigurationPackageModule> {
-    switch (type) {
-      case ComponentTypes.listPage:
-        return import('./configurations/ListPage');
-      case ComponentTypes.detailPage:
-        return import('./configurations/DetailPage');
-      case ComponentTypes.button:
-        return import('./configurations/Button');
-      case ComponentTypes.block:
-        return import('./configurations/Block');
-      // case ComponentTypes.tabs:
-      //   return import('./configurations/Tabs');
-      // case ComponentTypes.tab:
-      //   return import('./configurations/Tab');
-      case ComponentTypes.text:
-        return import('./configurations/Text');
-      case ComponentTypes.number:
-        return import('./configurations/Text');
-      case ComponentTypes.table:
-        return import('./configurations/Table');
-      default:
-        return null;
-    }
+    return import('./configurations/ConfigurationPanel');
   }
 
 }
