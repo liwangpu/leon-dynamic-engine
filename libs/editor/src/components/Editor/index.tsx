@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
 import * as _ from 'lodash';
@@ -16,7 +16,7 @@ export interface IEditorProps {
   plugins?: Array<IPluginRegister>;
 };
 
-export const Editor: React.FC<IEditorProps> = memo(observer(props => {
+export const Editor: React.FC<IEditorProps> = observer(props => {
 
   const [initialized, setInitialized] = useState(false);
   const collocationContext = useContext(DataStoreCollocationContext);
@@ -78,6 +78,6 @@ export const Editor: React.FC<IEditorProps> = memo(observer(props => {
       )}
     </EditorContext.Provider >
   );
-}));
+});
 
 Editor.displayName = 'Editor';

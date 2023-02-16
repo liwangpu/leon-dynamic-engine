@@ -1,6 +1,6 @@
 import styles from './index.module.less';
 import { useParams } from "react-router-dom";
-import React, { memo, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table } from 'antd';
 import { observer } from 'mobx-react-lite';
 import { IModelField, ModelRepository } from '../../models';
@@ -18,7 +18,7 @@ const columns = [
   },
 ];
 
-const BusinessModel: React.FC = memo(observer(() => {
+const BusinessModel: React.FC = observer(() => {
 
   const { businessModel } = useParams();
   const [fields, setFields] = useState<Array<IModelField>>();
@@ -35,7 +35,7 @@ const BusinessModel: React.FC = memo(observer(() => {
       {fields && <Table columns={columns} dataSource={fields} />}
     </div>
   );
-}));
+});
 
 BusinessModel.displayName = 'BusinessModel';
 

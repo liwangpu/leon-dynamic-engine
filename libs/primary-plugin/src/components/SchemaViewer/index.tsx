@@ -1,19 +1,19 @@
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { memo, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import React from 'react';
 import JSONEditor from 'jsoneditor';
 import 'jsoneditor/dist/jsoneditor.css';
 import { EventTopicEnum, IEventManager, IProjectManager } from '@lowcode-engine/editor';
 import * as _ from 'lodash';
-import { delay, distinctUntilChanged, filter, map } from 'rxjs';
+import { distinctUntilChanged, filter, map } from 'rxjs';
 
 export interface SchemaViewerProps {
   project: IProjectManager;
   event: IEventManager;
 }
 
-const SchemaViewer: React.FC<SchemaViewerProps> = memo(observer(props => {
+const SchemaViewer: React.FC<SchemaViewerProps> = observer(props => {
 
   const container = useRef<HTMLDivElement>();
   const jsoneditor = useRef<any>();
@@ -73,7 +73,7 @@ const SchemaViewer: React.FC<SchemaViewerProps> = memo(observer(props => {
   return (
     <div className={styles['schema-viewer']} ref={container} />
   );
-}));
+});
 
 SchemaViewer.displayName = 'SchemaViewer';
 

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { INavigationBackContext, NavigationBackContext } from '@lowcode-engine/p
 import { Button } from 'antd';
 import { ArrowLeftOutlined, EditOutlined } from '@ant-design/icons';
 
-const PagePreview: React.FC = memo(observer(() => {
+const PagePreview: React.FC = observer(() => {
 
   const navigate = useNavigate();
   const { pageId, businessModel } = useParams();
@@ -44,7 +44,7 @@ const PagePreview: React.FC = memo(observer(() => {
       </NavigationBackContext.Provider>
     </div>
   );
-}));
+});
 
 PagePreview.displayName = 'PagePreview';
 

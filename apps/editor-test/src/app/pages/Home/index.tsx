@@ -6,7 +6,7 @@ import { SettingOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Button, Dropdown } from 'antd';
 
-const Home: React.FC = memo(observer(() => {
+const Home: React.FC = memo(() => {
   const navigate = useNavigate();
 
   const gotoBusinessDetail = useCallback((businessModel: string) => {
@@ -64,7 +64,7 @@ const Home: React.FC = memo(observer(() => {
       </div>
     </div>
   );
-}));
+});
 
 Home.displayName = 'Home';
 

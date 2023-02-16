@@ -1,6 +1,6 @@
 import styles from './index.module.scss';
 import { observer } from 'mobx-react-lite';
-import { memo, useMemo } from 'react';
+import { useMemo } from 'react';
 import classnames from 'classnames';
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
@@ -15,7 +15,7 @@ export interface IPageOperationProps {
   routes: Array<INavItem>;
 };
 
-const SimpleNavsPage: React.FC<IPageOperationProps> = memo(observer(props => {
+const SimpleNavsPage: React.FC<IPageOperationProps> = observer(props => {
 
   const RouterLinks = useMemo(() => {
     if (!props.routes) { return; }
@@ -48,7 +48,7 @@ const SimpleNavsPage: React.FC<IPageOperationProps> = memo(observer(props => {
       </div>
     </div>
   );
-}));
+});
 
 SimpleNavsPage.displayName = 'SimpleNavsPage';
 

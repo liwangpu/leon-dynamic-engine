@@ -6,7 +6,7 @@ import React from 'react';
 import classnames from 'classnames';
 import { EventTopicEnum, SkeletonAreaEnum } from '../../enums';
 
-const PluginPanel: React.FC = memo(observer(() => {
+const PluginPanel: React.FC = observer(() => {
 
   const { skeleton, event } = useContext(EditorContext);
   const skeletonGroupOfLeftArea = skeleton.skeletonGroup[SkeletonAreaEnum.leftArea];
@@ -95,7 +95,7 @@ const PluginPanel: React.FC = memo(observer(() => {
       </div>
     </div>
   );
-}));
+});
 
 PluginPanel.displayName = 'PluginPanel';
 

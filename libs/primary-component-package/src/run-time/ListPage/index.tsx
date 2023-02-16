@@ -1,11 +1,10 @@
 import styles from './index.module.less';
 import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { memo, useMemo } from 'react';
-import { observer } from 'mobx-react-lite';
 import { useNavigationBack } from '../../hooks';
 import { IPageComponentConfiguration } from '../../models';
 
-const ListPage: React.FC<IDynamicComponentProps<IPageComponentConfiguration>> = memo(observer(props => {
+const ListPage: React.FC<IDynamicComponentProps<IPageComponentConfiguration>> = memo(props => {
 
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
@@ -38,7 +37,7 @@ const ListPage: React.FC<IDynamicComponentProps<IPageComponentConfiguration>> = 
       </div>
     </div>
   );
-}));
+});
 
 ListPage.displayName = 'ListPage';
 

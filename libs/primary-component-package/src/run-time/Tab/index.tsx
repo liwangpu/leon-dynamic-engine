@@ -1,9 +1,8 @@
 import styles from './index.module.less';
 import React, { memo } from 'react';
 import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
-import { observer } from 'mobx-react-lite';
 
-const Tab: React.FC<IDynamicComponentProps> = memo(observer(props => {
+const Tab: React.FC<IDynamicComponentProps> = memo(props => {
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
   // const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
@@ -19,7 +18,7 @@ const Tab: React.FC<IDynamicComponentProps> = memo(observer(props => {
       </div>
     </div>
   );
-}));
+});
 
 Tab.displayName = 'Tab';
 

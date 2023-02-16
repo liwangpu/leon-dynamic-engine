@@ -1,14 +1,14 @@
 import styles from './index.module.less';
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Tabs } from 'antd';
 import { observer } from 'mobx-react-lite';
 import PageManagement from '../../components/PageManagement';
 import BusinessModel from '../../components/BusinessModel';
 import { ModelRepository } from '../../models';
 
-const BusinessDetail: React.FC = memo(observer(() => {
+const BusinessDetail: React.FC = observer(() => {
 
   const navigate = useNavigate();
   const { businessModel } = useParams();
@@ -54,7 +54,7 @@ const BusinessDetail: React.FC = memo(observer(() => {
       </div>
     </div>
   );
-}));
+});
 
 BusinessDetail.displayName = 'BusinessDetail';
 

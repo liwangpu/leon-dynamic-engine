@@ -63,8 +63,9 @@ export const ConfigurationStore = types.model({
     }
   }))
   .actions(self => ({
-    updateComponentConfiguration: (config: IComponentConfiguration) => {
+    updateComponentConfiguration: (config: IComponentConfiguration) => { 
       let conf = self.configurations.get(config.id);
+      // debugger;
       if (!conf) {
         self.configurations.set(config.id, { id: config.id, type: config.type, title: config.title });
         conf = self.configurations.get(config.id);

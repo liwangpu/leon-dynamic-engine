@@ -1,7 +1,7 @@
 import styles from './index.module.less';
 import { useNavigate, useParams } from "react-router-dom";
 import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import React, { memo, useCallback, useContext, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { Button, Input, Modal } from 'antd';
 import { StoreContext } from '../../contexts';
 import { observer } from 'mobx-react-lite';
@@ -22,7 +22,7 @@ const PageGroupInfos = [
   },
 ];
 
-const PageManagement: React.FC = memo(observer(() => {
+const PageManagement: React.FC = observer(() => {
 
   const navigate = useNavigate();
   const { businessModel } = useParams();
@@ -132,7 +132,7 @@ const PageManagement: React.FC = memo(observer(() => {
       </div>
     </div>
   );
-}));
+});
 
 PageManagement.displayName = 'PageManagement';
 

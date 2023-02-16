@@ -1,9 +1,8 @@
 import { Button as AntdButton } from 'antd';
 import React, { memo } from 'react';
 import { IComponentMetadata, IDynamicComponentProps } from '@lowcode-engine/core';
-import { observer } from 'mobx-react-lite';
 
-const Button: React.FC<IDynamicComponentProps> = memo(observer(props => {
+const Button: React.FC<IDynamicComponentProps> = memo(props => {
   const config = props.configuration;
   // const eventDispatch = useEventDispatch(config.id);
   const buttonClick = (e: React.MouseEvent) => {
@@ -14,7 +13,7 @@ const Button: React.FC<IDynamicComponentProps> = memo(observer(props => {
   return (
     <AntdButton type="primary" onClick={buttonClick}>{config?.title}</AntdButton>
   );
-}));
+});
 
 const componentMetadata: IComponentMetadata = {
   events: [

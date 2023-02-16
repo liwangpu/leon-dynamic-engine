@@ -1,11 +1,9 @@
 import styles from './index.module.less';
-import { Button as AntdButton } from 'antd';
-import React, { memo, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
-import { useNavigationBack } from '../../hooks';
 
-const ButtonGroup: React.FC<IDynamicComponentProps> = memo(observer(props => {
+const ButtonGroup: React.FC<IDynamicComponentProps> = observer(props => {
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
   const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
@@ -21,7 +19,7 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(observer(props => {
       </div>
     </div>
   );
-}));
+});
 
 ButtonGroup.displayName = 'ButtonGroup';
 

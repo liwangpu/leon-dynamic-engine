@@ -1,6 +1,5 @@
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { memo } from 'react';
 import React from 'react';
 import { DownOutlined } from '@ant-design/icons';
 import { Tree } from 'antd';
@@ -23,7 +22,7 @@ export interface IModelGalleryProps {
   configurationTransfer: (key: string) => Promise<IComponentConfiguration>;
 }
 
-const ModelGallery: React.FC<IModelGalleryProps> = memo(observer(props => {
+const ModelGallery: React.FC<IModelGalleryProps> = observer(props => {
 
   const fieldNodeMap = useMemo(() => (new Map<string, HTMLDivElement>()), []);
 
@@ -97,7 +96,7 @@ const ModelGallery: React.FC<IModelGalleryProps> = memo(observer(props => {
       </div>
     </div>
   );
-}));
+});
 
 ModelGallery.displayName = 'ModelGallery';
 

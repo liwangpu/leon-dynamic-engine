@@ -1,6 +1,6 @@
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { memo, useCallback } from 'react';
+import { useCallback } from 'react';
 import React from 'react';
 import { IProjectManager } from '@lowcode-engine/editor';
 import { PageRepository } from '../../models';
@@ -13,7 +13,7 @@ export type PageOperationProps = {
   project: IProjectManager
 };
 
-const PageEditorOperation: React.FC<PageOperationProps> = memo(observer(props => {
+const PageEditorOperation: React.FC<PageOperationProps> = observer(props => {
 
   const navigate = useNavigate();
   const { pageId, businessModel } = useParams();
@@ -58,7 +58,7 @@ const PageEditorOperation: React.FC<PageOperationProps> = memo(observer(props =>
       <Button type="primary" icon={<ClearOutlined />} onClick={saveSchema} >保存</Button>
     </div>
   );
-}));
+});
 
 PageEditorOperation.displayName = 'PageEditorOperation';
 

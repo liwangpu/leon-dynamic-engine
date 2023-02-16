@@ -25,7 +25,7 @@ const componentFactory: IDynamicComponentFactory = {
   }
 };
 
-const PagePresentation: React.FC = memo(observer(() => {
+const PagePresentation: React.FC = observer(() => {
 
   const { event, dom, slot } = useContext(EditorContext);
   const presentationUtil = useMemo(() => new PagePresentationUtilContextProvider(), []);
@@ -142,18 +142,18 @@ const PagePresentation: React.FC = memo(observer(() => {
       </DynamicComponentFactoryContext.Provider>
     </div>
   );
-}));
+});
 
 PagePresentation.displayName = 'PagePresentation';
 
-const RendererImplement: React.FC = memo(observer(() => {
+const RendererImplement: React.FC = observer(() => {
   const { store } = useContext(EditorContext);
   const schema = store.configurationStore.selectComponentConfigurationWithoutChildren(store.interactionStore.pageComponentId);
 
   return (
     <_Renderer schema={schema} />
   );
-}));
+});
 
 RendererImplement.displayName = 'RendererImplement';
 

@@ -2,10 +2,9 @@ import styles from './index.module.less';
 import { Tabs as AntdTabs } from 'antd';
 import React, { memo, useMemo } from 'react';
 import { GenerateShortId, IComponentConfigurationProvider, IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
-import { observer } from 'mobx-react-lite';
 import { ITabsComponentConfiguration } from '../../models';
 
-const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo(observer(props => {
+const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo(props => {
   const configuration = props.configuration;
   console.log(`tabs conf:`, configuration);
   // console.log(`render tabs:`,);
@@ -26,7 +25,7 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
       <AntdTabs className='tabs-component' items={tabItems} onTabClick={onTabClick as any} />
     </div>
   );
-}));
+});
 
 Tabs.displayName = 'Tabs';
 

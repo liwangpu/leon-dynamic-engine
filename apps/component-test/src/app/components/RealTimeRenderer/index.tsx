@@ -1,5 +1,5 @@
 import styles from './index.module.less';
-import React, { memo, useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Renderer } from '@lowcode-engine/renderer';
 import { ComponentPackageContext } from '../../contexts';
@@ -13,7 +13,7 @@ export interface IRealTimeRendererProps {
   onChange: (val: { [key: string]: any }) => void;
 }
 
-const RealTimeRenderer: React.FC<IRealTimeRendererProps> = memo(observer(props => {
+const RealTimeRenderer: React.FC<IRealTimeRendererProps> = observer(props => {
 
   const packages = useContext(ComponentPackageContext);
   const container = useRef<HTMLDivElement>();
@@ -59,7 +59,7 @@ const RealTimeRenderer: React.FC<IRealTimeRendererProps> = memo(observer(props =
       </div>
     </div>
   );
-}));
+});
 
 RealTimeRenderer.displayName = 'RealTimeRenderer';
 

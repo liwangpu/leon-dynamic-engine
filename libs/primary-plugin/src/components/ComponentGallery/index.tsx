@@ -1,6 +1,6 @@
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import React from 'react';
 import Sortable from 'sortablejs';
 import classnames from 'classnames';
@@ -18,7 +18,7 @@ export interface OptionalComponentPanelProps {
   groups: Array<ComponentGroup>;
 }
 
-const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(observer(props => {
+const ComponentGallery: React.FC<OptionalComponentPanelProps> = observer(props => {
 
   const [componentGroupFoldedState, setComponentGroupFoldedState] = useState<{ [key: string]: boolean }>({});
   const optionalGroupContainerEl = useRef(null);
@@ -113,7 +113,7 @@ const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(observer(pr
       </div>
     </div>
   );
-}));
+});
 
 ComponentGallery.displayName = 'ComponentGallery';
 

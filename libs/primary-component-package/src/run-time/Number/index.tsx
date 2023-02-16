@@ -1,11 +1,10 @@
 import { IDynamicComponentProps } from '@lowcode-engine/core';
 import { InputNumber } from 'antd';
-import { observer } from 'mobx-react-lite';
 import React, { memo } from 'react';
 import { ITextComponentConfiguration } from '../../models';
 import styles from './index.module.less';
 
-const Number: React.FC<IDynamicComponentProps<ITextComponentConfiguration>> = memo(observer(props => {
+const Number: React.FC<IDynamicComponentProps<ITextComponentConfiguration>> = memo(props => {
 
   const conf = props.configuration;
 
@@ -20,7 +19,7 @@ const Number: React.FC<IDynamicComponentProps<ITextComponentConfiguration>> = me
       <InputNumber className={styles['item__input']} placeholder={conf.placeholder || '请输入数值'} value={props.value} onChange={onChange} />
     </div>
   );
-}));
+});
 
 Number.displayName = 'Number';
 

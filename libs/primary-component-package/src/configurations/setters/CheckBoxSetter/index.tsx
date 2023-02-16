@@ -10,7 +10,7 @@ const Setter: React.FC<ICheckBoxSetter> = memo(props => {
     <Form.Item
       label={label}
       name={name}
-      rules={[{ required: required, message: help }]}
+      rules={[{ required, message: help }]}
     >
       <Checkbox.Group options={data} />
     </Form.Item>

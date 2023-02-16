@@ -6,12 +6,13 @@ import { ComponentSetterPanelContext, EditorContext, ISetterPanelContext } from 
 import { observer } from 'mobx-react-lite';
 import * as _ from 'lodash';
 import classnames from 'classnames';
+import { getSnapshot } from 'mobx-state-tree';
 
 export interface DynamicComponentSettingPanelProps {
   componentId: string;
 };
 
-const DynamicComponentSettingPanel: React.FC<DynamicComponentSettingPanelProps> = memo(observer(props => {
+const DynamicComponentSettingPanel: React.FC<DynamicComponentSettingPanelProps> = observer(props => {
 
   const [panelLoaded, setPanelLoaded] = useState(false);
   const [unRegistryConfigPanel, setUnRegistryConfigPanel] = useState(false);
@@ -47,7 +48,7 @@ const DynamicComponentSettingPanel: React.FC<DynamicComponentSettingPanelProps> 
       </div>}
     </div >
   );
-}));
+});
 
 DynamicComponentSettingPanel.displayName = 'DynamicComponentSettingPanel';
 
@@ -59,7 +60,7 @@ interface PanelWrapperProps {
 // 配置面板容器
 const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => {
 
-  const Wrapper: React.FC<PanelWrapperProps> = memo(observer(props => {
+  const Wrapper: React.FC<PanelWrapperProps> = observer(props => {
 
     const { store } = useContext(EditorContext);
     const configuration = store.configurationStore.selectComponentConfigurationWithoutChildren(props.componentId); // 不包含插槽等属性
@@ -86,7 +87,7 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
         <ComponentSettingPanel value={configuration} parentType={parentType} onChange={onValueChange} />
       </ComponentSetterPanelContext.Provider>
     );
-  }));
+  });
 
   return Wrapper;
 };

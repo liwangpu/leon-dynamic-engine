@@ -1,11 +1,10 @@
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { memo } from 'react';
 import React from 'react';
 import { SkeletonAreaEnum } from '../../enums';
 import { useAreaSkeleton } from '../../hooks';
 
-const Banner: React.FC = memo(observer(() => {
+const Banner: React.FC = observer(() => {
 
   const { areaSkeleton: LeftAreaSkeleton } = useAreaSkeleton(SkeletonAreaEnum.topLeftArea);
   const { areaSkeleton: MiddleAreaSkeleton } = useAreaSkeleton(SkeletonAreaEnum.topMiddleArea);
@@ -24,7 +23,7 @@ const Banner: React.FC = memo(observer(() => {
       </div>
     </div>
   );
-}));
+});
 
 Banner.displayName = 'Banner';
 

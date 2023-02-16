@@ -1,15 +1,10 @@
-/**
- * 数字输入框
- * @author Goku<xu.pan01@going-link.com>
- * @date:2022-12-09
- */
-import React, { memo } from 'react';
+import React from 'react';
 import { IDynamicComponentProps } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import { INumberComponentConfiguration } from '../../models';
 import styles from './index.module.less';
 
-const NumberField: React.FC<IDynamicComponentProps<INumberComponentConfiguration>> = memo(observer(props => {
+const NumberField: React.FC<IDynamicComponentProps<INumberComponentConfiguration>> = observer(props => {
 
   const conf = props.configuration;
 
@@ -21,7 +16,7 @@ const NumberField: React.FC<IDynamicComponentProps<INumberComponentConfiguration
       </div>
     </div>
   );
-}));
+});
 
 NumberField.displayName = 'NumberField';
 

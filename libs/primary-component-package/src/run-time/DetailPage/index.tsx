@@ -5,7 +5,7 @@ import { observer } from 'mobx-react-lite';
 import styles from './index.module.less';
 import { useNavigationBack } from '../../hooks';
 
-const DetailPage: React.FC<IDynamicComponentProps<IPageComponentConfiguration>> = memo(observer(props => {
+const DetailPage: React.FC<IDynamicComponentProps<IPageComponentConfiguration>> = memo(props => {
 
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
@@ -37,7 +37,7 @@ const DetailPage: React.FC<IDynamicComponentProps<IPageComponentConfiguration>> 
       </div>
     </div>
   );
-}));
+});
 
 DetailPage.displayName = 'DetailPage';
 

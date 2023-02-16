@@ -148,7 +148,7 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
 });
 
 
-const ComponentToolBar: React.FC = memo(observer(() => {
+const ComponentToolBar: React.FC = observer(() => {
   const { store } = useContext(EditorContext);
   const activeComponentId = store.interactionStore.activeComponentId;
 
@@ -161,6 +161,6 @@ const ComponentToolBar: React.FC = memo(observer(() => {
       <Button type="primary" icon={<DeleteOutlined />} size='small' onClick={deleteComponent} />
     </div>
   );
-}));
+});
 
 ComponentToolBar.displayName = 'ComponentToolBar';

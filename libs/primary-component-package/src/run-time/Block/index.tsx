@@ -1,11 +1,10 @@
 import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
-import { observer } from 'mobx-react-lite';
 import React, { memo, useMemo } from 'react';
 import { GRID_SYSTEM_SECTION_TOTAL } from '../../consts';
 import { IBlockComponentConfiguration } from '../../models';
 import styles from './index.module.less';
 
-const Block: React.FC<IDynamicComponentProps<IBlockComponentConfiguration>> = memo(observer(props => {
+const Block: React.FC<IDynamicComponentProps<IBlockComponentConfiguration>> = memo(props => {
 
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
@@ -32,7 +31,7 @@ const Block: React.FC<IDynamicComponentProps<IBlockComponentConfiguration>> = me
       </div>
     </div>
   );
-}));
+});
 
 Block.displayName = 'Block';
 

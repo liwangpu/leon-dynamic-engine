@@ -5,7 +5,7 @@ import { DataStoreContext } from '../../contexts';
 import * as _ from 'lodash';
 import { useComponentStyle } from '../../hooks';
 
-const DynamicComponent: React.FC<IDynamicComponentProps> = memo(observer(props => {
+const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props => {
   const conf = props.configuration;
   const compDiscovery = useContext(ComponentDiscoveryContext);
   const [componentLoaded, setComponentLoaded] = useState(false);
@@ -31,7 +31,7 @@ const DynamicComponent: React.FC<IDynamicComponentProps> = memo(observer(props =
       {componentLoaded && <Component.current {...props} />}
     </>
   );
-}));
+});
 
 DynamicComponent.displayName = 'DynamicComponent';
 
@@ -39,7 +39,7 @@ export default DynamicComponent;
 
 const EditorUIEffectWrapper = (Component: ComponentType<IDynamicComponentProps>) => {
 
-  const wrapper: React.FC<IDynamicComponentProps> = memo(observer(props => {
+  const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
     const store = useContext(DataStoreContext);
     const { setData } = useDataCenter();
     const style = useComponentStyle(props.configuration);
@@ -60,7 +60,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<IDynamicComponentProps>)
         )}
       </>
     );
-  }));
+  });
 
   return wrapper;
 };

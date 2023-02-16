@@ -1,12 +1,11 @@
 import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
-import { observer } from 'mobx-react-lite';
 import { Button, Table as AntdTable } from 'antd';
 import React, { memo, useMemo } from 'react';
 import { ITableComponentConfiguration } from '../../models';
 import { faker } from '@faker-js/faker';
 import styles from './index.module.less';
 
-const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = memo(observer(props => {
+const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = memo(props => {
 
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
@@ -64,7 +63,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
       <AntdTable columns={columns} dataSource={dataSource} />
     </div>
   );
-}));
+});
 
 Table.displayName = 'Table';
 

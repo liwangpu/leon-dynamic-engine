@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import styles from './index.module.less';
 import { Button, Form, Input, Radio, Select } from 'antd';
 import { observer } from 'mobx-react-lite';
@@ -39,7 +39,7 @@ const AllLayouts = {
   [LayoutType.form]: { layout: LayoutType.form, title: '表单' },
 };
 
-const PageDetail: React.FC<PageDetailProps> = memo(observer(props => {
+const PageDetail: React.FC<PageDetailProps> = observer(props => {
 
   const store = useContext(StoreContext);
   const [form] = Form.useForm<{ title: string }>();
@@ -202,7 +202,7 @@ const PageDetail: React.FC<PageDetailProps> = memo(observer(props => {
       </Form>
     </div>
   );
-}));
+});
 
 PageDetail.displayName = 'PageDetail';
 

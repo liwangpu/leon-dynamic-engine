@@ -8,6 +8,7 @@ import { ISetter, ISetterGroup, ISetterTab, MetadataRegedit, SetterRegedit, Sett
 import { ComponentSetterPanelContext } from '@lowcode-engine/editor';
 
 const ConfigurationPanel: React.FC<IComponentConfigurationPanelProps> = memo(props => {
+
   const conf = props.value;
   const [form] = Form.useForm();
   const setterContext = useContext(ComponentSetterPanelContext);
@@ -26,14 +27,9 @@ const ConfigurationPanel: React.FC<IComponentConfigurationPanelProps> = memo(pro
     return md;
   }, [setterContext]);
 
-  const onChange = useCallback(val => {
-    props.onChange(val)
-  }, []);
-
-  const getFormInitVal = () => {
-    // return { ...conf, height: Number.parseInt(conf.height), heightUnit: getSizeUnit(conf.height) };
-    return conf;
-  };
+  const onChange = useCallback(() => {
+    props.onChange(form.getFieldsValue());
+  }, [conf]);
 
   return (
     <div className='component-configuration-panel'>
@@ -41,7 +37,7 @@ const ConfigurationPanel: React.FC<IComponentConfigurationPanelProps> = memo(pro
         className='editor-conf-form'
         layout='vertical'
         form={form}
-        initialValues={getFormInitVal()}
+        initialValues={conf}
         onValuesChange={onChange}
       >
         {metadata && (

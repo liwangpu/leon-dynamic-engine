@@ -20,7 +20,7 @@ const Setter: React.FC<IBaseSetter> = memo(props => {
     <Form.Item
       label={label}
       name={name}
-      rules={[{ required: required, message: help }]}
+      rules={[{ required, message: help }]}
     >
       <Radio.Group className={styles['grid-section']} options={options} optionType="button" />
     </Form.Item>

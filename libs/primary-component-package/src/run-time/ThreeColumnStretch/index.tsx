@@ -1,4 +1,3 @@
-import { observer } from 'mobx-react-lite';
 import React, { memo } from 'react';
 import styles from './index.module.less';
 
@@ -15,7 +14,7 @@ export interface ThreeColumnStretch {
   rightArea?: React.ReactNode;
 }
 
-const ThreeColumnStretch: React.FC<ThreeColumnStretch> = memo(observer(props => {
+const ThreeColumnStretch: React.FC<ThreeColumnStretch> = memo(props => {
   const leftAreaSetting: IAreaSetting = props.leftAreaSetting || {};
   const rightAreaSetting: IAreaSetting = props.rightAreaSetting || {};
 
@@ -34,7 +33,7 @@ const ThreeColumnStretch: React.FC<ThreeColumnStretch> = memo(observer(props => 
       )}
     </div>
   );
-}));
+});
 
 ThreeColumnStretch.displayName = 'ThreeColumnStretch';
 

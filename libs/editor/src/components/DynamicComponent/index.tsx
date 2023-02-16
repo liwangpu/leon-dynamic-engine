@@ -1,6 +1,6 @@
 import { ComponentDiscoveryContext, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
-import React, { memo, useContext, useEffect, useRef, useState, ComponentType, useMemo } from 'react';
+import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo } from 'react';
 import Sortable from 'sortablejs';
 import { EditorContext, PagePresentationUtilContext } from '../../contexts';
 import { EventTopicEnum } from '../../enums';
@@ -12,7 +12,7 @@ export interface IDynamicComponentProps {
   configuration: IComponentConfiguration;
 }
 
-export const DynamicComponent: React.FC<IDynamicComponentProps> = memo(observer(props => {
+export const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props => {
   const conf = props.configuration;
   const compDiscovery = useContext(ComponentDiscoveryContext);
   const [componentLoaded, setComponentLoaded] = useState(false);
@@ -38,7 +38,7 @@ export const DynamicComponent: React.FC<IDynamicComponentProps> = memo(observer(
       {componentLoaded && <Component.current configuration={conf} />}
     </>
   );
-}));
+});
 
 DynamicComponent.displayName = 'DynamicComponent';
 
@@ -47,30 +47,30 @@ export interface ICustomRenderDynamicComponentProps {
   children: React.ReactNode;
 }
 
-export const DynamicComponentCustomRenderer: React.FC<ICustomRenderDynamicComponentProps> = memo(observer(props => {
+export const DynamicComponentCustomRenderer: React.FC<ICustomRenderDynamicComponentProps> = observer(props => {
 
   const Wrapper: React.FC<ICustomRenderDynamicComponentProps> = useMemo(() => EditorUIEffectWrapper(ComponentRenderWrapper(ChildrenContentWrapper)), []);
   return (
     <Wrapper configuration={props.configuration} children={props.children} />
   );
-}));
+});
 
 DynamicComponentCustomRenderer.displayName = 'DynamicComponentCustomRenderer';
 
-const ChildrenContentWrapper: React.FC<ICustomRenderDynamicComponentProps> = memo(observer(props => {
+const ChildrenContentWrapper: React.FC<ICustomRenderDynamicComponentProps> = observer(props => {
 
   return (
     <>
       {props.children}
     </>
   );
-}));
+});
 
 ChildrenContentWrapper.displayName = 'ChildrenContentWrapper';
 
 const ComponentRenderWrapper = (Component: ComponentType<any>) => {
 
-  const wrapper: React.FC<IDynamicComponentProps> = memo(observer(props => {
+  const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
     let conf = { ...props.configuration };
     const componentId = conf.id;
     const { store, slot } = useContext(EditorContext);
@@ -88,14 +88,14 @@ const ComponentRenderWrapper = (Component: ComponentType<any>) => {
     return (
       <Component configuration={conf} children={props['children']} />
     );
-  }));
+  });
 
   return wrapper;
 };
 
 const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
 
-  const wrapper: React.FC<IDynamicComponentProps> = memo(observer(props => {
+  const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
 
     const { store, dom, event, slot, configurationAddingHandler } = useContext(EditorContext);
     const pagePresentationUtil = useContext(PagePresentationUtilContext);
@@ -355,7 +355,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
         <Component configuration={props.configuration} children={props['children']} />
       </div>
     );
-  }));
+  });
 
   return wrapper;
 };

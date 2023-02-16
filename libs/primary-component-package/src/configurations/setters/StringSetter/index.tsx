@@ -9,7 +9,7 @@ const Setter: React.FC<IStringSetter> = memo(props => {
     <Form.Item
       label={label}
       name={name}
-      rules={[{ required: required, message: help }]}
+      rules={[{ required, message: help }]}
     >
       <Input />
     </Form.Item>

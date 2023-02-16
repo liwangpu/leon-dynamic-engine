@@ -16,7 +16,7 @@ export interface DynamicPageProps extends _RendererProps {
 
 const componentFactory = DynamicComponentFactoryProvider.getInstance();
 
-export const _Renderer: React.FC<_RendererProps> = memo(observer(props => {
+export const _Renderer: React.FC<_RendererProps> = observer(props => {
   const engine = useDynamicComponentEngine();
   const DynamicComponent = engine.getDynamicComponentRenderFactory();
   const validatedSchema = !!(props.schema && props.schema.id && props.schema.type);
@@ -28,11 +28,11 @@ export const _Renderer: React.FC<_RendererProps> = memo(observer(props => {
       {validatedSchema && <DynamicComponent configuration={props.schema} onChange={onChange} />}
     </>
   );
-}));
+});
 
 _Renderer.displayName = '_Renderer';
 
-export const Renderer: React.FC<DynamicPageProps> = memo(observer(props => {
+export const Renderer: React.FC<DynamicPageProps> = observer(props => {
   const componentDiscovery = useMemo(() => new ComponentDiscoveryProvider(props.packages), []);
   const collocationContext = useContext(DataStoreCollocationContext);
   const store = useMemo(() => createStore(), []);
@@ -59,6 +59,6 @@ export const Renderer: React.FC<DynamicPageProps> = memo(observer(props => {
       </DynamicComponentFactoryContext.Provider>
     </ComponentDiscoveryContext.Provider>
   );
-}));
+});
 
 Renderer.displayName = 'Renderer';

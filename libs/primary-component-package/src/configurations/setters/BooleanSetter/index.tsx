@@ -9,7 +9,7 @@ const Setter: React.FC<IBooleanSetter> = memo(props => {
     <Form.Item
       // label={label}
       name={name}
-      rules={[{ required: required, message: help }]}
+      rules={[{ required, message: help }]}
     >
       <Checkbox>{label}</Checkbox>
     </Form.Item>

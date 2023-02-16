@@ -1,12 +1,12 @@
 import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
-import React, { memo, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import classnames from 'classnames';
 import { ITableComponentConfiguration } from '../../models';
 import styles from './index.module.less';
 import { TableFeature } from '../../enums';
 
-const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = memo(observer(props => {
+const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = observer(props => {
 
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
@@ -77,7 +77,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
         <div className={styles['columns']} data-dynamic-component-container='columns' data-dynamic-container-direction='horizontal' data-dynamic-container-owner={conf.id}>
           {Columns}
         </div>
-        {features.enableOperator  && (
+        {features.enableOperator && (
           <div className={styles['custom-column']}>
             <div className={classnames(
               styles['col'],
@@ -101,7 +101,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
       </div>
     </div>
   );
-}));
+});
 
 Table.displayName = 'Table';
 

@@ -4,7 +4,7 @@ import React, { memo } from 'react';
 import { ITextComponentConfiguration } from '../../models';
 import styles from './index.module.less';
 
-const Text: React.FC<IDynamicComponentProps<ITextComponentConfiguration>> = memo(observer(props => {
+const Text: React.FC<IDynamicComponentProps<ITextComponentConfiguration>> = observer(props => {
 
   const conf = props.configuration;
   return (
@@ -15,7 +15,7 @@ const Text: React.FC<IDynamicComponentProps<ITextComponentConfiguration>> = memo
       </div>
     </div>
   );
-}));
+});
 
 Text.displayName = 'Text';
 
