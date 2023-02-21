@@ -9,7 +9,8 @@
     "build:editor-test": "nx build editor-test",
     "start": "npm run start:editor-test",
     "start:component-test": "nx serve component-test",
-    "start:editor-test": "nx serve editor-test --host=0.0.0.0"
+    "start:editor-test": "nx serve editor-test --host=0.0.0.0",
+    "test:editor": "nx test editor --watch"
   },
   "private": true,
   "dependencies": {
@@ -33,6 +34,7 @@
     "rxjs": "^7.5.7",
     "nanoid": "^4.0.1",
     "sortablejs": "^1.15.0",
+    "rc-tree": "~5.7.2",
     "subsink": "^1.0.2"
   },
   "devDependencies": {

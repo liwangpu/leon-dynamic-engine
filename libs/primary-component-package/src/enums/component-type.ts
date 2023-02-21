@@ -8,5 +8,8 @@ export enum ComponentTypes {
   tabs = 'tabs',
   tab = 'tab',
   table = 'table',
-  number = 'number'
+  tableSerialNumberColumn = 'table-serial-number-column',
+  tableOperatorColumn = 'table-operator-column',
+  pagination = 'pagination',
+  number = 'number',
 }

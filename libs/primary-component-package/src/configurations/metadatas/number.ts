@@ -4,7 +4,7 @@ import { MetadataRegedit, SetterType } from '../configureRegedit';
 // 默认配置
 MetadataRegedit.register({
   type: ComponentTypes.number
-}, {
+}, async () => ({
   tabs: [
     {
       title: '属性',
@@ -30,13 +30,13 @@ MetadataRegedit.register({
       ]
     }
   ]
-});
+}));
 
 // 区块里面的配置
 MetadataRegedit.register({
   type: ComponentTypes.number,
   parentType: ComponentTypes.block
-}, {
+}, async () => ({
   tabs: [
     {
       title: '属性',
@@ -67,14 +67,14 @@ MetadataRegedit.register({
       ]
     }
   ]
-});
+}));
 
 // 表格里面的配置
 MetadataRegedit.register({
   type: ComponentTypes.number,
   parentType: ComponentTypes.table,
   slot: 'columns'
-}, {
+}, async () => ({
   tabs: [
     {
       title: '属性',
@@ -121,4 +121,4 @@ MetadataRegedit.register({
       ]
     }
   ]
-});
+}));

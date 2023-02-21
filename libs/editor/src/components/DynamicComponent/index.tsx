@@ -80,7 +80,11 @@ const ComponentRenderWrapper = (Component: ComponentType<any>) => {
       slotProperties.forEach(property => {
         const slotComponentConfs = store.configurationStore.selectComponentFirstLayerChildren(componentId, property);
         if (slotComponentConfs?.length) {
-          conf[property] = slotComponentConfs;
+          if (slot.checkSlotSingleton(conf.type, property)) {
+            conf[property] = slotComponentConfs[0];
+          } else {
+            conf[property] = slotComponentConfs;
+          }
         }
       });
     }
@@ -240,7 +244,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
                 let pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
                 const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
                 pureConf = await configurationAddingHandler.handle(pureConf, parentConf);
-                store.treeStore.addComponent(pureConf, parentId, index, slotProperty);
+                store.addComponent(pureConf, parentId, index, slotProperty);
                 for (let sp of slotProperties) {
                   const components: Array<IComponentConfiguration> = subConf[sp] || [];
                   if (!components.length) { continue; }

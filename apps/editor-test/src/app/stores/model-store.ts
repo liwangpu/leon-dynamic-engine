@@ -1,18 +1,19 @@
+import { IBusinessModel } from '@lowcode-engine/primary-plugin';
 import { types, flow } from "mobx-state-tree";
-import { ModelRepository, IBusinessIModel } from '../models';
+import { ModelRepository } from '../models';
 
-export const BusinessModel = types.custom<IBusinessIModel, IBusinessIModel>({
+export const BusinessModel = types.custom<IBusinessModel, IBusinessModel>({
   name: 'BusinessModel',
-  fromSnapshot(value: IBusinessIModel) {
+  fromSnapshot(value: IBusinessModel) {
     return value;
   },
-  toSnapshot(value: IBusinessIModel) {
+  toSnapshot(value: IBusinessModel) {
     return value;
   },
-  isTargetType(value: IBusinessIModel): boolean {
+  isTargetType(value: IBusinessModel): boolean {
     return true;
   },
-  getValidationMessage(value: IBusinessIModel): string {
+  getValidationMessage(value: IBusinessModel): string {
     return null;
   }
 });
@@ -22,10 +23,10 @@ export const ModelStore = types.model({
 })
   .actions(self => ({
     refresh: flow(function* () {
-      const models: IBusinessIModel[] = yield ModelRepository.getInstance().query();
+      const models: IBusinessModel[] = yield ModelRepository.getInstance().query();
       self.models.clear();
       models.forEach(p => {
-        self.models.set(p.key, p);
+        self.models.set(p.id, p);
       });
     })
   }));

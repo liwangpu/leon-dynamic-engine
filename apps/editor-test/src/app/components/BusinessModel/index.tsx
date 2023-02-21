@@ -3,25 +3,26 @@ import { useParams } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
 import { Table } from 'antd';
 import { observer } from 'mobx-react-lite';
-import { IModelField, ModelRepository } from '../../models';
+import { ModelRepository } from '../../models';
+import { IBusinessField } from '@lowcode-engine/primary-plugin';
 
 const columns = [
   {
-    title: '标签',
-    dataIndex: 'key',
-    key: 'key',
+    title: '编码',
+    dataIndex: 'code',
+    key: 'code',
   },
   {
     title: '名称',
-    dataIndex: 'title',
-    key: 'title',
+    dataIndex: 'name',
+    key: 'name',
   },
 ];
 
 const BusinessModel: React.FC = observer(() => {
 
   const { businessModel } = useParams();
-  const [fields, setFields] = useState<Array<IModelField>>();
+  const [fields, setFields] = useState<Array<IBusinessField>>();
 
   useEffect(() => {
     (async () => {

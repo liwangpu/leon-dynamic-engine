@@ -1,55 +1,138 @@
-import { IComponentConfigurationPanelProps } from '@lowcode-engine/core';
+import { IComponentConfiguration, IComponentConfigurationPanelProps } from '@lowcode-engine/core';
 import { Form, Tabs } from 'antd';
 import '../style';
 import '../metadatas';
 import '../setters';
-import { memo, useCallback, useContext, useMemo } from 'react';
-import { ISetter, ISetterGroup, ISetterTab, MetadataRegedit, SetterRegedit, SetterType } from '../configureRegedit';
-import { ComponentSetterPanelContext } from '@lowcode-engine/editor';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { ISetter, ISetterGroup, ISetterMetadata, ISetterTab, MetadataRegedit, SetterRegedit, SetterType } from '../configureRegedit';
+import { ComponentSetterPanelContext, EditorContext } from '@lowcode-engine/editor';
+import * as _ from 'lodash';
+import { Subject } from 'rxjs';
+import { SubSink } from 'subsink';
+
+const recursiveSetter = (item: ISetterGroup | ISetter) => {
+  if (item.setter === SetterType.setterGroup) {
+    item.key = `SETTER_RGROUP_${item.title}`;
+    if (item.children) {
+      for (const cit of item.children) {
+        recursiveSetter(cit);
+      }
+    }
+  } else {
+    item.key = `SETTER_RGROUP_${item.name}`;
+  }
+};
+
+const generateKeyForSetterMetadata = (metadata: ISetterMetadata) => {
+  let md = _.cloneDeep(metadata);
+  if (md.tabs) {
+    for (const tab of md.tabs) {
+      tab.key = `TAB_${tab.title}`;
+      if (tab.children) {
+        for (const item of tab.children) {
+          recursiveSetter(item);
+        }
+      }
+    }
+  }
+  return md;
+};
 
 const ConfigurationPanel: React.FC<IComponentConfigurationPanelProps> = memo(props => {
 
-  const conf = props.value;
-  const [form] = Form.useForm();
+  const { value, onChange } = props;
   const setterContext = useContext(ComponentSetterPanelContext);
-  const metadata = useMemo(() => {
-    // 先找最精确匹配的设置面板,如果找不到然后逐次降低优先级
-    let md = MetadataRegedit.getMetadata(setterContext);
-    if (!md) {
-      md = MetadataRegedit.getMetadata({ type: setterContext.type, parentType: setterContext.parentType });
-    }
-    if (!md) {
-      md = MetadataRegedit.getMetadata({ type: setterContext.type, slot: setterContext.slot });
-    }
-    if (!md) {
-      md = MetadataRegedit.getMetadata({ type: setterContext.type })
-    }
-    // console.log(`metadata:`, JSON.stringify(md));
-    return md;
-  }, [setterContext]);
+  const editorContext = useContext(EditorContext);
+  const metadataRef = useRef<ISetterMetadata>();
+  const [metadataLoaded, setMetadataLoaded] = useState<boolean>(false);
 
-  const onChange = useCallback(() => {
-    props.onChange(form.getFieldsValue());
-  }, [conf]);
+  useEffect(() => {
+    setMetadataLoaded(false);
+    (async () => {
+      // 先找最精确匹配的设置面板,如果找不到然后逐次降低优先级
+      let metaGenerator = MetadataRegedit.getMetadata(setterContext);
+      if (!metaGenerator) {
+        metaGenerator = MetadataRegedit.getMetadata({ type: setterContext.type, parentType: setterContext.parentType });
+      }
+      if (!metaGenerator) {
+        metaGenerator = MetadataRegedit.getMetadata({ type: setterContext.type, slot: setterContext.slot });
+      }
+      if (!metaGenerator) {
+        metaGenerator = MetadataRegedit.getMetadata({ type: setterContext.type })
+      }
+      if (!metaGenerator) {
+        console.warn(`没有找到类型为${setterContext.type}的metadata配置`);
+        return;
+      }
+      const metadata = await metaGenerator(editorContext);
+      metadataRef.current = generateKeyForSetterMetadata(metadata);
+      // TODO: 这里渲染周期有点问题,后面需要处理
+      setTimeout(() => {
+        setMetadataLoaded(true);
+      }, 0);
+    })();
+  }, [setterContext]);
 
   return (
     <div className='component-configuration-panel'>
-      <Form
-        className='editor-configure-form'
-        layout='vertical'
-        form={form}
-        initialValues={conf}
-        onValuesChange={onChange}
-      >
-        {metadata && (
-          <TabsRenderer tabs={metadata.tabs} />
-        )}
-      </Form>
+      {metadataLoaded && (
+        <ConfigurationForm metadata={metadataRef.current} configuration={value} onChange={onChange} />
+      )}
     </div>
   );
 });
 
 ConfigurationPanel.displayName = 'ConfigurationPanel';
+
+interface IConfigurationFormProp {
+  metadata: ISetterMetadata;
+  configuration: IComponentConfiguration;
+  onChange: (conf: IComponentConfiguration) => void;
+}
+
+const ConfigurationForm: React.FC<IConfigurationFormProp> = memo(props => {
+  const { metadata, configuration, onChange } = props;
+  const [form] = Form.useForm();
+
+  const valueChangeObs = useMemo(() => new Subject<IComponentConfiguration>(), []);
+
+  const handleChange = useCallback(_.debounce(async () => {
+    let val = form.getFieldsValue();
+    valueChangeObs.next(val);
+    if (_.isFunction(metadata.onChange)) {
+      val = await metadata.onChange(val);
+    }
+    onChange(val);
+  }, 100), [metadata]);
+
+  useEffect(() => {
+    if (_.isFunction(metadata.onLoad)) {
+      metadata.onLoad(configuration, valueChangeObs);
+    }
+
+    return () => {
+      if (_.isFunction(metadata.onDestroy)) {
+        metadata.onDestroy();
+      }
+    };
+  }, [metadata]);
+
+
+
+  return (
+    <Form
+      className='editor-configure-form'
+      layout='vertical'
+      form={form}
+      initialValues={configuration}
+      onValuesChange={handleChange}
+    >
+      <TabsRenderer tabs={metadata.tabs} />
+    </Form>
+  );
+});
+
+ConfigurationForm.displayName = 'ConfigurationForm';
 
 const TabsRenderer: React.FC<{ tabs: Array<ISetterTab> }> = memo(({ tabs }) => {
 

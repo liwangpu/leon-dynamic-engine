@@ -3,7 +3,8 @@ import { makeAutoObservable } from 'mobx';
 import { SkeletonAreaEnum } from '../enums';
 
 export interface ISkeleton {
-  title: string;
+  key: string;
+  title?: string;
   area: SkeletonAreaEnum;
   icon?: React.ReactNode;
   content: React.ReactNode;
@@ -16,7 +17,7 @@ export interface ISkeletonManager {
   remove(name: string): void;
 }
 
-export class SkeletonManager implements ISkeletonManager{
+export class SkeletonManager implements ISkeletonManager {
 
   public skeletonMap = new Map<string, ISkeleton>();
   public skeletonGroup: { [name in SkeletonAreaEnum]?: Set<string> } = {};
@@ -27,19 +28,19 @@ export class SkeletonManager implements ISkeletonManager{
   }
 
   public add(st: ISkeleton) {
-    if (this.skeletonMap.has(st.title)) {
-      console.log(`name为${st.title}的skeleton已经注册过`,);
+    if (this.skeletonMap.has(st.key)) {
+      console.log(`key${st.key}的skeleton已经注册过`);
       return;
     }
     if (!st.area) {
-      console.error(`name为${st.title}的skeleton没有写明area参数`);
+      console.error(`key为${st.key}的skeleton没有写明area参数`);
       return;
     }
 
     let map = this.skeletonGroup[st.area] || new Set<string>();
-    map.add(st.title);
+    map.add(st.key);
     this.skeletonGroup[st.area] = map;
-    this.skeletonMap.set(st.title, st);
+    this.skeletonMap.set(st.key, st);
   }
 
   public remove(name: string): void {

@@ -1,3 +1,7 @@
+import { IComponentConfiguration } from '@lowcode-engine/core';
+import { IEditorContext } from '@lowcode-engine/editor';
+import { Observable } from 'rxjs';
+
 export enum SetterType {
   setterGroup = 'setterGroup',
   stringSetter = 'stringSetter',
@@ -23,6 +27,9 @@ export interface IStringSetter extends IBaseSetter {
 
 export interface INumberSetter extends IBaseSetter {
   setter: SetterType.numberSetter;
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 export interface IBooleanSetter extends IBaseSetter {
@@ -59,4 +66,11 @@ export interface ISetterTab {
 
 export interface ISetterMetadata {
   tabs: Array<ISetterTab>;
+  onLoad?: (config: IComponentConfiguration, valueChange$: Observable<IComponentConfiguration>) => Promise<void>;
+  onDestroy?: () => Promise<void>;
+  onChange?: (config: IComponentConfiguration) => Promise<IComponentConfiguration>;
+}
+
+export interface ISetterMetadataGenerator {
+  (editorContext: IEditorContext): Promise<ISetterMetadata>;
 }

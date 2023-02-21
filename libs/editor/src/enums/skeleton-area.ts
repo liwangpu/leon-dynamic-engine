@@ -5,4 +5,5 @@ export enum SkeletonAreaEnum {
   topLeftArea = 'topLeftArea',
   topMiddleArea = 'topMiddleArea',
   topRightArea = 'topRightArea',
+  toolbar = 'toolbar'
 }

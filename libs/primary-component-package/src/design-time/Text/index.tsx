@@ -1,10 +1,9 @@
 import { IDynamicComponentProps } from '@lowcode-engine/core';
-import { observer } from 'mobx-react-lite';
 import React, { memo } from 'react';
 import { ITextComponentConfiguration } from '../../models';
 import styles from './index.module.less';
 
-const Text: React.FC<IDynamicComponentProps<ITextComponentConfiguration>> = observer(props => {
+const Text: React.FC<IDynamicComponentProps<ITextComponentConfiguration>> = memo(props => {
 
   const conf = props.configuration;
   return (

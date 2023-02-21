@@ -32,7 +32,7 @@ const PageEditorOperation: React.FC<PageOperationProps> = observer(props => {
 
   const saveSchema = useCallback(async (): Promise<void> => {
     const schema = props.project.export();
-    // console.log(`schema save:`, schema);
+    console.log(`schema save:`, schema);
     await PageRepository.getInstance().update(schema.id, schema);
     showMessage();
   }, []);

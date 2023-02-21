@@ -1,6 +1,5 @@
 import { IDynamicComponentProps } from '@lowcode-engine/core';
 import { Input } from 'antd';
-import { observer } from 'mobx-react-lite';
 import React, { memo } from 'react';
 import { ITextComponentConfiguration } from '../../models';
 import styles from './index.module.less';

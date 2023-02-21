@@ -9,12 +9,20 @@ export interface IComponentSlotMap {
   [componentType: string]: Array<string>;
 }
 
+export interface ISlotSingletonMap {
+  [componentTypeAndSlotProperty: string]: boolean;
+}
+
+function getSingletonMapKey(componentType: string, slotProperty: string) {
+  return `${componentType}@${slotProperty}`;
+}
+
 function getHierarchyProperties(slotMap: IComponentSlotMap, componentType: string) {
   const properties = slotMap[componentType] || [];
   return properties;
 }
 
-export function generateDesignState(metadata: IComponentConfiguration, slotMap: IComponentSlotMap = {}): SnapshotIn<EditorStoreModel> {
+export function generateDesignState(metadata: IComponentConfiguration, slotMap: IComponentSlotMap = {}, singletonMap: ISlotSingletonMap = {}): SnapshotIn<EditorStoreModel> {
   const state: SnapshotIn<EditorStoreModel> = _.cloneDeep(INITIAL_STATE);
   if (!metadata) { return state; }
   const componentTrees: { [id: string]: SnapshotIn<ComponentTreeModel> } = {};
@@ -36,7 +44,16 @@ export function generateDesignState(metadata: IComponentConfiguration, slotMap: 
 
     const properties = getHierarchyProperties(slotMap, md.type);
     for (let property of properties) {
-      const childrenMetadatas = md[property] || [];
+      let childrenMetadatas = [];
+      const k = getSingletonMapKey(md.type, property);
+      if (md[property]) {
+        if (singletonMap[k]) {
+          childrenMetadatas.push(md[property]);
+        } else {
+          childrenMetadatas = md[property];
+        }
+      }
+
       if (childrenMetadatas.length) {
         const childrenIds = childrenMetadatas.map(c => c.id);
         if (childrenIds.length) {
@@ -60,10 +77,9 @@ export function generateDesignState(metadata: IComponentConfiguration, slotMap: 
   return state;
 }
 
-export function nestComponentTree(state: SnapshotIn<EditorStoreModel>, slotMap: IComponentSlotMap = {}): IComponentConfiguration {
+export function nestComponentTree(state: SnapshotIn<EditorStoreModel>, slotMap: IComponentSlotMap = {}, singletonMap: ISlotSingletonMap = {}): IComponentConfiguration {
   const treeIds = Object.keys(state.treeStore.trees);
   const configIds = Object.keys(state.configurationStore.configurations);
-
   const getTree = (id: string) => {
     return state.treeStore.trees[id];
   };
@@ -86,9 +102,15 @@ export function nestComponentTree(state: SnapshotIn<EditorStoreModel>, slotMap: 
     const conf = componentConfMap.get(componentId);
     const properties = getHierarchyProperties(slotMap, conf.type);
     for (let property of properties) {
-      const propertyIds: Array<string> = tree.slots[property] as any || [];
+      let propertyIds: Array<string> = tree.slots[property] as any || [];
       if (propertyIds.length) {
-        conf[property] = propertyIds.map(cid => componentConfMap.get(cid));
+        const singletonMapKey = getSingletonMapKey(conf.type, property);
+        if (singletonMap[singletonMapKey]) {
+          conf[property] = componentConfMap.get(propertyIds[0]);
+        } else {
+          conf[property] = propertyIds.map(cid => componentConfMap.get(cid));
+        }
+
         propertyIds.forEach(cid => supplementChildrenConfig(cid));
       }
     }

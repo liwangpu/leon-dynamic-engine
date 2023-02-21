@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { IDynamicComponentProps } from '@lowcode-engine/core';
-import { observer } from 'mobx-react-lite';
 import { INumberComponentConfiguration } from '../../models';
 import styles from './index.module.less';
 
-const NumberField: React.FC<IDynamicComponentProps<INumberComponentConfiguration>> = observer(props => {
+const NumberField: React.FC<IDynamicComponentProps<INumberComponentConfiguration>> = memo(props => {
 
   const conf = props.configuration;
 

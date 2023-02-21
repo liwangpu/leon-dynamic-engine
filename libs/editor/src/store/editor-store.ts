@@ -1,8 +1,9 @@
-import { Instance, types, applySnapshot } from "mobx-state-tree";
+import { Instance, types, applySnapshot, SnapshotIn } from "mobx-state-tree";
 import { ConfigurationStore } from './configuration-store';
-import { TreeStore } from './tree-store';
+import { ComponentTreeModel, TreeStore } from './tree-store';
 import * as _ from 'lodash';
 import { InteractionStore } from './interation-store';
+import { IComponentConfiguration } from '@lowcode-engine/core';
 
 export const INITIAL_STATE = Object.freeze({
   configurationStore: { configurations: {} },
@@ -64,7 +65,19 @@ const EditorStore = types.model({
     }
 
     _delete(componentId);
-  }
+  },
+  addComponent: (config: IComponentConfiguration, parentId: string, index: number, slotProperty: string): void => {
+    const componentTrees = self.treeStore.trees;
+    const tree: SnapshotIn<ComponentTreeModel> = { id: config.id, type: config.type, parentId, slotProperty };
+    componentTrees.set(config.id, tree);
+    const parentTree = componentTrees.get(parentId);
+    const innerIds = parentTree.selectSlotComponetIds(slotProperty);
+    if (!innerIds.includes(config.id)) {
+      innerIds.splice(index, 0, config.id);
+    }
+    self.configurationStore.updateComponentConfiguration(config);
+    parentTree.updateSlot(slotProperty, innerIds);
+  },
 }));
 
 export const createStore = () => {

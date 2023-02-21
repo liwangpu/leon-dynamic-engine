@@ -7,6 +7,38 @@
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+
+  :global {
+    .model-gallery-tree {
+
+      .rc-tree-node-content-wrapper,
+      .rc-tree-node-content-wrapper-normal {
+        user-select: none;
+      }
+
+      .rc-tree-node-content-wrapper-normal {
+        &:hover {
+          background-color: var(--lce-primary-color-lightest);
+          box-shadow: 0 0 0 1px var(--lce-primary-color);
+        }
+      }
+
+      .relation-category-node,
+      .field-category-node {
+        // color: var(--lce-description-color);
+        color: #CCA545;
+
+        .rc-tree-node-content-wrapper {
+          cursor: default;
+          user-select: none
+        }
+      }
+
+      .object_node{
+        color: var(--lce-primary-color);
+      }
+    }
+  }
 }
 
 .content-panel-header {
@@ -19,4 +51,40 @@
 
 .field-panel {
   padding: 12px 0 0;
+}
+
+.switch-icon {
+  display: inline-block;
+  background-color: #FFF;
+  color: gray;
+  transition: transform 120ms;
+  user-select: none;
+
+  &--folded {
+    transform: rotate(-90deg);
+  }
+}
+
+.folder-category-icon {
+  color: blue;
+}
+
+.field-category-node{
+  color: #CCA545;
+  cursor: default;
+  user-select: none
+}
+
+.relation-category-node{
+  color: #CCA545;
+  cursor: default;
+  user-select: none
+}
+
+.field-node{
+  color: var(--lce-text-color);
+}
+
+.dynamic-component-field{
+  display: flex;
 }

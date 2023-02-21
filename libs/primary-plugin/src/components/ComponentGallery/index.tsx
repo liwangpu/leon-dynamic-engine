@@ -6,7 +6,9 @@ import Sortable from 'sortablejs';
 import classnames from 'classnames';
 import { UpOutlined } from '@ant-design/icons';
 import { IComponentConfiguration, IComponentDescription } from '@lowcode-engine/core';
-import { EventTopicEnum, IEventManager } from '@lowcode-engine/editor';
+import { EventTopicEnum } from '@lowcode-engine/editor';
+import { INotification } from '../../models';
+import * as _ from 'lodash';
 
 export type ComponentGroup = {
   title: string;
@@ -14,11 +16,11 @@ export type ComponentGroup = {
 }
 
 export interface OptionalComponentPanelProps {
-  event: IEventManager;
   groups: Array<ComponentGroup>;
+  notification?: INotification;
 }
 
-const ComponentGallery: React.FC<OptionalComponentPanelProps> = observer(props => {
+export const ComponentGallery: React.FC<OptionalComponentPanelProps> = observer(props => {
 
   const [componentGroupFoldedState, setComponentGroupFoldedState] = useState<{ [key: string]: boolean }>({});
   const optionalGroupContainerEl = useRef(null);
@@ -52,12 +54,16 @@ const ComponentGallery: React.FC<OptionalComponentPanelProps> = observer(props =
           currentConf = data as any;
         },
         onStart: (evt: Sortable.SortableEvent) => {
-          props.event.emit(EventTopicEnum.componentStartDragging, currentConf);
+          if (_.isFunction(props.notification)) {
+            props.notification(EventTopicEnum.componentStartDragging, { ...currentConf });
+          }
           const itemEl = evt.item;
           itemEl.classList.add('dragging');
         },
         onEnd: (evt: Sortable.SortableEvent) => {
-          props.event.emit(EventTopicEnum.componentEndDragging, { ...currentConf });
+          if (_.isFunction(props.notification)) {
+            props.notification(EventTopicEnum.componentEndDragging, { ...currentConf });
+          }
           currentConf = null;
           if (evt.from === evt.to) { return; }
           const el: HTMLElement = evt.item as any;
@@ -116,5 +122,3 @@ const ComponentGallery: React.FC<OptionalComponentPanelProps> = observer(props =
 });
 
 ComponentGallery.displayName = 'ComponentGallery';
-
-export default ComponentGallery;

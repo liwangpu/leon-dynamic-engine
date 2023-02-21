@@ -42,20 +42,17 @@ export const TreeStore = types.model({
       if (!self.trees.has(id)) { return null; }
       const com = self.trees.get(id);
       return com.slotProperty;
+    },
+    selectSlotChildrenIds: (id: string, slotProperty: string) => {
+      if (!self.trees.has(id)) { return null; }
+      const com = self.trees.get(id);
+      const slots = com.slots;
+      const childrenIds = slots.get(slotProperty);
+      if (!childrenIds) { return null; }
+      return [...childrenIds];
     }
   }))
   .actions(self => ({
-    addComponent: (config: IComponentConfiguration, parentId: string, index: number, slotProperty: string): void => {
-      const parent: EditorStoreModel = getParent(self);
-      const componentTrees = self.trees;
-      const tree: SnapshotIn<ComponentTreeModel> = { id: config.id, type: config.type, parentId, slotProperty };
-      componentTrees.set(config.id, tree);
-      const parentTree = componentTrees.get(parentId);
-      const innerIds = parentTree.selectSlotComponetIds(slotProperty);
-      innerIds.splice(index, 0, config.id);
-      parent.configurationStore.updateComponentConfiguration(config);
-      parentTree.updateSlot(slotProperty, innerIds);
-    },
     moveComponent: (id: string, parentId: string, index: number, slotProperty: string) => {
       const componentTrees = self.trees;
       const tree = componentTrees.get(id);

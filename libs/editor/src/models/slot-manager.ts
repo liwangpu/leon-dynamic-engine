@@ -4,6 +4,7 @@ import { IEditorContext } from './editor-manager';
 export interface ISlotPropertyMatch {
   accepts?: Array<string>;
   rejects?: Array<string>;
+  singleton?: boolean;
 }
 
 export interface ISlotPropertyDefinition {
@@ -11,8 +12,10 @@ export interface ISlotPropertyDefinition {
 }
 
 export interface ISlotManager {
+  checkSlotSingleton(componentType: string, slotProperty: string): boolean;
   getSlotProperties(componentType: string): Array<string>;
   getAllSlotProperties(): { [componentType: string]: Array<string> };
+  getAllSlotSingletonMap(): { [componentAndSlotProperty: string]: boolean };
   getMatchedSlotProperties(componentType: string): Array<string>;
   registerMap(map: { [componentType: string]: ISlotPropertyDefinition }): void;
   registerAddingVerification(componentType: string, verifiedFn: (conf: IComponentConfiguration) => Promise<IComponentConfiguration>): void;
@@ -24,7 +27,18 @@ export class SlotManager implements ISlotManager {
   private readonly addingVerficationMap = new Map<string, (conf: IComponentConfiguration) => Promise<IComponentConfiguration>>();
   private readonly allSlotMap = new Map<string, ISlotPropertyDefinition>();
   private readonly componentMatchedSlotPropertyMap = new Map<string, Array<string>>();
+  private readonly slotPropertySingletonMap = new Map<string, boolean>();
   public constructor(private context: IEditorContext) { }
+
+
+  public checkSlotSingleton(componentType: string, slotProperty: string): boolean {
+    const key = `${componentType}@${slotProperty}`;
+    return this.slotPropertySingletonMap.get(key);
+  }
+
+  public getAllSlotSingletonMap(): { [componentAndSlotProperty: string]: boolean; } {
+    return Object.fromEntries(this.slotPropertySingletonMap);
+  }
 
   public getAllSlotProperties(): { [componentType: string]: string[]; } {
     const map = {};
@@ -64,12 +78,6 @@ export class SlotManager implements ISlotManager {
     return slotProperties;
   }
 
-  // async verifyAdding(componentType: string, conf: IComponentConfiguration): Promise<IComponentConfiguration> {
-  //   if (!this.addingVerficationMap.has(componentType)) { return conf; }
-  //   const verifiedFn = this.addingVerficationMap.get(componentType);
-  //   return await verifiedFn(conf);
-  // }
-
   public registerMap(map: { [componentType: string]: ISlotPropertyDefinition }): void {
     if (!map) { return; }
     this.allSlotMap.clear();
@@ -80,7 +88,15 @@ export class SlotManager implements ISlotManager {
       this.allSlotMap.set(componentType, definition);
       const properties = Object.keys(definition);
       this.slotPropertyMap.set(componentType, properties || []);
+      properties.forEach(p => {
+        const key = `${componentType}@${p}`;
+        const singleton = definition[p] ? definition[p].singleton : false;
+        if (singleton) {
+          this.slotPropertySingletonMap.set(key, singleton);
+        }
+      });
     }
+    console.log(`allSlotMap:`,this.allSlotMap);
   }
 
   public registerAddingVerification(componentType: string, verifiedFn: (conf: IComponentConfiguration) => Promise<IComponentConfiguration>): void {

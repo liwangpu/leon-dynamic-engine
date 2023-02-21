@@ -1,12 +1,10 @@
 import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from '@lowcode-engine/core';
-import ConfigurationPanel from './configurations/ConfigurationPanel';
 import { ComponentTypes } from './enums';
 
 export class ComponentPackage implements IComponentPackage {
 
   name = 'PrimaryComponentPackage';
   private static instance: ComponentPackage;
-  private loadConfigurationCommonStyle = false;
   private constructor() {
     //
   }
@@ -51,6 +49,18 @@ export class ComponentPackage implements IComponentPackage {
       {
         type: ComponentTypes.table,
         title: '表格'
+      },
+      {
+        type: ComponentTypes.tableSerialNumberColumn,
+        title: '表格序号列'
+      },
+      {
+        type: ComponentTypes.tableOperatorColumn,
+        title: '表格操作列'
+      },
+      {
+        type: ComponentTypes.pagination,
+        title: '分页器'
       }
     ];
   }
@@ -107,6 +117,10 @@ export class ComponentPackage implements IComponentPackage {
         return import('./design-time/Number');
       case ComponentTypes.table:
         return import('./design-time/Table');
+      case ComponentTypes.pagination:
+        return import('./design-time/Pagination');
+      case ComponentTypes.tableOperatorColumn:
+        return import('./design-time/TableOperatorColumn');
       default:
         return null;
     }

@@ -2,16 +2,16 @@ import React, { memo, useCallback, useContext, useMemo } from 'react';
 import styles from './index.module.less';
 import { useLoaderData, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
-import { ComponentGalleryPluginRegister, IModelFieldNode, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
-import { IBusinessIModel, IModelField, ModelRepository } from '../../models';
+import { ComponentGalleryPluginRegister, ComponentToolBarRegister, IBusinessModel, ModelGalleryPluginRegister } from '@lowcode-engine/primary-plugin';
 import PageEditorOperation from '../../components/PageEditorOperation';
 import { ComponentPackageContext } from '../../contexts';
-import { ComponentTypes, IBlockComponentConfiguration, ITableComponentConfiguration, ITextComponentConfiguration } from '@lowcode-engine/primary-component-package';
+import { ComponentTypes } from '@lowcode-engine/primary-component-package';
 import { Button } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
 import { GridSystemSection } from '@lowcode-engine/component-configuration-shared';
+import { ModelRepository } from '../../models';
 
 const buttonTypes: Array<ComponentTypes> = [
   ComponentTypes.button,
@@ -29,7 +29,7 @@ const PageEditor: React.FC = memo(() => {
   const { businessModel } = useParams();
   const [search] = useSearchParams();
   const pageType = search.get('pageType');
-  const { model, schema } = useLoaderData() as { model: IBusinessIModel, schema: IComponentConfiguration };
+  const { model, schema } = useLoaderData() as { model: IBusinessModel, schema: IComponentConfiguration };
   const navigate = useNavigate();
   const goBack = useCallback(() => {
     navigate(`/app/business-detail/${businessModel}`);
@@ -37,16 +37,16 @@ const PageEditor: React.FC = memo(() => {
 
   const plugins = useMemo<Array<IPluginRegister>>(() => {
     // 一些模型相关的数据整理,主要为模型插件使用
-    const fieldMap = new Map<string, IModelFieldNode>();
-    const model2FieldNodeTransfer = (f: IModelField) => {
-      const node: IModelFieldNode = { key: f.id, title: f.title, type: f.type };
-      if (f.fields && f.fields.length) {
-        f.fields.forEach(subF => model2FieldNodeTransfer(subF));
-        node.children = f.fields.map(subF => fieldMap.get(subF.id))
-      }
-      fieldMap.set(f.id, node);
-    };
-    model2FieldNodeTransfer(model);
+    // const fieldMap = new Map<string, IModelFieldNode>();
+    // const model2FieldNodeTransfer = (f: IModelField) => {
+    //   const node: IModelFieldNode = { key: f.id, title: f.title, type: f.type };
+    //   if (f.fields && f.fields.length) {
+    //     f.fields.forEach(subF => model2FieldNodeTransfer(subF));
+    //     node.children = f.fields.map(subF => fieldMap.get(subF.id))
+    //   }
+    //   fieldMap.set(f.id, node);
+    // };
+    // model2FieldNodeTransfer(model);
 
     return [
       // 组件插槽相关注册插件
@@ -89,38 +89,21 @@ const PageEditor: React.FC = memo(() => {
                   rejects: [...buttonTypes]
                 },
                 operatorColumn: {
-                  accepts: [...buttonTypes]
+                  singleton: true
+                },
+                pagination: {
+                  singleton: true
+                },
+                serialNumberColumn: {
+                  singleton: true
                 }
               },
+              [ComponentTypes.tableOperatorColumn]: {
+                children: {
+                  accepts: [ComponentTypes.button]
+                }
+              }
             });
-
-            // slot.registerAddingVerification(ComponentTypes.text, async (conf: ITextComponentConfiguration) => {
-            //   conf.gridColumnSpan = GridSystemSection['1/2'];
-            //   return conf;
-            // });
-
-            // slot.registerAddingVerification(ComponentTypes.buttonGroup, async (conf: IComponentConfiguration) => {
-            //   // conf.children = [
-            //   //   {
-            //   //     id: GenerateShortId(),
-            //   //     type: ComponentTypes.button,
-            //   //     title: '按钮'
-            //   //   }
-            //   // ];
-            //   // conf.height = 'auto';
-            //   return conf;
-            // });
-
-            // slot.registerAddingVerfication(ComponentTypes.tabs, async (conf: ITabsComponentConfiguration) => {
-            //   conf.items = [
-            //     {
-            //       id: GenerateShortId(),
-            //       type: 'tab',
-            //       title: '页签1'
-            //     }
-            //   ];
-            //   return conf;
-            // });
           }
         };
       }),
@@ -181,60 +164,76 @@ const PageEditor: React.FC = memo(() => {
           ]
         }
       ]),
-      // 模型库注册插件
-      ModelGalleryPluginRegister(async () => {
-        return [fieldMap.get(model.id)];
-      }, async (id) => {
-        const field = fieldMap.get(id);
-        const conf: IComponentConfiguration = { type: null, title: field.title };
-        // 做字段和组件类型映射
-        switch (field.type) {
-          case 'reference':
-            const currentModel = await ModelRepository.getInstance().get(field.key);
-            const fieldComponents = currentModel.fields.map(f => ({ id: GenerateShortId(), type: 'text', title: f.title }));
-            switch (pageType) {
-              case 'list-page':
-                // 列表页面主业务对象引用生成表格
-                conf.type = ComponentTypes.table;
-                (conf as ITableComponentConfiguration).columns = fieldComponents;
-                break;
-              case 'detail-page':
-                // 详情页主业务对象生成表单
-                // 子引用对象生成表格
-                if (id === businessModel) {
-                  conf.type = ComponentTypes.block;
-                  conf.children = fieldComponents;
-                  // (conf as IBlockComponentConfiguration).columns = 2;
-                } else {
-                  conf.type = ComponentTypes.table;
-                  (conf as ITableComponentConfiguration).columns = fieldComponents;
-                }
-                break;
-              default:
-                break;
-            }
-            break;
-          case 'number':
-            conf.type = ComponentTypes.number;
-            break;
-          default:
-            conf.type = ComponentTypes.text;
-            break;
-        }
 
-        if (!conf.type) {
-          return null;
-        }
-        return conf;
+      // 模型库注册插件
+      ModelGalleryPluginRegister(businessModel, async id => {
+        return ModelRepository.getInstance().get(id);
+      }, async data => {
+
+        return { type: 'text', title: data.name };
+      }),
+
+      // ModelGalleryPluginRegister(async () => {
+      //   return [fieldMap.get(model.id)];
+      // }, async (id) => {
+      //   const field = fieldMap.get(id);
+      //   const conf: IComponentConfiguration = { type: null, title: field.title };
+      //   // 做字段和组件类型映射
+      //   switch (field.type) {
+      //     case 'reference':
+      //       const currentModel = await ModelRepository.getInstance().get(field.key);
+      //       const fieldComponents = currentModel.fields.map(f => ({ id: GenerateShortId(), type: 'text', title: f.title }));
+      //       switch (pageType) {
+      //         case 'list-page':
+      //           // 列表页面主业务对象引用生成表格
+      //           conf.type = ComponentTypes.table;
+      //           (conf as ITableComponentConfiguration).columns = fieldComponents;
+      //           break;
+      //         case 'detail-page':
+      //           // 详情页主业务对象生成表单
+      //           // 子引用对象生成表格
+      //           if (id === businessModel) {
+      //             conf.type = ComponentTypes.block;
+      //             conf.children = fieldComponents;
+      //             // (conf as IBlockComponentConfiguration).columns = 2;
+      //           } else {
+      //             conf.type = ComponentTypes.table;
+      //             (conf as ITableComponentConfiguration).columns = fieldComponents;
+      //           }
+      //           break;
+      //         default:
+      //           break;
+      //       }
+      //       break;
+      //     case 'number':
+      //       conf.type = ComponentTypes.number;
+      //       break;
+      //     default:
+      //       conf.type = ComponentTypes.text;
+      //       break;
+      //   }
+
+      //   if (!conf.type) {
+      //     return null;
+      //   }
+      //   return conf;
+      // }),
+      ComponentToolBarRegister({
+        [ComponentTypes.listPage]: [],
+        [ComponentTypes.detailPage]: [],
+        [ComponentTypes.tableSerialNumberColumn]: [],
+        [ComponentTypes.tableOperatorColumn]: [],
+        [ComponentTypes.pagination]: [],
       }),
       // schema源码插件
       // SchemaViewerPluginRegister(),
       // 页面返回按钮注册插件
       (function pageReturnPluginRegistry({ skeleton }) {
+        const skeletonKey = 'EDITOR_RETURN_ST';
         return {
           init: async () => {
             skeleton.add({
-              title: 'page-editor-info',
+              key: skeletonKey,
               area: SkeletonAreaEnum.topLeftArea,
               content: (
                 <Button type="text" icon={<ArrowLeftOutlined />} onClick={goBack} size='small'>返回</Button>
@@ -242,22 +241,23 @@ const PageEditor: React.FC = memo(() => {
             });
           },
           destroy: async () => {
-            skeleton.remove('page-editor-info');
+            skeleton.remove(skeletonKey);
           }
         };
       }),
       // 设计器保存按钮区域注册插件
       (function pageOperationPluginRegistry({ skeleton, project }) {
+        const skeletonKey = 'PAGE_OPERATION_ST';
         return {
           init: async () => {
             skeleton.add({
-              title: 'page-operation',
+              key: skeletonKey,
               area: SkeletonAreaEnum.topRightArea,
               content: <PageEditorOperation project={project} />
             });
           },
           destroy: async () => {
-            skeleton.remove('page-operation');
+            skeleton.remove(skeletonKey);
           }
         };
       }),

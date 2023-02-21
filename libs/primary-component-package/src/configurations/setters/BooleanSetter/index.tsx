@@ -7,7 +7,7 @@ const Setter: React.FC<IBooleanSetter> = memo(props => {
   const { label, name, required, help } = props;
   return (
     <Form.Item
-      // label={label}
+      valuePropName="checked"
       name={name}
       rules={[{ required, message: help }]}
     >

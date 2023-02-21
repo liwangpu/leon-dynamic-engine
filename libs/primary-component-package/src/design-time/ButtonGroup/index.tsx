@@ -1,9 +1,8 @@
 import styles from './index.module.less';
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
-import { observer } from 'mobx-react-lite';
 
-const ButtonGroup: React.FC<IDynamicComponentProps> = observer(props => {
+const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
   const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();

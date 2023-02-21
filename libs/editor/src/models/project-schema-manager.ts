@@ -19,13 +19,15 @@ export class ProjectSchemaManager implements IProjectManager {
 
   public import(schema: IProjectSchema): void {
     const slotPropertyMap = this.context.slot.getAllSlotProperties();
-    const state = generateDesignState(schema, slotPropertyMap);
+    const slotSingletonMap = this.context.slot.getAllSlotSingletonMap();
+    const state = generateDesignState(schema, slotPropertyMap, slotSingletonMap);
     this.context.store.setState(state);
   }
 
   public export(): IProjectSchema {
     const slotPropertyMap = this.context.slot.getAllSlotProperties();
-    const schema = nestComponentTree(getSnapshot(this.context.store), slotPropertyMap);
+    const slotSingletonMap = this.context.slot.getAllSlotSingletonMap();
+    const schema = nestComponentTree(getSnapshot(this.context.store), slotPropertyMap, slotSingletonMap);
     return schema;
   }
 

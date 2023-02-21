@@ -12,6 +12,9 @@ const Home = React.lazy(() => import('./app/pages/Home'));
 const BusinessDetail = React.lazy(() => import('./app/pages/BusinessDetail'));
 const PageEditor = React.lazy(() => import('./app/pages/PageEditor'));
 const PagePreview = React.lazy(() => import('./app/pages/PagePreview'));
+const EditorPluginTest = React.lazy(() => import('./app/pages/EditorPluginTest'));
+const ComponentGalleryTest = React.lazy(() => import('./app/pages/ComponentGalleryTest'));
+const ModelGalleryTest = React.lazy(() => import('./app/pages/ModelGalleryTest'));
 
 function WrapperSuspense(WrappedComponent: React.ComponentType) {
   return (
@@ -50,6 +53,24 @@ const router = createBrowserRouter([
           await store.pageStore.getPage(params['pageId']);
           return true;
         },
+      },
+      {
+        path: 'editor-plugin-test',
+        element: WrapperSuspense(EditorPluginTest),
+        children: [
+          {
+            path: 'component-gallery',
+            element: WrapperSuspense(ComponentGalleryTest),
+          },
+          {
+            path: 'model-gallery',
+            element: WrapperSuspense(ModelGalleryTest),
+          },
+          {
+            index: true,
+            element: <Navigate to="component-gallery" replace={true} />,
+          },
+        ]
       },
       {
         index: true,

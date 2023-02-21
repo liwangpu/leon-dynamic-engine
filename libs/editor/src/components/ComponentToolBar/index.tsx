@@ -5,10 +5,9 @@ import React from 'react';
 import { EditorContext } from '../../contexts';
 import { SubSink } from 'subsink';
 import { delay, filter, map } from 'rxjs';
-import { EventTopicEnum } from '../../enums';
-import { DeleteOutlined } from '@ant-design/icons';
+import { EventTopicEnum, SkeletonAreaEnum } from '../../enums';
 import { IDomManager } from '../../models';
-import { Button } from 'antd';
+import { useAreaSkeleton } from '../../hooks';
 
 const TOOLBAR_WRAPPER_SHOW_CLASS = 'editor-toolbar-wrapper--show';
 
@@ -149,16 +148,11 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
 
 
 const ComponentToolBar: React.FC = observer(() => {
-  const { store } = useContext(EditorContext);
-  const activeComponentId = store.interactionStore.activeComponentId;
-
-  const deleteComponent = () => {
-    store.deleteComponent(activeComponentId);
-  };
+  const { areaSkeleton: ToolBarMenuSkeleton } = useAreaSkeleton(SkeletonAreaEnum.toolbar);
 
   return (
     <div className={styles['toolbar']}>
-      <Button type="primary" icon={<DeleteOutlined />} size='small' onClick={deleteComponent} />
+      {ToolBarMenuSkeleton}
     </div>
   );
 });

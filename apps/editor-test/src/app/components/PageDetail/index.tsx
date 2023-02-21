@@ -5,10 +5,10 @@ import { observer } from 'mobx-react-lite';
 import classNames from 'classnames';
 import { ComponentTypes } from '@lowcode-engine/primary-component-package';
 import { StoreContext } from '../../contexts';
-import { IBusinessIModel } from '../../models';
 import { useParams } from 'react-router-dom';
 import { GenerateComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
 import { getSnapshot } from 'mobx-state-tree';
+import { IBusinessModel } from '@lowcode-engine/primary-plugin';
 
 enum LayoutType {
   list = 'List',
@@ -45,7 +45,7 @@ const PageDetail: React.FC<PageDetailProps> = observer(props => {
   const [form] = Form.useForm<{ title: string }>();
   const [step, setStep] = useState(0);
   const { businessModel } = useParams();
-  const businessModels: Array<IBusinessIModel> = useMemo(() => {
+  const businessModels: Array<IBusinessModel> = useMemo(() => {
     // 防止mst引用被其他地方使用
     const modelsMap = getSnapshot(store.modelStore.models);
     const modelKeys = Object.keys(modelsMap);
@@ -69,7 +69,7 @@ const PageDetail: React.FC<PageDetailProps> = observer(props => {
   }, []);
 
   const BusinessModelSelection = useMemo(() => {
-    const options = businessModels.map(b => ({ value: b.key, label: b.title }));
+    const options = businessModels.map(b => ({ value: b.id, label: b.name }));
     return (
       <Select
         options={options}
@@ -208,14 +208,14 @@ PageDetail.displayName = 'PageDetail';
 
 export default PageDetail;
 
-async function generatePageConfiguration(formValue: IFormValue, models: Array<IBusinessIModel>): Promise<IComponentConfiguration> {
+async function generatePageConfiguration(formValue: IFormValue, models: Array<IBusinessModel>): Promise<IComponentConfiguration> {
   const conf: IComponentConfiguration = {
     ...formValue,
     width: '100%',
     height: '100%',
     children: []
   };
-  const businessModel = models.find(b => b.key === formValue.businessModel);
+  const businessModel = models.find(b => b.id === formValue.businessModel);
   delete conf['layout'];
   switch (formValue.layout) {
     case LayoutType.list:
@@ -227,7 +227,7 @@ async function generatePageConfiguration(formValue: IFormValue, models: Array<IB
           columns: businessModel.fields.map(f => ({
             id: GenerateComponentId(ComponentTypes.text),
             type: ComponentTypes.text,
-            title: f.title
+            title: f.name
           }))
         }
       ];
@@ -241,7 +241,7 @@ async function generatePageConfiguration(formValue: IFormValue, models: Array<IB
           children: businessModel.fields.map(f => ({
             id: GenerateComponentId(ComponentTypes.text),
             type: ComponentTypes.text,
-            title: f.title
+            title: f.name
           }))
         }
       ];

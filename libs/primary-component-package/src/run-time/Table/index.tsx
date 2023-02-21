@@ -10,10 +10,10 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
   const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
-  const OperatorColumn = useMemo(() => {
-    if (!conf.operatorColumn || !conf.operatorColumn.length) { return null; }
-    return conf.operatorColumn.map(c => (<Button key={c.id} type="text" size='small'>{c.title}</Button>))
-  }, [conf.operatorColumn]);
+  // const OperatorColumn = useMemo(() => {
+  //   if (!conf.operatorColumn || !conf.operatorColumn.length) { return null; }
+  //   return conf.operatorColumn.map(c => (<Button key={c.id} type="text" size='small'>{c.title}</Button>))
+  // }, [conf.operatorColumn]);
 
   const Operators = useMemo(() => {
     if (!conf.operators || !conf.operators.length) { return null; }
@@ -35,7 +35,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
       width: 160,
       render: () => (
         <>
-          {OperatorColumn}
+          {/* {OperatorColumn} */}
         </>
       ),
     };
