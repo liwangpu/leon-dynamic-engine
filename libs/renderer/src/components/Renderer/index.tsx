@@ -1,6 +1,5 @@
 import React, { memo, useContext, useEffect, useMemo } from 'react';
 import { ComponentDiscoveryContext, ComponentDiscoveryProvider, DataCenterEngineContext, DynamicComponentFactoryContext, IComponentPackage, IDataCenterEngine, IProjectSchema, useDynamicComponentEngine } from '@lowcode-engine/core';
-import { observer } from 'mobx-react-lite';
 import { DynamicComponentFactoryProvider } from '../../models';
 import { createStore } from '../../store';
 import { DataStoreCollocationContext, DataStoreContext } from '../../contexts';
@@ -16,7 +15,7 @@ export interface DynamicPageProps extends _RendererProps {
 
 const componentFactory = DynamicComponentFactoryProvider.getInstance();
 
-export const _Renderer: React.FC<_RendererProps> = observer(props => {
+export const _Renderer: React.FC<_RendererProps> = memo(props => {
   const engine = useDynamicComponentEngine();
   const DynamicComponent = engine.getDynamicComponentRenderFactory();
   const validatedSchema = !!(props.schema && props.schema.id && props.schema.type);
@@ -32,7 +31,7 @@ export const _Renderer: React.FC<_RendererProps> = observer(props => {
 
 _Renderer.displayName = '_Renderer';
 
-export const Renderer: React.FC<DynamicPageProps> = observer(props => {
+export const Renderer: React.FC<DynamicPageProps> = memo(props => {
   const componentDiscovery = useMemo(() => new ComponentDiscoveryProvider(props.packages), []);
   const collocationContext = useContext(DataStoreCollocationContext);
   const store = useMemo(() => createStore(), []);

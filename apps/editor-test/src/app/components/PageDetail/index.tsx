@@ -3,7 +3,7 @@ import styles from './index.module.less';
 import { Button, Form, Input, Radio, Select } from 'antd';
 import { observer } from 'mobx-react-lite';
 import classNames from 'classnames';
-import { ComponentTypes } from '@lowcode-engine/primary-component-package';
+import { ComponentTypes, TableSelectionMode } from '@lowcode-engine/primary-component-package';
 import { StoreContext } from '../../contexts';
 import { useParams } from 'react-router-dom';
 import { GenerateComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
@@ -228,7 +228,13 @@ async function generatePageConfiguration(formValue: IFormValue, models: Array<IB
             id: GenerateComponentId(ComponentTypes.text),
             type: ComponentTypes.text,
             title: f.name
-          }))
+          })),
+          selectionColumn:{
+            id: GenerateComponentId(ComponentTypes.tableSelectionColumn),
+            type: ComponentTypes.tableSelectionColumn,
+            title: '选择列',
+            selectionMode: TableSelectionMode.multiple,
+          }
         }
       ];
       break;

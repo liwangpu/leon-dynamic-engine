@@ -5,11 +5,11 @@ import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/edito
 import { ComponentGalleryPluginRegister, ComponentToolBarRegister, IBusinessModel, ModelGalleryPluginRegister } from '@lowcode-engine/primary-plugin';
 import PageEditorOperation from '../../components/PageEditorOperation';
 import { ComponentPackageContext } from '../../contexts';
-import { ComponentTypes } from '@lowcode-engine/primary-component-package';
+import { ComponentTypes, ITableComponentConfiguration, TableSelectionMode } from '@lowcode-engine/primary-component-package';
 import { Button } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
+import { GenerateComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
 import { GridSystemSection } from '@lowcode-engine/component-configuration-shared';
 import { ModelRepository } from '../../models';
 
@@ -36,18 +36,6 @@ const PageEditor: React.FC = memo(() => {
   }, []);
 
   const plugins = useMemo<Array<IPluginRegister>>(() => {
-    // 一些模型相关的数据整理,主要为模型插件使用
-    // const fieldMap = new Map<string, IModelFieldNode>();
-    // const model2FieldNodeTransfer = (f: IModelField) => {
-    //   const node: IModelFieldNode = { key: f.id, title: f.title, type: f.type };
-    //   if (f.fields && f.fields.length) {
-    //     f.fields.forEach(subF => model2FieldNodeTransfer(subF));
-    //     node.children = f.fields.map(subF => fieldMap.get(subF.id))
-    //   }
-    //   fieldMap.set(f.id, node);
-    // };
-    // model2FieldNodeTransfer(model);
-
     return [
       // 组件插槽相关注册插件
       (function pageOperationPluginRegistry({ slot }) {
@@ -96,6 +84,9 @@ const PageEditor: React.FC = memo(() => {
                 },
                 serialNumberColumn: {
                   singleton: true
+                },
+                selectionColumn: {
+                  singleton: true
                 }
               },
               [ComponentTypes.tableOperatorColumn]: {
@@ -115,6 +106,16 @@ const PageEditor: React.FC = memo(() => {
             configurationAddingHandler.registerHandler({ parentTypeSelector: ComponentTypes.block, typeSelector: [ComponentTypes.text, ComponentTypes.number] }, async (conf) => {
               // eslint-disable-next-line no-param-reassign
               conf.gridColumnSpan = GridSystemSection['1/2'];
+              return conf;
+            });
+
+            configurationAddingHandler.registerHandler({ typeSelector: ComponentTypes.table }, async (conf: ITableComponentConfiguration) => {
+              conf.selectionColumn = {
+                id: GenerateComponentId(ComponentTypes.tableSelectionColumn),
+                type: ComponentTypes.tableSelectionColumn,
+                selectionMode: TableSelectionMode.multiple,
+                title: '选择列',
+              };
               return conf;
             });
 
@@ -222,6 +223,7 @@ const PageEditor: React.FC = memo(() => {
         [ComponentTypes.listPage]: [],
         [ComponentTypes.detailPage]: [],
         [ComponentTypes.tableSerialNumberColumn]: [],
+        [ComponentTypes.tableSelectionColumn]: [],
         [ComponentTypes.tableOperatorColumn]: [],
         [ComponentTypes.pagination]: [],
       }),

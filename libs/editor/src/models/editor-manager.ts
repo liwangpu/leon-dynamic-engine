@@ -1,7 +1,6 @@
 import { ComponentDiscoveryProvider, IComponentDiscovery, IComponentPackage } from '@lowcode-engine/core';
 import { createStore, EditorStoreModel } from '../store';
 import { ConfigurationAddingHandlerManager } from './configuration-handler-manager';
-import { ContextMenuManager, IContextMenuManager } from './context-menu-manager';
 import { DomManager, IDomManager } from './dom-manager';
 import { EventManager, IEventManager } from './event-manager';
 import { IProjectManager, ProjectSchemaManager } from './project-schema-manager';
@@ -16,7 +15,6 @@ export interface IEditorContext {
   dom: IDomManager;
   event: IEventManager;
   slot: ISlotManager;
-  contextMenu:IContextMenuManager;
   configurationAddingHandler: ConfigurationAddingHandlerManager;
 }
 
@@ -27,7 +25,6 @@ export class EditorContextManager implements IEditorContext {
   public readonly dom = new DomManager(this);
   public readonly event = new EventManager(this);
   public readonly slot = new SlotManager(this);
-  public readonly contextMenu=new ContextMenuManager(this);
   public readonly configurationAddingHandler = new ConfigurationAddingHandlerManager(this);
   public readonly store = createStore();
   public readonly componentDiscovery;

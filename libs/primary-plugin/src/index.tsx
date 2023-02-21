@@ -1,14 +1,14 @@
 import { IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
 import { ComponentGallery, ComponentGroup } from './components/ComponentGallery';
 import { DeploymentUnitOutlined, AppstoreFilled, CodeFilled } from '@ant-design/icons';
-import { IBusinessModel, IConfigurationTransfer, ModelGallery } from './components/ModelGallery';
+import { IConfigurationTransfer, IModelLoader, ModelGallery } from './components/ModelGallery';
 import SchemaViewer from './components/SchemaViewer';
 import ComponentToolBar, { IComponentToolBarMap } from './components/ComponentToolBar';
 import { INotification } from './models';
 
-export function ModelGalleryPluginRegister(mainModelId: string, modelLoader: (id: string) => Promise<IBusinessModel>, configurationTransfer: IConfigurationTransfer): IPluginRegister {
-  const skeletonKey = 'MODEL_GALLERY_PLUGIN';
+export function ModelGalleryPluginRegister(mainModelId: string, modelLoader: IModelLoader, configurationTransfer: IConfigurationTransfer): IPluginRegister {
   return (function _ModelGalleryPluginRegister({ skeleton, event }) {
+    const skeletonKey = 'MODEL_GALLERY_PLUGIN';
     return {
       init: async () => {
         const notification: INotification = (topic, data) => {
@@ -30,8 +30,8 @@ export function ModelGalleryPluginRegister(mainModelId: string, modelLoader: (id
 }
 
 export function ComponentGalleryPluginRegister(componentGroups: Array<{ title: string, components: Array<string> }> = []): IPluginRegister {
-  const skeletonKey = 'COMPONENT_GALLER_PLUGIN';
   return (function _ComponentGalleryPluginRegister({ componentDiscovery, skeleton, event }) {
+    const skeletonKey = 'COMPONENT_GALLER_PLUGIN';
     return {
       init: async () => {
         const notification: INotification = (topic, data) => {
@@ -60,8 +60,8 @@ export function ComponentGalleryPluginRegister(componentGroups: Array<{ title: s
 }
 
 export function SchemaViewerPluginRegister(): IPluginRegister {
-  const skeletonKey = 'PAGE_SCHEMA_PLUGIN';
   return (function _SchemaViewerPluginRegister({ skeleton, project, event }) {
+    const skeletonKey = 'PAGE_SCHEMA_PLUGIN';
     return {
       init: async () => {
         skeleton.add({
@@ -80,8 +80,8 @@ export function SchemaViewerPluginRegister(): IPluginRegister {
 }
 
 export function ComponentToolBarRegister(toolBarMap?: IComponentToolBarMap): IPluginRegister {
-  const skeletonKey = 'COMPONENT_TOOLBAR_PLUGIN';
   return function _ContextMenuRegister({ skeleton, store }) {
+    const skeletonKey = 'COMPONENT_TOOLBAR_PLUGIN';
     return {
       init: async () => {
         skeleton.add({

@@ -9,6 +9,7 @@ export enum ComponentTypes {
   tab = 'tab',
   table = 'table',
   tableSerialNumberColumn = 'table-serial-number-column',
+  tableSelectionColumn = 'table-selection-column',
   tableOperatorColumn = 'table-operator-column',
   pagination = 'pagination',
   number = 'number',

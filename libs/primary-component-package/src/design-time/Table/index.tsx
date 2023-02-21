@@ -3,7 +3,8 @@ import React, { memo, useMemo } from 'react';
 import classnames from 'classnames';
 import { ITableComponentConfiguration } from '../../models';
 import styles from './index.module.less';
-import { TableFeature } from '../../enums';
+import { TableFeature, TableSelectionMode } from '../../enums';
+import { Checkbox, Radio } from 'antd';
 
 const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = memo(props => {
 
@@ -11,8 +12,6 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
   const dynamicEngine = useDynamicComponentEngine();
   const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
   const CustomRenderDynamicComponent = dynamicEngine.getCustomComponentRenderFactory();
-
-  // console.log(`table conf:`, conf);
 
   const features = useMemo(() => {
     const s = new Set<TableFeature>(conf.features || []);
@@ -28,53 +27,45 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
     return conf.operators.map(c => (<DynamicComponent key={c.id} configuration={c} />))
   }, [conf.operators]);
 
-  // const OperatorColumn = useMemo(() => {
-  //   if (!features.enableOperator) { return null; }
-  //   if (!conf.operatorColumn || !conf.operatorColumn.length) { return null; }
-  //   return conf.operatorColumn.map(c => (<DynamicComponent key={c.id} configuration={c} />));
-  // }, [conf.operatorColumn, features.enableOperator]);
-
-  // const OperatorColumn = useMemo(() => {
-  //   if (!features.enableOperator) { return null; }
-  //   if (!conf.operatorColumn || !conf.operatorColumn.length) { return null; }
-  //   return conf.operatorColumn.map(c => (<DynamicComponent key={c.id} configuration={c} />));
-  // }, [conf.operatorColumn, features.enableOperator]);
-
-  // const OperatorColumn = useMemo(() => {
-  //   if (!features.enableOperator) { return null; }
-  //   if (!conf.operatorColumn) { return null; }
-  //   return (
-  //     <CustomRenderDynamicComponent configuration={conf.operatorColumn}>
-  //       <div className={styles['custom-column']}>
-  //         <div className={classnames(
-  //           styles['col'],
-  //           styles['col--operator'],
-  //         )}>
-  //           <div className={classnames(
-  //             styles['col__header'],
-  //             styles['col__header--operator']
-  //           )}>
-  //             <span>操作</span>
-  //           </div>
-  //           <div className={classnames(
-  //             styles['col__content'],
-  //             styles['col__content--operator']
-  //           )} data-dynamic-component-container='children' data-dynamic-container-owner={conf.operatorColumn.id}>
-  //             {/* {OperatorColumn} */}
-  //             {conf.operatorColumn.children&&conf.operatorColumn.children.map(c=>(<DynamicComponent key={c.id} configuration={c} />))}
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </CustomRenderDynamicComponent>
-  //   )
-  // }, [conf.operatorColumn, features.enableOperator]);
-
   const OperatorColumn = useMemo(() => {
     if (!conf.operatorColumn || !features.enableOperator) { return null; }
     return (
       <DynamicComponent configuration={conf.operatorColumn} />
     );
   }, [conf.operatorColumn, features.enableOperator]);
+
+  const SelectionColumn = useMemo(() => {
+    if (!conf.selectionColumn) { return null; }
+    return (
+      <CustomRenderDynamicComponent configuration={conf.selectionColumn}>
+        <div className={classnames(
+          styles['custom-column'],
+          styles['custom-column--line-number']
+        )}>
+          <div className={classnames(
+            styles['col'],
+            'line-number-col'
+          )}>
+            <div className={styles['col__header']}>
+              {conf.selectionColumn.selectionMode === TableSelectionMode.multiple ? (
+                <Checkbox></Checkbox>
+              ) : null}
+            </div>
+            <div className={classnames(
+              styles['col__content'],
+              styles['col__content--data'],
+            )}>
+              {conf.selectionColumn.selectionMode === TableSelectionMode.multiple ? (
+                <Checkbox></Checkbox>
+              ) : (
+                <Radio></Radio>
+              )}
+            </div>
+          </div>
+        </div>
+      </CustomRenderDynamicComponent>
+    )
+  }, [conf.selectionColumn]);
 
   const SerialNumberColumn = useMemo(() => {
     if (!features.enableSerialNumberColumn) { return null; }
@@ -131,32 +122,12 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
         </div>
       </div>
       <div className={styles['table__content']}>
+        {SelectionColumn}
         {SerialNumberColumn}
         <div className={styles['columns']} data-dynamic-component-container='columns' data-dynamic-container-direction='horizontal' data-dynamic-container-owner={conf.id}>
           {Columns}
         </div>
         {OperatorColumn}
-        {/* {features.enableOperator && (
-          <div className={styles['custom-column']}>
-            <div className={classnames(
-              styles['col'],
-              styles['col--operator'],
-            )}>
-              <div className={classnames(
-                styles['col__header'],
-                styles['col__header--operator']
-              )}>
-                <span>操作</span>
-              </div>
-              <div className={classnames(
-                styles['col__content'],
-                styles['col__content--operator']
-              )} data-dynamic-component-container='operatorColumn' data-dynamic-container-owner={conf.id}>
-                {OperatorColumn}
-              </div>
-            </div>
-          </div>
-        )} */}
       </div>
       <div className={styles['table__footer']}>
         {Pagination}

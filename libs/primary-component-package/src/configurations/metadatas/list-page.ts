@@ -29,9 +29,6 @@ const metadataGenerator: ISetterMetadataGenerator = async (ctx) => {
         ]
       },
     ],
-    // onLoad: async () => {
-    //   console.log(`onload:`, ctx);
-    // },
   };
 }
 

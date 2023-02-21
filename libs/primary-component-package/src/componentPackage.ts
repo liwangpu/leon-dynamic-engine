@@ -59,6 +59,10 @@ export class ComponentPackage implements IComponentPackage {
         title: '表格操作列'
       },
       {
+        type: ComponentTypes.tableSelectionColumn,
+        title: '表格选择列'
+      },
+      {
         type: ComponentTypes.pagination,
         title: '分页器'
       }

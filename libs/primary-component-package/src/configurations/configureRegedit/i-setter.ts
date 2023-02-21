@@ -7,6 +7,7 @@ export enum SetterType {
   stringSetter = 'stringSetter',
   numberSetter = 'numberSetter',
   booleanSetter = 'booleanSetter',
+  radioSetter = 'radioSetter',
   checkBoxSetter = 'checkBoxSetter',
   gridColumnSpanSetter = 'gridColumnSpanSetter'
 }
@@ -42,12 +43,17 @@ export interface ICheckBoxSetter extends IBaseSetter {
   data?: Array<{ value: string; label: string }>;
 }
 
+export interface IRadioSetter extends IBaseSetter {
+  setter: SetterType.radioSetter;
+  data?: Array<{ value: string; label: string }>;
+}
+
 export interface IGridColumnSpanSetter extends IBaseSetter {
   setter: SetterType.gridColumnSpanSetter;
 }
 
 
-export type ISetter = IStringSetter | INumberSetter | IGridColumnSpanSetter | ICheckBoxSetter | IBooleanSetter;
+export type ISetter = IStringSetter | INumberSetter | IGridColumnSpanSetter | ICheckBoxSetter | IBooleanSetter | IRadioSetter;
 
 export interface ISetterGroup {
   setter: SetterType.setterGroup;

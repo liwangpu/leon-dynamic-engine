@@ -5,6 +5,7 @@ import * as _ from 'lodash';
 export interface IConfigurationAddingHandlerFilter {
   parentTypeSelector?: string | Array<string>;
   typeSelector?: string | Array<string>;
+  slotSelector?: string | Array<string>;
 }
 
 export interface IConfigurationAddingHandler {
@@ -13,7 +14,7 @@ export interface IConfigurationAddingHandler {
 
 export interface IConfigurationAddingHandlerManager {
   registerHandler(filter: IConfigurationAddingHandlerFilter, handler: IConfigurationAddingHandler): void;
-  handle(conf: IComponentConfiguration, parentConf?: IComponentConfiguration): Promise<IComponentConfiguration>;
+  handle(conf: IComponentConfiguration, parentConf?: IComponentConfiguration, slotProperty?: string): Promise<IComponentConfiguration>;
 }
 
 export class ConfigurationAddingHandlerManager implements IConfigurationAddingHandlerManager {
@@ -25,7 +26,7 @@ export class ConfigurationAddingHandlerManager implements IConfigurationAddingHa
     this.addHandlers.set(filter, handler);
   }
 
-  public async handle(conf: IComponentConfiguration, parentConf?: IComponentConfiguration): Promise<IComponentConfiguration> {
+  public async handle(conf: IComponentConfiguration, parentConf?: IComponentConfiguration, slotProperty?: string): Promise<IComponentConfiguration> {
     const matchedHandlers: Array<IConfigurationAddingHandler> = [];
     for (const [filter, handler] of this.addHandlers) {
       let parentTypeMatched = true;
@@ -34,6 +35,15 @@ export class ConfigurationAddingHandlerManager implements IConfigurationAddingHa
           parentTypeMatched = (filter.parentTypeSelector as Array<string>).some(t => t === parentConf.type);
         } else {
           parentTypeMatched = (filter.parentTypeSelector as string) === parentConf.type;
+        }
+      }
+
+      let slotMatched = true;
+      if (filter.slotSelector) {
+        if (_.isArray(filter.slotSelector)) {
+          slotMatched = (filter.slotSelector as Array<string>).some(t => t === slotProperty);
+        } else {
+          slotMatched = (filter.slotSelector as string) === slotProperty;
         }
       }
 

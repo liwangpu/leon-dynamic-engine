@@ -8,7 +8,6 @@ import { ISetter, ISetterGroup, ISetterMetadata, ISetterTab, MetadataRegedit, Se
 import { ComponentSetterPanelContext, EditorContext } from '@lowcode-engine/editor';
 import * as _ from 'lodash';
 import { Subject } from 'rxjs';
-import { SubSink } from 'subsink';
 
 const recursiveSetter = (item: ISetterGroup | ISetter) => {
   if (item.setter === SetterType.setterGroup) {
@@ -116,8 +115,6 @@ const ConfigurationForm: React.FC<IConfigurationFormProp> = memo(props => {
       }
     };
   }, [metadata]);
-
-
 
   return (
     <Form

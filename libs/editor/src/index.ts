@@ -8,7 +8,6 @@ export type { IEventMessage, IEventManager } from './models/event-manager';
 export type { IEditorContext } from './models/editor-manager';
 export type { IPlugin, IPluginRegister } from './models/plugin';
 export type { IProjectManager } from './models/project-schema-manager';
-export type { IContextMenuManager } from './models/context-menu-manager';
 export type { ISkeleton, ISkeletonManager } from './models/skeleton-manager';
 export type { ISlotPropertyMatch, ISlotPropertyDefinition, ISlotManager } from './models/slot-manager';
 export type { IConfigurationAddingHandlerFilter, IConfigurationAddingHandler, IConfigurationAddingHandlerManager } from './models/configuration-handler-manager';

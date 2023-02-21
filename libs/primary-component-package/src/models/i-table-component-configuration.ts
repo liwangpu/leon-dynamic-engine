@@ -1,5 +1,5 @@
 import { IComponentConfiguration } from '@lowcode-engine/core';
-import { TableFeature } from '../enums';
+import { TableFeature, TableSelectionMode } from '../enums';
 
 export interface IPaginationComponentConfiguration extends IComponentConfiguration {
   pageSize: number;
@@ -17,10 +17,15 @@ export interface ISerialNumberColumnComponentConfiguration extends IComponentCon
   export?: boolean;
 }
 
+export interface ISelectionColumnComponentConfiguration extends IComponentConfiguration {
+  selectionMode?: TableSelectionMode;
+}
+
 export interface ITableComponentConfiguration extends IComponentConfiguration {
   columns?: Array<IComponentConfiguration>;
   operators?: Array<IComponentConfiguration>;
   operatorColumn?: ITableOperatorColumnComponentConfiguration;
+  selectionColumn?: ISelectionColumnComponentConfiguration;
   serialNumberColumn?: ISerialNumberColumnComponentConfiguration;
   features?: Array<TableFeature>;
   pagination?: IPaginationComponentConfiguration;

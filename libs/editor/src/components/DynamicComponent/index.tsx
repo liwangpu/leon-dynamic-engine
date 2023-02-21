@@ -234,19 +234,27 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
               if (!confStr) { return; }
               let conf: IComponentConfiguration = JSON.parse(confStr);
               if (conf.id) { return; }
-              const getMatchedSlotProperties = slot.getMatchedSlotProperties(conf.type);
+              const matchedSlotProperties = slot.getMatchedSlotProperties(conf.type);
               const container2SlotProperty = dom.getSlotDomProperty(evt.to);
-              if (!getMatchedSlotProperties.some(p => p === container2SlotProperty)) { return; }
+              if (!matchedSlotProperties.some(p => p === container2SlotProperty)) { return; }
               conf.id = GenerateComponentId(conf.type);
               // 新增的组件可能会有插槽组件数据,这里需要解析一下插槽配置
               const addComponent = async (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {
                 const slotProperties = slot.getSlotProperties(subConf.type);
-                let pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
                 const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
-                pureConf = await configurationAddingHandler.handle(pureConf, parentConf);
+                subConf = await configurationAddingHandler.handle(subConf, parentConf, slotProperty);
+                let pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
                 store.addComponent(pureConf, parentId, index, slotProperty);
                 for (let sp of slotProperties) {
-                  const components: Array<IComponentConfiguration> = subConf[sp] || [];
+                  const singleton = slot.checkSlotSingleton(subConf.type, sp);
+                  let components: Array<IComponentConfiguration> = [];
+                  if (subConf[sp]) {
+                    if (singleton) {
+                      components.push(subConf[sp]);
+                    } else {
+                      components = subConf[sp];
+                    }
+                  }
                   if (!components.length) { continue; }
                   components.forEach((sc, idx) => {
                     addComponent(sc, subConf.id, idx, sp);

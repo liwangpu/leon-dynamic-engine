@@ -1,6 +1,6 @@
 import { distinctUntilChanged, map, Observable } from 'rxjs';
 import { SubSink } from 'subsink';
-import { ComponentTypes, TableFeature } from '../../enums';
+import { ComponentTypes, TableFeature, TableSelectionMode } from '../../enums';
 import { IPaginationComponentConfiguration, ISerialNumberColumnComponentConfiguration, ITableComponentConfiguration, ITableOperatorColumnComponentConfiguration } from '../../models';
 import { MetadataRegedit, SetterType } from '../configureRegedit';
 
@@ -190,6 +190,39 @@ MetadataRegedit.register({
               required: true
             },
 
+          ]
+        }
+      ]
+    },
+  ]
+}));
+
+// 表格选择列
+MetadataRegedit.register({
+  type: ComponentTypes.tableSelectionColumn
+}, async () => ({
+  tabs: [
+    {
+      title: '属性',
+      children: [
+        {
+          setter: SetterType.setterGroup,
+          title: '基本信息',
+          children: [
+            {
+              setter: SetterType.stringSetter,
+              name: 'title',
+              label: '标题',
+            },
+            {
+              setter: SetterType.radioSetter,
+              name: 'selectionMode',
+              label: '选择方式',
+              data: [
+                { value: TableSelectionMode.single, label: '单选' },
+                { value: TableSelectionMode.multiple, label: '多选' }
+              ]
+            },
           ]
         }
       ]

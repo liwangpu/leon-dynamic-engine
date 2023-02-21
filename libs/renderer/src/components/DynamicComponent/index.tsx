@@ -1,6 +1,6 @@
 import { ComponentDiscoveryContext, IDynamicComponentProps, useDataCenter } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
-import React, { memo, useContext, useEffect, useRef, useState, ComponentType } from 'react';
+import React, { useContext, useEffect, useRef, useState, ComponentType } from 'react';
 import { DataStoreContext } from '../../contexts';
 import * as _ from 'lodash';
 import { useComponentStyle } from '../../hooks';

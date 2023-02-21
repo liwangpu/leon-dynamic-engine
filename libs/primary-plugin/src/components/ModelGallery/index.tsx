@@ -29,13 +29,17 @@ export interface IBusinessModel extends IBusinessField {
   relations?: Array<IBusinessModel>;
 }
 
+export interface IModelLoader {
+  (id: string): Promise<IBusinessModel>
+}
+
 export interface IConfigurationTransfer {
   (data: IBusinessField | IBusinessModel): Promise<IComponentConfiguration>;
 }
 
 export interface IModelGalleryProps {
   mainModelId: string;
-  modelLoader: (id: string) => Promise<IBusinessModel>;
+  modelLoader: IModelLoader;
   configurationTransfer: IConfigurationTransfer;
   notification?: INotification;
 }
