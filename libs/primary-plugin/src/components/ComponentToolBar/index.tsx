@@ -33,7 +33,6 @@ const ComponentToolBar: React.FC<IComponentToolBarProps> = observer(({ store, to
     store.deleteComponent(componentId);
   };
 
-  // console.log(`activeComponentId:`, activeComponentId);
   return (
     <div className={styles['toolbar']}>
       <Button className={
