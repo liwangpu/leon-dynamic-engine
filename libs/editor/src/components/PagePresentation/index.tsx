@@ -27,7 +27,7 @@ const componentFactory: IDynamicComponentFactory = {
 
 const PagePresentation: React.FC = observer(() => {
 
-  const { event, dom, slot } = useContext(EditorContext);
+  const { event, dom, slot, store } = useContext(EditorContext);
   const presentationUtil = useMemo(() => new PagePresentationUtilContextProvider(), []);
   const presentationRef = useRef<HTMLDivElement>();
 
@@ -100,6 +100,37 @@ const PagePresentation: React.FC = observer(() => {
       };
     })();
 
+    const activeDetector = (() => {
+      const componentActiveListener = (e: MouseEvent) => {
+        e.stopPropagation();
+        const elPath: Array<EventTarget> = e.composedPath();
+        let activeComponentId: string;
+        for (let idx = 0; idx < elPath.length; idx++) {
+          const el: HTMLDivElement = elPath[idx] as any;
+          if (el && el.classList && el.classList.contains('editor-dynamic-component')) {
+            activeComponentId = el.getAttribute('data-dynamic-component');
+            break;
+          }
+        }
+
+        if (activeComponentId) {
+          e.stopPropagation();
+          store.interactionStore.activeComponent(activeComponentId);
+        }
+      };
+
+      return {
+        observe() {
+          document.body.addEventListener('click', componentActiveListener);
+        },
+        disconnect() {
+          document.body.removeEventListener('click', componentActiveListener);
+        }
+      };
+    })();
+
+    activeDetector.observe();
+
     // 订阅组件拖拽事件,激活相应组件适配插槽
     subs.sink = event.message
       .pipe(filter(e => e.topic === EventTopicEnum.componentStartDragging || e.topic === EventTopicEnum.componentEndDragging))
@@ -125,6 +156,7 @@ const PagePresentation: React.FC = observer(() => {
       });
 
     return () => {
+      activeDetector.disconnect();
       subs.unsubscribe();
     };
   }, []);

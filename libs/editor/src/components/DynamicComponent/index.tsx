@@ -1,4 +1,4 @@
-import { ComponentDiscoveryContext, GenerateComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
+import { ComponentDiscoveryContext, GenerateComponentId, IComponentConfiguration } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo } from 'react';
 import Sortable from 'sortablejs';
@@ -116,21 +116,21 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
       dom.registryComponentHost(componentId, componentRef.current);
       const componentHost = componentRef.current;
 
-      const activeDetector = (() => {
-        const componentActiveListener = (e: MouseEvent) => {
-          e.stopPropagation();
-          store.interactionStore.activeComponent(componentId);
-        };
+      // const activeDetector = (() => {
+      //   const componentActiveListener = (e: MouseEvent) => {
+      //     e.stopPropagation();
+      //     store.interactionStore.activeComponent(componentId);
+      //   };
 
-        return {
-          observe() {
-            componentHost.addEventListener('click', componentActiveListener);
-          },
-          disconnect() {
-            componentHost.removeEventListener('click', componentActiveListener);
-          }
-        };
-      })();
+      //   return {
+      //     observe() {
+      //       componentHost.addEventListener('click', componentActiveListener);
+      //     },
+      //     disconnect() {
+      //       componentHost.removeEventListener('click', componentActiveListener);
+      //     }
+      //   };
+      // })();
 
       const hoverDetector = (() => {
         const componentMouseenterHandler = (e: MouseEvent) => {
@@ -157,7 +157,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
         };
       })();
 
-      activeDetector.observe();
+      // activeDetector.observe();
       hoverDetector.observe();
 
       // 监听组件工具栏指示标记显隐性
@@ -169,7 +169,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
 
       return () => {
         intersectingObs.disconnect();
-        activeDetector.disconnect();
+        // activeDetector.disconnect();
         hoverDetector.disconnect();
         dom.unregisterComponentHost(componentId);
       };

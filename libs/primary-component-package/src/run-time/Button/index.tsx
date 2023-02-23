@@ -1,9 +1,10 @@
 import { Button as AntdButton } from 'antd';
 import React, { memo } from 'react';
 import { IComponentMetadata, IDynamicComponentProps } from '@lowcode-engine/core';
+import { ButtonUIType } from '../../models';
 
 const Button: React.FC<IDynamicComponentProps> = memo(props => {
-  const config = props.configuration;
+  const { uiType, title } = props.configuration;
   // const eventDispatch = useEventDispatch(config.id);
   const buttonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -11,7 +12,7 @@ const Button: React.FC<IDynamicComponentProps> = memo(props => {
   };
 
   return (
-    <AntdButton type="primary" onClick={buttonClick}>{config?.title}</AntdButton>
+    <AntdButton type={uiType || ButtonUIType.defaultType} onClick={buttonClick}>{title}</AntdButton>
   );
 });
 

@@ -96,7 +96,6 @@ export class SlotManager implements ISlotManager {
         }
       });
     }
-    console.log(`allSlotMap:`,this.allSlotMap);
   }
 
   public registerAddingVerification(componentType: string, verifiedFn: (conf: IComponentConfiguration) => Promise<IComponentConfiguration>): void {

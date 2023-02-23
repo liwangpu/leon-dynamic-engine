@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { ComponentTypes, TableSelectionMode } from '@lowcode-engine/primary-component-package';
 import { StoreContext } from '../../contexts';
 import { useParams } from 'react-router-dom';
-import { GenerateComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
+import { GenerateComponentId, GenerateNestedComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
 import { getSnapshot } from 'mobx-state-tree';
 import { IBusinessModel } from '@lowcode-engine/primary-plugin';
 
@@ -219,9 +219,11 @@ async function generatePageConfiguration(formValue: IFormValue, models: Array<IB
   delete conf['layout'];
   switch (formValue.layout) {
     case LayoutType.list:
+      // eslint-disable-next-line no-case-declarations
+      const tableId = GenerateComponentId(ComponentTypes.table);
       conf.children = [
         {
-          id: GenerateComponentId(ComponentTypes.table),
+          id: tableId,
           type: ComponentTypes.table,
           title: '列表',
           columns: businessModel.fields.map(f => ({
@@ -229,8 +231,8 @@ async function generatePageConfiguration(formValue: IFormValue, models: Array<IB
             type: ComponentTypes.text,
             title: f.name
           })),
-          selectionColumn:{
-            id: GenerateComponentId(ComponentTypes.tableSelectionColumn),
+          selectionColumn: {
+            id: GenerateNestedComponentId(tableId, ComponentTypes.tableSelectionColumn),
             type: ComponentTypes.tableSelectionColumn,
             title: '选择列',
             selectionMode: TableSelectionMode.multiple,

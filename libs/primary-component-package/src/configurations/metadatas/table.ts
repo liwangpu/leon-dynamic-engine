@@ -1,6 +1,7 @@
+import { GenerateNestedComponentId } from '@lowcode-engine/core';
 import { distinctUntilChanged, map, Observable } from 'rxjs';
 import { SubSink } from 'subsink';
-import { ComponentTypes, TableFeature, TableSelectionMode } from '../../enums';
+import { ComponentTypes, TableFeature, TableSelectionMode, TableSlot } from '../../enums';
 import { IPaginationComponentConfiguration, ISerialNumberColumnComponentConfiguration, ITableComponentConfiguration, ITableOperatorColumnComponentConfiguration } from '../../models';
 import { MetadataRegedit, SetterType } from '../configureRegedit';
 
@@ -45,9 +46,9 @@ MetadataRegedit.register({
       },
     ],
     onLoad: async (config: ITableComponentConfiguration, obs: Observable<ITableComponentConfiguration>) => {
-      const paginationId = `${config.id}_PAGINATION`;
-      const serialNumberColumnId = `${config.id}_SERIALNUMBERCOLUMN`;
-      const operatorColumnId = `${config.id}_OPERATORCOLUMN`;
+      const paginationId = GenerateNestedComponentId(config.id, ComponentTypes.pagination);
+      const serialNumberColumnId = GenerateNestedComponentId(config.id, ComponentTypes.tableSerialNumberColumn);
+      const operatorColumnId = GenerateNestedComponentId(config.id, ComponentTypes.tableOperatorColumn);
       // 分页功能配置切换
       subs.sink = obs
         .pipe(map(c => c.features), map(arr => arr.includes(TableFeature.pagination)))
@@ -55,7 +56,7 @@ MetadataRegedit.register({
         .subscribe((enable: boolean) => {
           if (enable) {
             const conf: IPaginationComponentConfiguration = { id: paginationId, type: ComponentTypes.pagination, title: '分页器', pageSize: 10 };
-            editor.store.addComponent(conf, config.id, 0, 'pagination');
+            editor.store.addComponent(conf, config.id, 0, TableSlot.pagination);
           } else {
             editor.store.deleteComponent(paginationId);
           }
@@ -67,7 +68,7 @@ MetadataRegedit.register({
         .subscribe((enable: boolean) => {
           if (enable) {
             const conf: ISerialNumberColumnComponentConfiguration = { id: serialNumberColumnId, type: ComponentTypes.tableSerialNumberColumn, title: '序号列', visible: true };
-            editor.store.addComponent(conf, config.id, 0, 'serialNumberColumn');
+            editor.store.addComponent(conf, config.id, 0, TableSlot.serialNumberColumn);
           } else {
             editor.store.deleteComponent(serialNumberColumnId);
           }
@@ -79,7 +80,7 @@ MetadataRegedit.register({
         .subscribe((enable: boolean) => {
           if (enable) {
             const conf: ITableOperatorColumnComponentConfiguration = { id: operatorColumnId, type: ComponentTypes.tableOperatorColumn, title: '操作列', visible: true };
-            editor.store.addComponent(conf, config.id, 0, 'operatorColumn');
+            editor.store.addComponent(conf, config.id, 0, TableSlot.operatorColumn);
           } else {
             editor.store.deleteComponent(operatorColumnId);
           }

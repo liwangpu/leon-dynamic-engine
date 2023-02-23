@@ -9,3 +9,7 @@ export function GenerateShortId(prefix?: string, size = 8): string {
 export function GenerateComponentId(type: string): string {
   return `${type.toUpperCase()}_${nanoid(8)}`;
 }
+
+export function GenerateNestedComponentId(parentId: string, componentType: string): string {
+  return `${parentId}_${componentType.toUpperCase()}`;
+}

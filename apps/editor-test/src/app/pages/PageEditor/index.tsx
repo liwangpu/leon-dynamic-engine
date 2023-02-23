@@ -5,11 +5,11 @@ import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/edito
 import { ComponentGalleryPluginRegister, ComponentToolBarRegister, IBusinessModel, ModelGalleryPluginRegister } from '@lowcode-engine/primary-plugin';
 import PageEditorOperation from '../../components/PageEditorOperation';
 import { ComponentPackageContext } from '../../contexts';
-import { ComponentTypes, ITableComponentConfiguration, TableSelectionMode } from '@lowcode-engine/primary-component-package';
+import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode, TableSlot } from '@lowcode-engine/primary-component-package';
 import { Button } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { GenerateComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
+import { GenerateComponentId, GenerateNestedComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
 import { GridSystemSection } from '@lowcode-engine/component-configuration-shared';
 import { ModelRepository } from '../../models';
 
@@ -111,11 +111,16 @@ const PageEditor: React.FC = memo(() => {
 
             configurationAddingHandler.registerHandler({ typeSelector: ComponentTypes.table }, async (conf: ITableComponentConfiguration) => {
               conf.selectionColumn = {
-                id: GenerateComponentId(ComponentTypes.tableSelectionColumn),
+                id: GenerateNestedComponentId(conf.id, ComponentTypes.tableSelectionColumn),
                 type: ComponentTypes.tableSelectionColumn,
                 selectionMode: TableSelectionMode.multiple,
                 title: '选择列',
               };
+              return conf;
+            });
+
+            configurationAddingHandler.registerHandler({ typeSelector: ComponentTypes.button, parentTypeSelector: ComponentTypes.tableOperatorColumn }, async (conf: IButtonComponentConfiguration) => {
+              conf.uiType = ButtonUIType.link;
               return conf;
             });
 
@@ -173,52 +178,6 @@ const PageEditor: React.FC = memo(() => {
 
         return { type: 'text', title: data.name };
       }),
-
-      // ModelGalleryPluginRegister(async () => {
-      //   return [fieldMap.get(model.id)];
-      // }, async (id) => {
-      //   const field = fieldMap.get(id);
-      //   const conf: IComponentConfiguration = { type: null, title: field.title };
-      //   // 做字段和组件类型映射
-      //   switch (field.type) {
-      //     case 'reference':
-      //       const currentModel = await ModelRepository.getInstance().get(field.key);
-      //       const fieldComponents = currentModel.fields.map(f => ({ id: GenerateShortId(), type: 'text', title: f.title }));
-      //       switch (pageType) {
-      //         case 'list-page':
-      //           // 列表页面主业务对象引用生成表格
-      //           conf.type = ComponentTypes.table;
-      //           (conf as ITableComponentConfiguration).columns = fieldComponents;
-      //           break;
-      //         case 'detail-page':
-      //           // 详情页主业务对象生成表单
-      //           // 子引用对象生成表格
-      //           if (id === businessModel) {
-      //             conf.type = ComponentTypes.block;
-      //             conf.children = fieldComponents;
-      //             // (conf as IBlockComponentConfiguration).columns = 2;
-      //           } else {
-      //             conf.type = ComponentTypes.table;
-      //             (conf as ITableComponentConfiguration).columns = fieldComponents;
-      //           }
-      //           break;
-      //         default:
-      //           break;
-      //       }
-      //       break;
-      //     case 'number':
-      //       conf.type = ComponentTypes.number;
-      //       break;
-      //     default:
-      //       conf.type = ComponentTypes.text;
-      //       break;
-      //   }
-
-      //   if (!conf.type) {
-      //     return null;
-      //   }
-      //   return conf;
-      // }),
       ComponentToolBarRegister({
         [ComponentTypes.listPage]: [],
         [ComponentTypes.detailPage]: [],
