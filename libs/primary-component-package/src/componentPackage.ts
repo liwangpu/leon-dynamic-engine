@@ -1,6 +1,57 @@
 import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from '@lowcode-engine/core';
 import { ComponentTypes } from './enums';
 
+export const ComponentDescriptions: IComponentDescription[] = [
+  {
+    type: ComponentTypes.listPage,
+    title: '页面'
+  },
+  {
+    type: ComponentTypes.detailPage,
+    title: '页面'
+  },
+  {
+    type: ComponentTypes.button,
+    title: '按钮'
+  },
+  {
+    type: ComponentTypes.buttonGroup,
+    title: '按钮组'
+  },
+  {
+    type: ComponentTypes.block,
+    title: '区块'
+  },
+  {
+    type: ComponentTypes.text,
+    title: '文本'
+  },
+  {
+    type: ComponentTypes.number,
+    title: '数字'
+  },
+  {
+    type: ComponentTypes.table,
+    title: '表格'
+  },
+  {
+    type: ComponentTypes.tableSerialNumberColumn,
+    title: '表格序号列'
+  },
+  {
+    type: ComponentTypes.tableOperatorColumn,
+    title: '表格操作列'
+  },
+  {
+    type: ComponentTypes.tableSelectionColumn,
+    title: '表格选择列'
+  },
+  {
+    type: ComponentTypes.pagination,
+    title: '分页器'
+  }
+];
+
 export class ComponentPackage implements IComponentPackage {
 
   name = 'PrimaryComponentPackage';
@@ -17,56 +68,7 @@ export class ComponentPackage implements IComponentPackage {
   }
 
   async queryComponentDescriptions(): Promise<IComponentDescription[]> {
-    return [
-      {
-        type: ComponentTypes.listPage,
-        title: '页面'
-      },
-      {
-        type: ComponentTypes.detailPage,
-        title: '页面'
-      },
-      {
-        type: ComponentTypes.button,
-        title: '按钮'
-      },
-      {
-        type: ComponentTypes.buttonGroup,
-        title: '按钮组'
-      },
-      {
-        type: ComponentTypes.block,
-        title: '区块'
-      },
-      {
-        type: ComponentTypes.text,
-        title: '文本'
-      },
-      {
-        type: ComponentTypes.number,
-        title: '数字'
-      },
-      {
-        type: ComponentTypes.table,
-        title: '表格'
-      },
-      {
-        type: ComponentTypes.tableSerialNumberColumn,
-        title: '表格序号列'
-      },
-      {
-        type: ComponentTypes.tableOperatorColumn,
-        title: '表格操作列'
-      },
-      {
-        type: ComponentTypes.tableSelectionColumn,
-        title: '表格选择列'
-      },
-      {
-        type: ComponentTypes.pagination,
-        title: '分页器'
-      }
-    ];
+    return ComponentDescriptions;
   }
 
   async getComponentDescription(type: string): Promise<IComponentDescription> {

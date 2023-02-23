@@ -12,6 +12,8 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { GenerateComponentId, GenerateNestedComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
 import { GridSystemSection } from '@lowcode-engine/component-configuration-shared';
 import { ModelRepository } from '../../models';
+import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
+import { IVideoPlayerComponentConfiguration } from '../../video-player';
 
 const buttonTypes: Array<ComponentTypes> = [
   ComponentTypes.button,
@@ -124,6 +126,11 @@ const PageEditor: React.FC = memo(() => {
               return conf;
             });
 
+            configurationAddingHandler.registerHandler({ typeSelector: VideoPlayerComponentTypes.videoPlayer }, async (conf: IVideoPlayerComponentConfiguration) => {
+              conf.vedioUrl = 'https://www.runoob.com/try/demo_source/movie.ogg';
+              return conf;
+            });
+
             configurationAddingHandler.registerHandler({ typeSelector: null }, async (conf) => {
               // eslint-disable-next-line no-param-reassign
               conf.code = GenerateShortId();
@@ -167,6 +174,12 @@ const PageEditor: React.FC = memo(() => {
           components: [
             ComponentTypes.button,
             // ComponentTypes.buttonGroup
+          ]
+        },
+        {
+          title: '其他',
+          components: [
+            VideoPlayerComponentTypes.videoPlayer
           ]
         }
       ]),

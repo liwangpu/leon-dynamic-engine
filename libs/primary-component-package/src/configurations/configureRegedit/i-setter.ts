@@ -19,6 +19,7 @@ export interface IBaseSetter {
   name: string;
   required?: boolean;
   help?: string;
+  disabled?: boolean;
   // 开发不需自己设置,表单渲染引擎会自己设置
   key?: string;
 }

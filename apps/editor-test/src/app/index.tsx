@@ -3,12 +3,14 @@ import { Outlet } from "react-router-dom";
 import { memo } from 'react';
 import { ComponentPackageContext } from './contexts';
 import { IComponentPackage } from '@lowcode-engine/core';
-import { ComponentPackage as PrimaryComponentMarket } from '@lowcode-engine/primary-component-package';
 import { DataStoreCollocationContext, EditorStoreModel, IDataStoreCollocation } from '@lowcode-engine/editor';
+import { ComponentPackage as PrimaryComponentPackage } from '@lowcode-engine/primary-component-package';
+import { ComponentPackage as VideoPlayerComponentPackage } from './video-player'
 import { connectReduxDevtools } from 'mst-middlewares';
 
 const packages: Array<IComponentPackage> = [
-  PrimaryComponentMarket.getInstance(),
+  PrimaryComponentPackage.getInstance(),
+  VideoPlayerComponentPackage.getInstance()
   // componentPackageRemoteLoader(() => import('primary-component-package/componentPackage') as any)
 ];
 

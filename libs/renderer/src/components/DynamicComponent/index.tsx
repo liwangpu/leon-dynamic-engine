@@ -19,7 +19,7 @@ const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props => {
           return Promise.resolve(m)
         });
         if (module) {
-          Component.current = EditorUIEffectWrapper(module.default);
+          Component.current = DataCenterDetectorWrapper(module.default);
           setComponentLoaded(true);
         }
       })();
@@ -37,7 +37,7 @@ DynamicComponent.displayName = 'DynamicComponent';
 
 export default DynamicComponent;
 
-const EditorUIEffectWrapper = (Component: ComponentType<IDynamicComponentProps>) => {
+const DataCenterDetectorWrapper = (Component: ComponentType<IDynamicComponentProps>) => {
 
   const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
     const store = useContext(DataStoreContext);

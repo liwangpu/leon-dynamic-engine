@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 import { Subject } from 'rxjs';
 
 
-const DynamicConfigurationForm: React.FC = memo(props => {
+const DynamicConfigurationForm: React.FC<IComponentConfigurationPanelProps> = memo(props => {
 
   const setterContext = useContext(ComponentSetterPanelContext);
   const editorContext = useContext(EditorContext);
@@ -15,7 +15,7 @@ const DynamicConfigurationForm: React.FC = memo(props => {
 
   return (
     <div>
-
+      配置面板
     </div>
   );
 });

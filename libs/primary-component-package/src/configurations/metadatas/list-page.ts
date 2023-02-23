@@ -13,6 +13,12 @@ const metadataGenerator: ISetterMetadataGenerator = async (ctx) => {
             title: '基本信息',
             children: [
               {
+                setter: SetterType.componentTypeSetter,
+                name: 'type',
+                label: '组件类型',
+                disabled: true,
+              },
+              {
                 setter: SetterType.stringSetter,
                 name: 'title',
                 label: '标题',

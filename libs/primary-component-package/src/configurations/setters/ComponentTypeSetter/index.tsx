@@ -1,12 +1,15 @@
-import { memo } from 'react';
-import { Checkbox, Form } from 'antd';
+import { memo, useMemo } from 'react';
+import { Form, Select } from 'antd';
 import { IBooleanSetter, SetterRegedit, SetterType } from '../../configureRegedit';
+import { ComponentDescriptions } from '../../../componentPackage';
 
 const Setter: React.FC<IBooleanSetter> = memo(props => {
 
-  const { label, name, required, help } = props;
+  const { label, name, required, help, disabled } = props;
 
-
+  const options = useMemo(() => {
+    return ComponentDescriptions.map(d => ({ value: d.type, label: d.title }));
+  }, []);
 
   return (
     <Form.Item
@@ -14,7 +17,7 @@ const Setter: React.FC<IBooleanSetter> = memo(props => {
       name={name}
       rules={[{ required, message: help }]}
     >
-      {/* <Input /> */}
+      <Select disabled={disabled} options={options} />
     </Form.Item>
   );
 });

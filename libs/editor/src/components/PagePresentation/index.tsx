@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
 import { _Renderer } from '@lowcode-engine/renderer';
@@ -102,8 +102,18 @@ const PagePresentation: React.FC = observer(() => {
 
     const activeDetector = (() => {
       const componentActiveListener = (e: MouseEvent) => {
-        e.stopPropagation();
         const elPath: Array<EventTarget> = e.composedPath();
+        let presentationLocated = false;
+        // 为了优化判断,先反向从windows>body>...方向,判断如果路径经过画布再执行接下来的判断
+        for (let idx = elPath.length - 1; idx >= 0; idx--) {
+          const el: HTMLDivElement = elPath[idx] as any;
+          if (el === presentationRef.current) {
+            presentationLocated = true;
+            break;
+          }
+        }
+        if (!presentationLocated) { return; }
+        e.stopPropagation();
         let activeComponentId: string;
         for (let idx = 0; idx < elPath.length; idx++) {
           const el: HTMLDivElement = elPath[idx] as any;

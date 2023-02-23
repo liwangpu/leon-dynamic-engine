@@ -1,9 +1,7 @@
-import { DownOutlined, LeftOutlined, RightOutlined, VerticalLeftOutlined, VerticalRightOutlined } from '@ant-design/icons';
 import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import React, { memo, useMemo } from 'react';
-import { IPaginationComponentConfiguration, ITableOperatorColumnComponentConfiguration } from '../../models';
+import { ITableOperatorColumnComponentConfiguration } from '../../models';
 import styles from './index.module.less';
-import classnames from 'classnames';
 
 const TableOperatorColumn: React.FC<IDynamicComponentProps<ITableOperatorColumnComponentConfiguration>> = memo(props => {
   

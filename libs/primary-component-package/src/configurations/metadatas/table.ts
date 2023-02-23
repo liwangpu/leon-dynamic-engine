@@ -20,6 +20,12 @@ MetadataRegedit.register({
             title: '基本信息',
             children: [
               {
+                setter: SetterType.componentTypeSetter,
+                name: 'type',
+                label: '组件类型',
+                disabled: true,
+              },
+              {
                 setter: SetterType.stringSetter,
                 name: 'title',
                 label: '标题',
@@ -105,6 +111,12 @@ MetadataRegedit.register({
           title: '基本信息',
           children: [
             {
+              setter: SetterType.componentTypeSetter,
+              name: 'type',
+              label: '组件类型',
+              disabled: true,
+            },
+            {
               setter: SetterType.stringSetter,
               name: 'title',
               label: '标题',
@@ -137,6 +149,12 @@ MetadataRegedit.register({
           setter: SetterType.setterGroup,
           title: '基本信息',
           children: [
+            {
+              setter: SetterType.componentTypeSetter,
+              name: 'type',
+              label: '组件类型',
+              disabled: true,
+            },
             {
               setter: SetterType.stringSetter,
               name: 'title',
@@ -185,6 +203,12 @@ MetadataRegedit.register({
           title: '基本信息',
           children: [
             {
+              setter: SetterType.componentTypeSetter,
+              name: 'type',
+              label: '组件类型',
+              disabled: true,
+            },
+            {
               setter: SetterType.stringSetter,
               name: 'title',
               label: '标题',
@@ -210,6 +234,12 @@ MetadataRegedit.register({
           setter: SetterType.setterGroup,
           title: '基本信息',
           children: [
+            {
+              setter: SetterType.componentTypeSetter,
+              name: 'type',
+              label: '组件类型',
+              disabled: true,
+            },
             {
               setter: SetterType.stringSetter,
               name: 'title',
