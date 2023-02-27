@@ -1,8 +1,7 @@
 import { memo } from 'react';
 import styles from './index.module.less';
 import { Form, Radio } from 'antd';
-import { IBaseSetter, SetterRegedit, SetterType } from '../../configureRegedit';
-import { GridSystemSection } from '@lowcode-engine/component-configuration-shared';
+import { GridSystemSection, IBaseSetter } from '@lowcode-engine/component-configuration-shared';
 
 const options = [
   { label: '1/4', value: GridSystemSection['1/4'] },
@@ -29,4 +28,5 @@ const Setter: React.FC<IBaseSetter> = memo(props => {
 
 Setter.displayName = 'GridColumnSpanSetter';
 
-SetterRegedit.register(SetterType.gridColumnSpanSetter, Setter);
+export default Setter;
+

@@ -3,15 +3,21 @@ import { IEditorContext } from '@lowcode-engine/editor';
 import { Observable } from 'rxjs';
 
 export enum SetterType {
-  setterGroup = 'setterGroup',
+  // 单个类型
   stringSetter = 'stringSetter',
   numberSetter = 'numberSetter',
   booleanSetter = 'booleanSetter',
   radioSetter = 'radioSetter',
   checkBoxSetter = 'checkBoxSetter',
   gridColumnSpanSetter = 'gridColumnSpanSetter',
-  componentTypeSetter = 'componentTypeSetter'
+  // group类型
+  primaryHeadingSetter = 'primaryHeadingSetter',
+  secondaryHeadingSetter = 'secondaryHeadingSetter',
+  listSetter = 'listSetter',
+  listItemSetter = 'listItemSetter',
+  // componentTypeSetter = 'componentTypeSetter'
 }
+
 
 export interface IBaseSetter {
   setter: any;
@@ -39,7 +45,6 @@ export interface IBooleanSetter extends IBaseSetter {
   setter: SetterType.booleanSetter;
 }
 
-
 export interface ICheckBoxSetter extends IBaseSetter {
   setter: SetterType.checkBoxSetter;
   data?: Array<{ value: string; label: string }>;
@@ -54,29 +59,50 @@ export interface IGridColumnSpanSetter extends IBaseSetter {
   setter: SetterType.gridColumnSpanSetter;
 }
 
-export interface IComponentTypeSetter extends IBaseSetter {
-  setter: SetterType.componentTypeSetter;
+export type ISetter = IStringSetter | INumberSetter | IGridColumnSpanSetter | ICheckBoxSetter | IBooleanSetter | IRadioSetter;
+
+
+export interface IBaseGroupSetter {
+  title: string;
+  name?: string;
+  children?: Array<ISetter | ISetterGroup | { [key: string]: any }>;
+  collapsible?: boolean;
+  // 开发不需自己设置,表单渲染引擎会自己设置
+  key?: string;
+}
+
+export interface IPrimaryHeadingSetter extends IBaseGroupSetter {
+  setter: SetterType.primaryHeadingSetter;
+}
+
+export interface ISecondaryHeadingSetter extends IBaseGroupSetter {
+  setter: SetterType.secondaryHeadingSetter;
+}
+
+export interface IListSetter extends IBaseGroupSetter {
+  setter: SetterType.listSetter;
+  itemSetter?: SetterType | string;
+}
+
+export interface IListItemSetter extends IBaseGroupSetter {
+  setter: string;
 }
 
 
-export type ISetter = IStringSetter | INumberSetter | IGridColumnSpanSetter | ICheckBoxSetter | IBooleanSetter | IRadioSetter | IComponentTypeSetter;
+export type ISetterGroup = IPrimaryHeadingSetter | ISecondaryHeadingSetter | IListSetter | IListItemSetter;
 
-export interface ISetterGroup {
-  setter: SetterType.setterGroup;
-  title: string;
-  children?: Array<ISetter>;
-  // 开发不需自己设置,表单渲染引擎会自己设置
-  key?: string;
+export function isSetterGroup(setter: ISetterGroup | ISetter): setter is ISetterGroup {
+  return 'children' in setter;
 }
 
 export interface ISetterTab {
   title: string;
-  children?: Array<ISetterGroup | ISetter>;
+  children?: Array<ISetterGroup | ISetter | { [key: string]: any }>;
   // 开发不需自己设置,表单渲染引擎会自己设置
   key?: string;
 }
 
-export interface ISetterMetadata {
+export interface IFormMetadata {
   tabs: Array<ISetterTab>;
   onLoad?: (config: IComponentConfiguration, valueChange$: Observable<IComponentConfiguration>) => Promise<void>;
   onDestroy?: () => Promise<void>;
@@ -84,5 +110,5 @@ export interface ISetterMetadata {
 }
 
 export interface ISetterMetadataGenerator {
-  (editorContext: IEditorContext): Promise<ISetterMetadata>;
+  (editorContext: IEditorContext): Promise<IFormMetadata>;
 }

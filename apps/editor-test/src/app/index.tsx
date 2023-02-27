@@ -9,8 +9,8 @@ import { ComponentPackage as VideoPlayerComponentPackage } from './video-player'
 import { connectReduxDevtools } from 'mst-middlewares';
 
 const packages: Array<IComponentPackage> = [
-  PrimaryComponentPackage.getInstance(),
-  VideoPlayerComponentPackage.getInstance()
+  PrimaryComponentPackage.instance,
+  VideoPlayerComponentPackage.instance
   // componentPackageRemoteLoader(() => import('primary-component-package/componentPackage') as any)
 ];
 

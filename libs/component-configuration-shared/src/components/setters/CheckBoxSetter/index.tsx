@@ -1,10 +1,12 @@
 import { memo } from 'react';
 import { Checkbox, Form } from 'antd';
-import { ICheckBoxSetter, SetterRegedit, SetterType } from '../../configureRegedit';
+import { ICheckBoxSetter } from '../../../models';
+import { useSetterName } from '../../../hooks';
 
 const Setter: React.FC<ICheckBoxSetter> = memo(props => {
 
-  const { label, name, required, help, data } = props;
+  const { label, required, help, data } = props;
+  const name = useSetterName(props);
 
   return (
     <Form.Item
@@ -19,4 +21,4 @@ const Setter: React.FC<ICheckBoxSetter> = memo(props => {
 
 Setter.displayName = 'CheckBoxSetter';
 
-SetterRegedit.register(SetterType.checkBoxSetter, Setter);
+export default Setter;

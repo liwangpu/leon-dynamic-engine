@@ -1,4 +1,2 @@
-export interface IInputProp {
-  value?: any;
-  onChange?: (val: any) => void;
-}
+export * from './dynamic-form';
+export * from './i-setter';

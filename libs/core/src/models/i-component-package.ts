@@ -25,11 +25,11 @@ export interface IRunTimePackageModule {
 };
 
 export interface IDesignTimePackageModule {
-  default: ComponentType<IDynamicComponentProps>
+  default: ComponentType<IDynamicComponentProps>;
 };
 
 export interface IConfigurationPackageModule {
-  default: ComponentType<IComponentConfigurationPanelProps>
+  default: ComponentType<IComponentConfigurationPanelProps>;
 };
 
 export interface IComponentPackage {

@@ -1,10 +1,13 @@
 import { memo } from 'react';
 import { Form, InputNumber } from 'antd';
-import { INumberSetter, SetterRegedit, SetterType } from '../../configureRegedit';
+import { INumberSetter } from '../../../models';
+import { useSetterName } from '../../../hooks';
 
 const Setter: React.FC<INumberSetter> = memo(props => {
 
-  const { label, name, required, help, min, max, step } = props;
+  const { label, required, help, min, max, step } = props;
+  const name = useSetterName(props);
+
   return (
     <Form.Item
       label={label}
@@ -18,4 +21,5 @@ const Setter: React.FC<INumberSetter> = memo(props => {
 
 Setter.displayName = 'NumberSetter';
 
-SetterRegedit.register(SetterType.numberSetter, Setter);
+export default Setter;
+

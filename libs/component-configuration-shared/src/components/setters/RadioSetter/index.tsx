@@ -1,10 +1,12 @@
 import { memo } from 'react';
 import { Form, Radio } from 'antd';
-import { IRadioSetter, SetterRegedit, SetterType } from '../../configureRegedit';
+import { IRadioSetter } from '../../../models';
+import { useSetterName } from '../../../hooks';
 
 const Setter: React.FC<IRadioSetter> = memo(props => {
 
-  const { label, name, required, help, data } = props;
+  const { label, required, help, data } = props;
+  const name = useSetterName(props);
 
   return (
     <Form.Item
@@ -19,4 +21,6 @@ const Setter: React.FC<IRadioSetter> = memo(props => {
 
 Setter.displayName = 'RadioSetter';
 
-SetterRegedit.register(SetterType.radioSetter, Setter);
+export default Setter;
+
+

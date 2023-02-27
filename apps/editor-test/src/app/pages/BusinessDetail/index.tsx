@@ -16,7 +16,6 @@ const BusinessDetail: React.FC = observer(() => {
 
   useEffect(() => {
     (async () => {
-      console.log(`businessModel:`,businessModel);
       const model = await ModelRepository.getInstance().get(businessModel);
       setTitle(model.name);
     })();

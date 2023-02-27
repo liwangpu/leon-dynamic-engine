@@ -1,3 +1,4 @@
+import { DynamicForm } from '@lowcode-engine/component-configuration-shared';
 import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from '@lowcode-engine/core';
 import { ComponentTypes } from './enums';
 
@@ -11,16 +12,16 @@ export const ComponentDescriptions: IComponentDescription[] = [
 export class ComponentPackage implements IComponentPackage {
 
   readonly name = 'VideoPlayerComponentPackage';
-  private static instance: ComponentPackage;
+  private static _instance: ComponentPackage;
   private constructor() {
     //
   }
 
-  static getInstance(): ComponentPackage {
-    if (!this.instance) {
-      this.instance = new ComponentPackage();
+  public static get instance(): ComponentPackage {
+    if (!this._instance) {
+      this._instance = new ComponentPackage();
     }
-    return this.instance;
+    return this._instance;
   }
 
   async queryComponentDescriptions(): Promise<IComponentDescription[]> {
@@ -66,12 +67,17 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentConfigurationModule(type: ComponentTypes, platform: string): Promise<IConfigurationPackageModule> {
+    // 自己开发配置面板
     switch (type) {
       case ComponentTypes.videoPlayer:
         return import('./configurations/VideoPlayer');
       default:
         return null;
     }
+
+    // // 使用动态表单配置面板
+    // await import('./configurations/metadata-register');
+    // return DynamicForm.instance.loadForm();
   }
 
 }

@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import { Form, Select } from 'antd';
-import { IBooleanSetter, SetterRegedit, SetterType } from '../../configureRegedit';
 import { ComponentDescriptions } from '../../../componentPackage';
+import { IBooleanSetter } from '@lowcode-engine/component-configuration-shared';
 
 const Setter: React.FC<IBooleanSetter> = memo(props => {
 
@@ -24,4 +24,4 @@ const Setter: React.FC<IBooleanSetter> = memo(props => {
 
 Setter.displayName = 'ComponentTypeSetter';
 
-SetterRegedit.register(SetterType.componentTypeSetter, Setter);
+export default Setter;

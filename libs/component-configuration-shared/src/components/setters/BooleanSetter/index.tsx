@@ -1,10 +1,13 @@
 import { memo } from 'react';
 import { Checkbox, Form } from 'antd';
-import { IBooleanSetter, SetterRegedit, SetterType } from '../../configureRegedit';
+import { IBooleanSetter } from '../../../models';
+import { useSetterName } from '../../../hooks';
 
 const Setter: React.FC<IBooleanSetter> = memo(props => {
 
-  const { label, name, required, help } = props;
+  const { label, required, help } = props;
+  const name = useSetterName(props);
+
   return (
     <Form.Item
       valuePropName="checked"
@@ -18,4 +21,4 @@ const Setter: React.FC<IBooleanSetter> = memo(props => {
 
 Setter.displayName = 'BooleanSetter';
 
-SetterRegedit.register(SetterType.booleanSetter, Setter);
+export default Setter;

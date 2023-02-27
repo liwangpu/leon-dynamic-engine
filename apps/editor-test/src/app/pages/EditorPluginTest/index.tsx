@@ -10,7 +10,11 @@ const routers: Array<INavItem> = [
   {
     title: '模型插件',
     path: '/app/editor-plugin-test/model-gallery'
-  }
+  },
+  {
+    title: '动态配置器',
+    path: '/app/editor-plugin-test/dynamic-form'
+  },
 ];
 
 const EditorPluginTest: React.FC = memo(props => {

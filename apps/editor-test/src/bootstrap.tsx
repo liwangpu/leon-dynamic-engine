@@ -15,6 +15,7 @@ const PagePreview = React.lazy(() => import('./app/pages/PagePreview'));
 const EditorPluginTest = React.lazy(() => import('./app/pages/EditorPluginTest'));
 const ComponentGalleryTest = React.lazy(() => import('./app/pages/ComponentGalleryTest'));
 const ModelGalleryTest = React.lazy(() => import('./app/pages/ModelGalleryTest'));
+const DynamicFormTest = React.lazy(() => import('./app/pages/DynamicFormTest'));
 
 function WrapperSuspense(WrappedComponent: React.ComponentType) {
   return (
@@ -67,8 +68,12 @@ const router = createBrowserRouter([
             element: WrapperSuspense(ModelGalleryTest),
           },
           {
+            path: 'dynamic-form',
+            element: WrapperSuspense(DynamicFormTest),
+          },
+          {
             index: true,
-            element: <Navigate to="component-gallery" replace={true} />,
+            element: <Navigate to="dynamic-form" replace={true} />,
           },
         ]
       },
