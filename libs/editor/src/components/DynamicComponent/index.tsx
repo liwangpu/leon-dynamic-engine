@@ -8,6 +8,8 @@ import * as _ from 'lodash';
 import { useComponentStyle } from '@lowcode-engine/renderer';
 import classnames from 'classnames';
 
+const COMPONENT_ROOT_DOM_ACTIVE_FLAG = 'active-state';
+
 export interface IDynamicComponentProps {
   configuration: IComponentConfiguration;
 }
@@ -105,18 +107,20 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
     const pagePresentationUtil = useContext(PagePresentationUtilContext);
     const conf = props.configuration;
     const style = useComponentStyle(props.configuration);
-    const componentRef = useRef<HTMLDivElement>(null);
+    const componentWrapperRef = useRef<HTMLDivElement>(null);
+    const componentRootRef = useRef<Element>(null);
     const toolbarIntersectingFlagRef = useRef<HTMLDivElement>(null);
     const componentContainerRefs = useRef<HTMLElement[]>();
     const componentId = conf.id;
-    const childrenIds = [];
     const activeComponentId = store.interactionStore.activeComponentId;
     const componentType = store.treeStore.selectComponentType(componentId);
 
     useEffect(() => {
-      dom.registryComponentHost(componentId, componentRef.current);
-      const componentHost = componentRef.current;
-
+      dom.registryComponentHost(componentId, componentWrapperRef.current);
+      const componentHost = componentWrapperRef.current;
+      if (componentHost.children.length) {
+        componentRootRef.current = componentHost.children[componentHost.children.length - 1];
+      }
       const hoverDetector = (() => {
         const componentMouseenterHandler = (e: MouseEvent) => {
           e.stopPropagation();
@@ -160,14 +164,14 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
 
     // 为组件的动态组件容器添加拖拽响应
     useEffect(() => {
-      const componentHost = componentRef.current;
+      const componentHost = componentWrapperRef.current;
       const containerSelector = `[data-dynamic-component-container][data-dynamic-container-owner="${componentId}"]`;
       componentContainerRefs.current = Array.from(componentHost.querySelectorAll(containerSelector));
       // 如果子节点没有发现,试试在父节点找,因为父节点可能本身也是容器
       let isContainer = componentContainerRefs.current.length > 0;
       if (!isContainer) {
         if (componentHost.getAttribute('data-dynamic-component-container')) {
-          componentContainerRefs.current = [componentRef.current];
+          componentContainerRefs.current = [componentWrapperRef.current];
           isContainer = true;
         }
       }
@@ -329,12 +333,19 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
         sortableInstances.forEach(ins => ins.destroy());
         slotPropertyDoms.forEach(el => dom.unregisterComponentSlotHost(el));
       };
-    }, [childrenIds]);
+    }, []);
 
     useEffect(() => {
       // 之所以在这里发event事件,是因为希望componentActiving发送之前,dom已经初始化完毕
       if (componentId === activeComponentId) {
         event.emit(EventTopicEnum.componentActiving, componentId);
+        if (componentRootRef.current) {
+          componentRootRef.current.classList.add(COMPONENT_ROOT_DOM_ACTIVE_FLAG);
+        }
+      } else {
+        if (componentRootRef.current) {
+          componentRootRef.current.classList.remove(COMPONENT_ROOT_DOM_ACTIVE_FLAG);
+        }
       }
     }, [activeComponentId]);
 
@@ -345,11 +356,12 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
         {
           ['editor-dynamic-component--active']: activeComponentId === componentId
         }
-      )} data-dynamic-component={componentId} data-dynamic-component-type={componentType} style={style} ref={componentRef}>
+      )} data-dynamic-component={componentId} data-dynamic-component-type={componentType} style={style} ref={componentWrapperRef}>
         <div className='toolbar-intersecting-flag' ref={toolbarIntersectingFlagRef}></div>
         <div className='dragdrop-placeholder-flag'></div>
         <div className='presentation-flag presentation-flag__activated-state'></div>
         <div className='presentation-flag presentation-flag__hovering-state'></div>
+        {/* 别在把其他辅助节点加在Component后面,因为设计器会根据最后一个节点获取动态组件根节点dom */}
         <Component configuration={props.configuration} children={props['children']} />
       </div>
     );

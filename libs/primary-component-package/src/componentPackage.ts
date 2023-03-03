@@ -1,8 +1,8 @@
 import { DynamicForm } from '@lowcode-engine/component-configuration-shared';
 import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from '@lowcode-engine/core';
 import { ComponentTypes } from './enums';
-import RegisterConfigurationMetadata from './configurations/metadatas';
-import RegisterSetter from './configurations/setters';
+// import RegisterConfigurationMetadata from './configurations/metadatas';
+// import RegisterSetter from './configurations/setters';
 
 export const ComponentDescriptions: IComponentDescription[] = [
   {
@@ -141,8 +141,8 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentConfigurationModule(type: ComponentTypes, platform: string): Promise<IConfigurationPackageModule> {
-    RegisterConfigurationMetadata();
-    RegisterSetter();
+    // RegisterConfigurationMetadata();
+    // RegisterSetter();
     return DynamicForm.instance.loadForm();
   }
 

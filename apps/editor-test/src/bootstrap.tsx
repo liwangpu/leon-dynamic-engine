@@ -5,6 +5,14 @@ import React, { Suspense } from 'react';
 import { createStore } from './app/stores';
 import { StoreContext } from './app/contexts';
 import { ModelRepository, PageRepository } from './app/models';
+import hotkeys from 'hotkeys-js';
+
+// 添加用作测试的一些快捷按键
+hotkeys('f7', function (event, handler) {
+  // Prevent the default refresh event under WINDOWS system
+  event.preventDefault();
+  console.log(`shortct key f7 click`,);
+});
 
 const store = createStore();
 

@@ -1,12 +1,11 @@
 import { IComponentConfiguration } from '@lowcode-engine/core';
-import React, { ComponentType, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { ComponentType, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './index.module.less';
 import { Empty } from 'antd';
 import { ComponentSetterPanelContext, EditorContext, ISetterPanelContext } from '../../contexts';
 import { observer } from 'mobx-react-lite';
 import * as _ from 'lodash';
 import classnames from 'classnames';
-import { getSnapshot } from 'mobx-state-tree';
 
 export interface DynamicComponentSettingPanelProps {
   componentId: string;

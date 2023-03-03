@@ -1,9 +1,9 @@
 import { IComponentConfiguration, IComponentConfigurationPanelProps } from '@lowcode-engine/core';
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { ComponentSetterPanelContext, EditorContext } from '@lowcode-engine/editor';
 import * as _ from 'lodash';
-import { IFormMetadata, ISetter, ISetterGroup, ISetterTab, SetterType, DynamicForm as DynamicFormManager, isSetterGroup } from '../../models';
-import { Button, Empty, Form, Tabs } from 'antd';
+import { IFormMetadata, ISetter, ISetterGroup, ISetterTab, DynamicForm as DynamicFormManager, isSetterGroup } from '../../models';
+import { Empty, Form, Tabs } from 'antd';
 import { Subject } from 'rxjs';
 import './index.less';
 import { ISettterContext, ISettterRendererContext, SettterContext, SettterRendererContext } from '../../contexts';
@@ -48,6 +48,7 @@ const DynamicForm: React.FC<IComponentConfigurationPanelProps> = memo(props => {
   const setterContext = useContext(ComponentSetterPanelContext);
   const editorContext = useContext(EditorContext);
   const [metadata, setMetadata] = useState<IFormMetadata>();
+  const [metadataLoaded, setMetadataLoaded] = useState<boolean>();
 
   useEffect(() => {
     (async () => {
@@ -64,9 +65,11 @@ const DynamicForm: React.FC<IComponentConfigurationPanelProps> = memo(props => {
       }
       if (!metaGenerator) {
         setMetadata(null);
+        setMetadataLoaded(true);
         return;
       }
       const md = await metaGenerator(editorContext);
+      setMetadataLoaded(true);
       setMetadata(generateKeyForSetterMetadata(md));
     })();
   }, [setterContext]);
@@ -77,7 +80,7 @@ const DynamicForm: React.FC<IComponentConfigurationPanelProps> = memo(props => {
         {metadata && (
           <ConfigurationForm metadata={metadata} configuration={value} onChange={onChange} />
         )}
-        {!metadata && (
+        {metadataLoaded && !metadata && (
           <div className='empty-form-placeholder'>
             <Empty description='没有注册动态表单元数据' />
           </div>

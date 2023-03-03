@@ -5,15 +5,18 @@ import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/edito
 import { ComponentGalleryPluginRegister, ComponentToolBarRegister, IBusinessModel, ModelGalleryPluginRegister } from '@lowcode-engine/primary-plugin';
 import PageEditorOperation from '../../components/PageEditorOperation';
 import { ComponentPackageContext } from '../../contexts';
-import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode, TableSlot } from '@lowcode-engine/primary-component-package';
+import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode,RegisterConfigurationMetadata,RegisterSetter } from '@lowcode-engine/primary-component-package';
 import { Button } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { GenerateComponentId, GenerateNestedComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
+import { GenerateNestedComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
 import { GridSystemSection } from '@lowcode-engine/component-configuration-shared';
 import { ModelRepository } from '../../models';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
 import { IVideoPlayerComponentConfiguration } from '../../video-player';
+
+RegisterConfigurationMetadata();
+RegisterSetter();
 
 const buttonTypes: Array<ComponentTypes> = [
   ComponentTypes.button,
@@ -183,6 +186,7 @@ const PageEditor: React.FC = memo(() => {
           ]
         }
       ]),
+
       // 模型库注册插件
       ModelGalleryPluginRegister(businessModel, async id => {
         return ModelRepository.getInstance().get(id);

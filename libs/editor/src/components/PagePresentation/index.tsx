@@ -165,6 +165,12 @@ const PagePresentation: React.FC = observer(() => {
         componentHoverUIEffectHandler.hover(componentId);
       });
 
+    // subs.sink = event.message
+    //   .pipe(filter(e => e.topic === EventTopicEnum.componentActiving))
+    //   .subscribe(d => {
+    //     console.log(`active:`, d);
+    //   });
+
     return () => {
       activeDetector.disconnect();
       subs.unsubscribe();
