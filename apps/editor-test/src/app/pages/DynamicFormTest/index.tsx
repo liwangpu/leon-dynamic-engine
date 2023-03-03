@@ -6,7 +6,10 @@ import { DynamicForm } from '@lowcode-engine/component-configuration-shared';
 import { IComponentConfiguration, IComponentConfigurationPanelProps } from '@lowcode-engine/core';
 import { CommonSlot, ComponentTypes } from '@lowcode-engine/primary-component-package';
 import registerMetadata from './metadata-register';
-import registerSetter from './custom-setter';
+import registerSetter from './setters';
+
+registerMetadata();
+registerSetter();
 
 const commonConfig: IComponentConfiguration = {
   id: 'com-1',
@@ -25,15 +28,34 @@ const commonConfig: IComponentConfiguration = {
       name: 'Bob',
       age: 19
     },
-  ]
+    {
+      id: 'a3',
+      name: 'Hellen',
+      age: 17
+    },
+    {
+      id: 'a4',
+      name: 'Jim',
+      age: 11
+    },
+  ],
+  teacher: {
+    name: '李老师',
+    age: 32,
+    info: {
+      remark: '我是备注信息',
+    }
+  }
 };
 const buttonInPageContext: ISetterPanelContext = { type: ComponentTypes.button, parentType: ComponentTypes.listPage, slot: CommonSlot.children };
 const blockInPageContext: ISetterPanelContext = { type: ComponentTypes.block, parentType: ComponentTypes.listPage, slot: CommonSlot.children };
 const customInPageContext: ISetterPanelContext = { type: 'custom-component', parentType: ComponentTypes.listPage, slot: CommonSlot.children };
+
 const DynamicFormTest: React.FC = memo(() => {
 
-  const [context, setContext] = useState<ISetterPanelContext>(customInPageContext);
+  const [context, setContext] = useState<ISetterPanelContext>(blockInPageContext);
   const [conf, setConf] = useState<IComponentConfiguration>(commonConfig);
+
 
   const toggleButtonConfigure = () => {
     setContext(buttonInPageContext);
@@ -46,28 +68,39 @@ const DynamicFormTest: React.FC = memo(() => {
     setContext(blockInPageContext);
   };
 
+  const validateForm = () => { };
+
   const onChange = (val: IComponentConfiguration) => {
     console.log(`conf change:`, val);
+    setConf(val);
   };
-
-  useEffect(() => {
-    registerMetadata();
-    registerSetter();
-  }, []);
 
   return (
     <div className={styles['page']}>
       <div className={styles['page__left']}>
-        <Button type="default" onClick={toggleButtonConfigure}>按钮</Button>
-        <Button type="default" onClick={toggleBlockConfigure}>区块</Button>
-        <Button type="default" onClick={toggleCustomConfigure}>自定义组件</Button>
+
+
+        <div className={styles['panel']}>
+          <p className={styles['panel__title']}>模拟激活组件</p>
+          <div className={styles['panel__content']}>
+            <Button onClick={toggleButtonConfigure}>按钮</Button>
+            <Button onClick={toggleBlockConfigure}>区块</Button>
+            <Button onClick={toggleCustomConfigure}>自定义组件</Button>
+          </div>
+        </div>
+        {/* <div className={styles['panel']}>
+          <p className={styles['panel__title']}>触发表单行为</p>
+          <div className={styles['panel__content']}>
+            <Button onClick={validateForm}>校验</Button>
+          </div>
+        </div> */}
       </div>
       <div className={styles['page__right']}>
         <ComponentSetterPanelContext.Provider value={context}>
           <DyFormWrapper conf={conf} onChange={onChange} />
         </ComponentSetterPanelContext.Provider>
       </div>
-    </div>
+    </div >
   );
 });
 

@@ -63,9 +63,9 @@ export default function registerMetdata(): void {
           .subscribe((enable: boolean) => {
             if (enable) {
               const conf: IPaginationComponentConfiguration = { id: paginationId, type: ComponentTypes.pagination, title: '分页器', pageSize: 10 };
-              editor.store.addComponent(conf, config.id, 0, TableSlot.pagination);
+              editor.project.addComponent(conf, config.id, 0, TableSlot.pagination);
             } else {
-              editor.store.deleteComponent(paginationId);
+              editor.project.deleteComponent(paginationId);
             }
           });
         // 序号列功能配置切换
@@ -75,9 +75,9 @@ export default function registerMetdata(): void {
           .subscribe((enable: boolean) => {
             if (enable) {
               const conf: ISerialNumberColumnComponentConfiguration = { id: serialNumberColumnId, type: ComponentTypes.tableSerialNumberColumn, title: '序号列', visible: true };
-              editor.store.addComponent(conf, config.id, 0, TableSlot.serialNumberColumn);
+              editor.project.addComponent(conf, config.id, 0, TableSlot.serialNumberColumn);
             } else {
-              editor.store.deleteComponent(serialNumberColumnId);
+              editor.project.deleteComponent(serialNumberColumnId);
             }
           });
         // 表格操作列功能配置切换
@@ -87,9 +87,9 @@ export default function registerMetdata(): void {
           .subscribe((enable: boolean) => {
             if (enable) {
               const conf: ITableOperatorColumnComponentConfiguration = { id: operatorColumnId, type: ComponentTypes.tableOperatorColumn, title: '操作列', visible: true };
-              editor.store.addComponent(conf, config.id, 0, TableSlot.operatorColumn);
+              editor.project.addComponent(conf, config.id, 0, TableSlot.operatorColumn);
             } else {
-              editor.store.deleteComponent(operatorColumnId);
+              editor.project.deleteComponent(operatorColumnId);
             }
           });
       },

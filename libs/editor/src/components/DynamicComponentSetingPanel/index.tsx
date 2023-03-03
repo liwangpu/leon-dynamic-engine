@@ -62,7 +62,7 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
 
   const Wrapper: React.FC<PanelWrapperProps> = observer(props => {
 
-    const { store } = useContext(EditorContext);
+    const { store, project } = useContext(EditorContext);
     const configuration = store.configurationStore.selectComponentConfigurationWithoutChildren(props.componentId); // 不包含插槽等属性
     const parentType = store.treeStore.selectParentComponentType(props.componentId);
     const parentSlotProperty = store.treeStore.selectParentSlotProperty(props.componentId);
@@ -75,7 +75,7 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
       return ctx;
     }, [configuration.type, parentType, parentSlotProperty]);
     const valueChange = useCallback(_.debounce(conf => {
-      store.configurationStore.updateComponentConfiguration({ ...configuration, ...conf });
+      project.updateComponent({ ...configuration, ...conf });
     }, 250), []);
 
     const onValueChange = useCallback((conf: IComponentConfiguration) => {

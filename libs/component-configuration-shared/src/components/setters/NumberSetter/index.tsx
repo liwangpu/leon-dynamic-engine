@@ -6,7 +6,7 @@ import { useSetterName } from '../../../hooks';
 const Setter: React.FC<INumberSetter> = memo(props => {
 
   const { label, required, help, min, max, step } = props;
-  const name = useSetterName(props);
+  const name = useSetterName();
 
   return (
     <Form.Item

@@ -3,10 +3,10 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import { ComponentSetterPanelContext, EditorContext } from '@lowcode-engine/editor';
 import * as _ from 'lodash';
 import { IFormMetadata, ISetter, ISetterGroup, ISetterTab, SetterType, DynamicForm as DynamicFormManager, isSetterGroup } from '../../models';
-import { Empty, Form, Tabs } from 'antd';
+import { Button, Empty, Form, Tabs } from 'antd';
 import { Subject } from 'rxjs';
 import './index.less';
-import { ISettterRendererContext, SettterRendererContext } from '../../contexts';
+import { ISettterContext, ISettterRendererContext, SettterContext, SettterRendererContext } from '../../contexts';
 
 const recursiveSetter = (item: ISetterGroup | ISetter) => {
   if (isSetterGroup(item)) {
@@ -47,12 +47,9 @@ const DynamicForm: React.FC<IComponentConfigurationPanelProps> = memo(props => {
   const { value, onChange } = props;
   const setterContext = useContext(ComponentSetterPanelContext);
   const editorContext = useContext(EditorContext);
-  const metadataRef = useRef<IFormMetadata>();
-  const [metadataLoaded, setMetadataLoaded] = useState<boolean>(false);
-  const [hasMetadata, setHasMetadata] = useState<boolean>(true);
+  const [metadata, setMetadata] = useState<IFormMetadata>();
 
   useEffect(() => {
-    setMetadataLoaded(false);
     (async () => {
       // 先找最精确匹配的设置面板,如果找不到然后逐次降低优先级
       let metaGenerator = DynamicFormManager.instance.getMetadata(setterContext);
@@ -66,26 +63,21 @@ const DynamicForm: React.FC<IComponentConfigurationPanelProps> = memo(props => {
         metaGenerator = DynamicFormManager.instance.getMetadata({ type: setterContext.type })
       }
       if (!metaGenerator) {
-        setHasMetadata(false);
+        setMetadata(null);
         return;
       }
-      const metadata = await metaGenerator(editorContext);
-      metadataRef.current = generateKeyForSetterMetadata(metadata);
-      // TODO: 这里渲染周期有点问题,后面需要处理
-      setTimeout(() => {
-        setHasMetadata(true);
-        setMetadataLoaded(true);
-      }, 0);
+      const md = await metaGenerator(editorContext);
+      setMetadata(generateKeyForSetterMetadata(md));
     })();
   }, [setterContext]);
 
   return (
     <div className='component-configuration-panel'>
       <SettterRendererContext.Provider value={setterRendererCtx}>
-        {metadataLoaded && (
-          <ConfigurationForm metadata={metadataRef.current as any} configuration={value} onChange={onChange} />
+        {metadata && (
+          <ConfigurationForm metadata={metadata} configuration={value} onChange={onChange} />
         )}
-        {!hasMetadata && (
+        {!metadata && (
           <div className='empty-form-placeholder'>
             <Empty description='没有注册动态表单元数据' />
           </div>
@@ -129,11 +121,21 @@ const ConfigurationForm: React.FC<IConfigurationFormProp> = memo(props => {
     };
   }, [metadata]);
 
+  const validateForm = async () => {
+    try {
+      const values = await form.validateFields();
+      console.log('Success:', values);
+    } catch (errorInfo) {
+      console.log('Failed:', errorInfo);
+    }
+  };
+
   return (
     <Form
       className='editor-configure-form'
       layout='vertical'
       form={form}
+      validateTrigger={false}
       initialValues={configuration}
       onValuesChange={handleChange}
     >
@@ -181,12 +183,19 @@ const _SetterRenderer: React.FC<{ config: ISetter | ISetterGroup }> = memo(({ co
     return DynamicFormManager.instance.getSetter(config.setter);
   }, [config]);
 
+  const setterCtx = useMemo<ISettterContext>(() => {
+    return {
+      config
+    };
+  }, [config]);
+
   return (
-    <>
+
+    <SettterContext.Provider value={setterCtx}>
       {Setter ? (<Setter {...config} />) : (
         <div>{`"${config.setter}" Setter未注册`}</div>
       )}
-    </>
+    </SettterContext.Provider>
   );
 });
 

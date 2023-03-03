@@ -1,18 +1,18 @@
-import { memo, useMemo } from 'react';
-import { DynamicForm, ISetterGroup } from '../../../models';
+import { SettterRendererContext } from '../../../contexts';
+import { memo, useContext, useMemo } from 'react';
+import { ISetterGroup } from '../../../models';
 
 export const PrimaryHeadingSetter: React.FC<ISetterGroup> = memo(props => {
 
   const { title, children } = props;
+  const setterRendererCtx = useContext(SettterRendererContext);
+  const SetterRenderer = setterRendererCtx.getFactory();
 
   const ChildrenSetters = useMemo(() => {
     if (!children) { return null; }
     return children!.filter(c => c && c.setter).map(c => {
-      const Setter = DynamicForm.instance.getSetter(c.setter);
-      if (!Setter) { return null; }
-
       return (
-        <Setter {...c} />
+        <SetterRenderer config={c as any} key={c.key} />
       );
     });
   }, [children]);
@@ -33,15 +33,14 @@ PrimaryHeadingSetter.displayName = 'PrimaryHeadingSetter';
 export const SecondaryHeadingSetter: React.FC<ISetterGroup> = memo(props => {
 
   const { title, children } = props;
+  const setterRendererCtx = useContext(SettterRendererContext);
+  const SetterRenderer = setterRendererCtx.getFactory();
 
   const ChildrenSetters = useMemo(() => {
     if (!children) { return null; }
     return children!.filter(c => c && c.setter).map(c => {
-      const Setter = DynamicForm.instance.getSetter(c.setter);
-      if (!Setter) { return null; }
-
       return (
-        <Setter {...c} />
+        <SetterRenderer config={c as any} key={c.key} />
       );
     });
   }, [children]);

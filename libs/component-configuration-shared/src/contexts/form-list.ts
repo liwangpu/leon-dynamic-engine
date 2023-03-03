@@ -1,17 +1,19 @@
 import { IComponentPackage } from '@lowcode-engine/core';
-import { FormListFieldData } from 'antd';
+import { FormListFieldData, FormListOperation } from 'antd';
 import React from 'react';
 
 export interface IFormListContext {
-
+  fields: Array<FormListFieldData>;
+  operation: FormListOperation;
 }
 
 export const FormListContext = React.createContext<IFormListContext>(null);
 
 export interface IFormListItemContext extends FormListFieldData {
-  add: (defaultValue?: any, insertIndex?: number) => void;
-  remove: (index: number | number[]) => void;
-  move: (from: number, to: number) => void;
+  operation: {
+    // add: (defaultValue?: any, insertIndex?: number) => void;
+    delete: () => void;
+  };
 }
 
 export const FormListItemContext = React.createContext<IFormListItemContext>(null);

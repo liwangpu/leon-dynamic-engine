@@ -1,6 +1,6 @@
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { memo, useContext, useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { EditorContext } from '../../contexts';
 import React from 'react';
 import classnames from 'classnames';
@@ -61,21 +61,26 @@ const PluginPanel: React.FC = observer(() => {
   }, [skeletonGroupOfLeftArea, activePanel]);
 
   const handleActivePanel = (name: string) => {
+    if (activePanel === name) {
+      name = null;
+    }
     visiblePanels.forEach(pName => {
       if (pName !== name && panelRefMap.has(pName)) {
         const pEl = panelRefMap.get(pName);
         pEl.classList.add(styles['panel--hidden']);
       }
     });
-    if (!visiblePanels.includes(name)) {
-      visiblePanels.push(name);
-    } else {
-      if (panelRefMap.has(name)) {
-        const pEl = panelRefMap.get(name);
-        pEl.classList.remove(styles['panel--hidden']);
+    setActivePanel(name);
+    if (name) {
+      if (!visiblePanels.includes(name)) {
+        visiblePanels.push(name);
+      } else {
+        if (panelRefMap.has(name)) {
+          const pEl = panelRefMap.get(name);
+          pEl.classList.remove(styles['panel--hidden']);
+        }
       }
     }
-    setActivePanel(name);
     event.emit(EventTopicEnum.pluginPanelActiving, name);
   };
 

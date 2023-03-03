@@ -173,7 +173,7 @@ const PageEditor: React.FC = memo(() => {
           title: '按钮',
           components: [
             ComponentTypes.button,
-            // ComponentTypes.buttonGroup
+            ComponentTypes.buttonGroup,
           ]
         },
         {
@@ -183,7 +183,6 @@ const PageEditor: React.FC = memo(() => {
           ]
         }
       ]),
-
       // 模型库注册插件
       ModelGalleryPluginRegister(businessModel, async id => {
         return ModelRepository.getInstance().get(id);

@@ -19,9 +19,14 @@ const Configuration = types.model({
   }))
   .actions(self => ({
     setConfig: (conf: IComponentConfiguration) => {
-      self.type = conf.type;
-      self.title = conf.title;
-      self.origin = _.pickBy(self.origin ? { ...self.origin, ...conf } : { ...conf, id: self.id }, _.identity);
+      if ('type' in conf) {
+        self.type = conf.type;
+      }
+      if ('title' in conf) {
+        self.title = conf.title;
+      }
+      const originValue = self.origin ? { ...self.origin, ...conf } : { ...conf, id: self.id };
+      self.origin = originValue;
     }
   }));
 
@@ -63,14 +68,17 @@ export const ConfigurationStore = types.model({
     }
   }))
   .actions(self => ({
-    updateComponentConfiguration: (config: IComponentConfiguration) => { 
-      let conf = self.configurations.get(config.id);
-      if (!conf) {
-        self.configurations.set(config.id, { id: config.id, type: config.type, title: config.title });
-        conf = self.configurations.get(config.id);
+    updateComponentConfigurations: (configs: Array<Partial<IComponentConfiguration>>) => {
+      if (!configs || !configs.length) { return; }
+      for (let config of configs) {
+        let conf = self.configurations.get(config.id);
+        if (!conf) {
+          self.configurations.set(config.id, { id: config.id, type: config.type, title: config.title });
+          conf = self.configurations.get(config.id);
+        }
+        conf.setConfig(config as IComponentConfiguration);
       }
-      conf.setConfig(config);
-    }
+    },
   }));
 
 export type ConfigurationStoreModel = Instance<typeof ConfigurationStore>;

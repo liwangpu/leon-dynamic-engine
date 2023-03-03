@@ -6,7 +6,7 @@ import { useSetterName } from '../../../hooks';
 const Setter: React.FC<IBooleanSetter> = memo(props => {
 
   const { label, required, help } = props;
-  const name = useSetterName(props);
+  const name = useSetterName();
 
   return (
     <Form.Item

@@ -1,5 +1,6 @@
 import { IComponentConfiguration } from '@lowcode-engine/core';
 import { IEditorContext } from '@lowcode-engine/editor';
+import React from 'react';
 import { Observable } from 'rxjs';
 
 export enum SetterType {
@@ -15,6 +16,7 @@ export enum SetterType {
   secondaryHeadingSetter = 'secondaryHeadingSetter',
   listSetter = 'listSetter',
   listItemSetter = 'listItemSetter',
+  groupSetter = 'groupSetter'
   // componentTypeSetter = 'componentTypeSetter'
 }
 
@@ -79,9 +81,17 @@ export interface ISecondaryHeadingSetter extends IBaseGroupSetter {
   setter: SetterType.secondaryHeadingSetter;
 }
 
+export interface IGroupSetter extends IBaseGroupSetter {
+  setter: SetterType.groupSetter;
+}
+
 export interface IListSetter extends IBaseGroupSetter {
   setter: SetterType.listSetter;
-  itemSetter?: SetterType | string;
+  listItem?: React.FC<any>;
+  sortable?: boolean;
+  dragHandle?: string;
+  listItemKeyField?: string;
+  listFooter?: React.FC<any>;
 }
 
 export interface IListItemSetter extends IBaseGroupSetter {
@@ -89,7 +99,7 @@ export interface IListItemSetter extends IBaseGroupSetter {
 }
 
 
-export type ISetterGroup = IPrimaryHeadingSetter | ISecondaryHeadingSetter | IListSetter | IListItemSetter;
+export type ISetterGroup = IPrimaryHeadingSetter | ISecondaryHeadingSetter | IListSetter | IListItemSetter | IGroupSetter;
 
 export function isSetterGroup(setter: ISetterGroup | ISetter): setter is ISetterGroup {
   return 'children' in setter;

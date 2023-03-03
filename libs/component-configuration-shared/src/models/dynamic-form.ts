@@ -15,7 +15,7 @@ export class DynamicForm {
   }
 
   public static get instance(): DynamicForm {
-    // TODO: 在webpack hmr模式下,DynamicForm无法保持单例模式,先用window存储实例,待后面研究
+    // TODO: 在webpack hmr模式下,DynamicForm无法保持单例模式,先用window存储实例,临时处理,待后面研究
     if (!this._instance) {
       // @ts-ignore
       if (!window[SHARED_DYNAMIC_FORM_INSTANCE]) {

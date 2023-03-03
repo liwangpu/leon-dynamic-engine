@@ -4,6 +4,7 @@ import registerBlockMetadata from './block';
 import registerTableMetadata from './table';
 import registerNumberMetadata from './number';
 import registerButtonMetadata from './button';
+import registerButtonGroupMetadata from './button-group';
 
 export default function RegisterConfigurationMetadata(): void {
   registerListPageMetadata();
@@ -12,4 +13,5 @@ export default function RegisterConfigurationMetadata(): void {
   registerTableMetadata();
   registerNumberMetadata();
   registerButtonMetadata();
+  registerButtonGroupMetadata();
 }
