@@ -141,6 +141,43 @@ const PagePresentation: React.FC = observer(() => {
       };
     })();
 
+    const componentActiveUIEffectHandler = (() => {
+      let lastActiveComponentId: string;
+      let lastActiveComponentRootDom: HTMLElement;
+      let lastActiveComponentHost: HTMLElement;
+      return {
+        activeComponent(id: string) {
+          if (lastActiveComponentId === id) { return; }
+          const componentHost = dom.getComponentHost(id);
+          const componentRootDom = dom.getComponentRootDom(id);
+
+          if (lastActiveComponentRootDom) {
+            const evt = new CustomEvent('cancel-active-component', {});
+            lastActiveComponentRootDom.dispatchEvent(evt);
+          }
+
+          if (componentRootDom) {
+            const evt = new CustomEvent('active-component', {});
+            componentRootDom.dispatchEvent(evt);
+          }
+
+          if (!componentHost) {
+            console.error(`没有找到${id}组件host dom,请检查事件周期是否合理`);
+            return;
+          }
+
+          componentHost.classList.add(COMPONENT_ACTIVE);
+          if (lastActiveComponentHost) {
+            lastActiveComponentHost.classList.remove(COMPONENT_ACTIVE);
+          }
+
+          lastActiveComponentId = id;
+          lastActiveComponentRootDom = componentRootDom;
+          lastActiveComponentHost = componentHost;
+        }
+      };
+    })();
+
     activeDetector.observe();
 
     // 订阅组件拖拽事件,激活相应组件适配插槽
@@ -166,33 +203,6 @@ const PagePresentation: React.FC = observer(() => {
       .subscribe((componentId: string) => {
         componentHoverUIEffectHandler.hover(componentId);
       });
-
-    const componentActiveUIEffectHandler = (() => {
-      let lastActiveComponentId: string;
-      let lastActiveComponentRootDom: HTMLElement;
-      let lastActiveComponentHost: HTMLElement;
-      return {
-        activeComponent(id: string) {
-          if (lastActiveComponentId === id) { return; }
-          const componentHost = dom.getComponentHost(id);
-          const componentRootDom = dom.getComponentRootDom(id);
-          if (!componentHost) {
-            console.error(`没有找到${id}组件host dom,请检查事件周期是否合理`);
-            return;
-          }
-
-          componentHost.classList.add(COMPONENT_ACTIVE);
-          if (lastActiveComponentHost) {
-            lastActiveComponentHost.classList.remove(COMPONENT_ACTIVE);
-          }
-
-          // console.log(`componentHost:`, componentHost);
-          lastActiveComponentId = id;
-          lastActiveComponentRootDom = componentRootDom;
-          lastActiveComponentHost = componentHost;
-        }
-      };
-    })();
 
     subs.sink = event.message
       .pipe(filter(e => e.topic === EventTopicEnum.componentDomInit && e.data === store.interactionStore.pageComponentId))

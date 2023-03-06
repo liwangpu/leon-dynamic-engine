@@ -23,11 +23,11 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
       const host = hostRef.current;
 
       const activeComponent = () => {
-        console.log(`accc:`,);
+        console.log(`active trigger`,);
       };
 
       const cancelActiveComponent = () => {
-        console.log(`cancel accc:`,);
+        console.log(`cancel active trigger`,);
       };
 
       return {
