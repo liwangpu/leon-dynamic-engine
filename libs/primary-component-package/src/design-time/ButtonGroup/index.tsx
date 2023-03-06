@@ -1,5 +1,5 @@
 import styles from './index.module.less';
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo, useRef } from 'react';
 import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { Dropdown } from 'antd';
 
@@ -7,6 +7,7 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
   const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
+  const hostRef = useRef<HTMLDivElement>();
   // const ChildrenComponents = useMemo(() => {
   //   if (!conf.children || !conf.children.length) { return null; }
   //   return conf.children.map(c => (<DynamicComponent key={c.id} configuration={c} />))
@@ -16,8 +17,40 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
     // console.log(`title:`,);
   };
 
+  useEffect(() => {
+
+    const editorActiveDetector = (() => {
+      const host = hostRef.current;
+
+      const activeComponent = () => {
+        console.log(`accc:`,);
+      };
+
+      const cancelActiveComponent = () => {
+        console.log(`cancel accc:`,);
+      };
+
+      return {
+        observe() {
+          host.addEventListener('active-component', activeComponent);
+          host.addEventListener('cancel-active-component', cancelActiveComponent);
+        },
+        disconnect() {
+          host.removeEventListener('active-component', activeComponent);
+          host.removeEventListener('cancel-active-component', cancelActiveComponent);
+        }
+      };
+    })();
+
+    editorActiveDetector.observe();
+
+    return () => {
+      editorActiveDetector.disconnect();
+    };
+  }, []);
+
   return (
-    <div className={styles['button-group']}>
+    <div className={styles['button-group']} ref={hostRef}>
       {/* <div className={styles['button-group__content']} data-dynamic-component-container='children' data-dynamic-container-owner={conf.id}>
         {ChildrenComponents}
       </div> */}

@@ -1,6 +1,6 @@
 import { ComponentDiscoveryContext, GenerateComponentId, IComponentConfiguration } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
-import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo } from 'react';
+import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo, memo } from 'react';
 import Sortable from 'sortablejs';
 import { EditorContext, PagePresentationUtilContext } from '../../contexts';
 import { EventTopicEnum } from '../../enums';
@@ -101,25 +101,25 @@ const ComponentRenderWrapper = (Component: ComponentType<any>) => {
 
 const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
 
-  const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
+  const wrapper: React.FC<IDynamicComponentProps> = memo(props => {
 
     const { store, dom, event, slot, configurationAddingHandler } = useContext(EditorContext);
     const pagePresentationUtil = useContext(PagePresentationUtilContext);
     const conf = props.configuration;
     const style = useComponentStyle(props.configuration);
-    const componentWrapperRef = useRef<HTMLDivElement>(null);
-    const componentRootRef = useRef<Element>(null);
+    const componentHostRef = useRef<HTMLDivElement>(null);
+    const componentRootRef = useRef<HTMLElement>(null);
     const toolbarIntersectingFlagRef = useRef<HTMLDivElement>(null);
     const componentContainerRefs = useRef<HTMLElement[]>();
     const componentId = conf.id;
-    const activeComponentId = store.interactionStore.activeComponentId;
-    const componentType = store.treeStore.selectComponentType(componentId);
+    // const activeComponentId = store.interactionStore.activeComponentId;
+    // const componentType = store.treeStore.selectComponentType(componentId);
 
     useEffect(() => {
-      dom.registryComponentHost(componentId, componentWrapperRef.current);
-      const componentHost = componentWrapperRef.current;
+      const componentHost = componentHostRef.current;
       if (componentHost.children.length) {
-        componentRootRef.current = componentHost.children[componentHost.children.length - 1];
+        componentRootRef.current = componentHost.children[componentHost.children.length - 1] as any;
+        dom.registryComponentRoot(componentId, componentRootRef.current);
       }
       const hoverDetector = (() => {
         const componentMouseenterHandler = (e: MouseEvent) => {
@@ -154,24 +154,25 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
       }, {});
 
       intersectingObs.observe(toolbarIntersectingFlagRef.current);
-
+      dom.registryComponentHost(componentId, componentHostRef.current);
       return () => {
         intersectingObs.disconnect();
         hoverDetector.disconnect();
         dom.unregisterComponentHost(componentId);
+        dom.unregisterComponentRoot(componentId);
       };
     }, []);
 
     // 为组件的动态组件容器添加拖拽响应
     useEffect(() => {
-      const componentHost = componentWrapperRef.current;
+      const componentHost = componentHostRef.current;
       const containerSelector = `[data-dynamic-component-container][data-dynamic-container-owner="${componentId}"]`;
       componentContainerRefs.current = Array.from(componentHost.querySelectorAll(containerSelector));
       // 如果子节点没有发现,试试在父节点找,因为父节点可能本身也是容器
       let isContainer = componentContainerRefs.current.length > 0;
       if (!isContainer) {
         if (componentHost.getAttribute('data-dynamic-component-container')) {
-          componentContainerRefs.current = [componentWrapperRef.current];
+          componentContainerRefs.current = [componentHostRef.current];
           isContainer = true;
         }
       }
@@ -335,28 +336,35 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
       };
     }, []);
 
-    useEffect(() => {
-      // 之所以在这里发event事件,是因为希望componentActiving发送之前,dom已经初始化完毕
-      if (componentId === activeComponentId) {
-        event.emit(EventTopicEnum.componentActiving, componentId);
-        if (componentRootRef.current) {
-          componentRootRef.current.classList.add(COMPONENT_ROOT_DOM_ACTIVE_FLAG);
-        }
-      } else {
-        if (componentRootRef.current) {
-          componentRootRef.current.classList.remove(COMPONENT_ROOT_DOM_ACTIVE_FLAG);
-        }
-      }
-    }, [activeComponentId]);
+    // useEffect(() => {
+    //   const componentRootDom = componentRootRef.current;
+    //   let activeTrigger: boolean = false;
+    //   // 之所以在这里发event事件,是因为希望componentActiving发送之前,dom已经初始化完毕
+    //   if (componentId === activeComponentId) {
+    //     event.emit(EventTopicEnum.componentActiving, componentId);
+    //     activeTrigger = true;
+    //     if (componentRootDom) {
+    //       componentRootDom.classList.add(COMPONENT_ROOT_DOM_ACTIVE_FLAG);
+    //       const evt = new CustomEvent('active-component', {});
+    //       componentRootDom.dispatchEvent(evt);
+    //     }
+    //   } else {
+    //     if (componentRootDom) {
+    //       componentRootDom.classList.remove(COMPONENT_ROOT_DOM_ACTIVE_FLAG);
+    //       const evt = new CustomEvent('cancel-active-component', {});
+    //       componentRootDom.dispatchEvent(evt);
+    //     }
+    //   }
+    // }, [activeComponentId]);
 
     return (
       <div className={classnames(
         'dynamic-component',
         'editor-dynamic-component',
-        {
-          ['editor-dynamic-component--active']: activeComponentId === componentId
-        }
-      )} data-dynamic-component={componentId} data-dynamic-component-type={componentType} style={style} ref={componentWrapperRef}>
+        // {
+        //   ['editor-dynamic-component--active']: activeComponentId === componentId
+        // }
+      )} data-dynamic-component={componentId} data-dynamic-component-type={conf.type} style={style} ref={componentHostRef}>
         <div className='toolbar-intersecting-flag' ref={toolbarIntersectingFlagRef}></div>
         <div className='dragdrop-placeholder-flag'></div>
         <div className='presentation-flag presentation-flag__activated-state'></div>

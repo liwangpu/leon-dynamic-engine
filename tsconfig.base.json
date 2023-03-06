@@ -10,36 +10,22 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": [
-      "es2017",
-      "dom"
-    ],
+    "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@lowcode-engine/core": [
-        "libs/core/src/index.ts"
+      "@lowcode-engine/component-configuration-shared": [
+        "libs/component-configuration-shared/src/index.ts"
       ],
+      "@lowcode-engine/core": ["libs/core/src/index.ts"],
+      "@lowcode-engine/editor": ["libs/editor/src/index.ts"],
       "@lowcode-engine/primary-component-package": [
         "libs/primary-component-package/src/index.ts"
       ],
-      "@lowcode-engine/renderer": [
-        "libs/renderer/src/index.ts"
-      ],
-      "@lowcode-engine/primary-plugin": [
-        "libs/primary-plugin/src/index.tsx"
-      ],
-      "@lowcode-engine/editor": [
-        "libs/editor/src/index.ts"
-      ],
-      "@lowcode-engine/component-configuration-shared": [
-        "libs/component-configuration-shared/src/index.ts"
-      ]
+      "@lowcode-engine/primary-plugin": ["libs/primary-plugin/src/index.tsx"],
+      "@lowcode-engine/renderer": ["libs/renderer/src/index.ts"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "tmp"
-  ]
+  "exclude": ["node_modules", "tmp"]
 }

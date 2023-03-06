@@ -8,6 +8,8 @@ export enum EventTopicEnum {
   componentActiving = 'componentActiving',
   pluginPanelActiving = 'pluginPanelActiving',
   toolbarIntersectingChange = 'toolbarIntersectingChange',
-  componentContainerScrollStart='componentContainerScrollStart',
-  componentContainerScrollEnd='componentContainerScrollEnd'
+  componentContainerScrollStart = 'componentContainerScrollStart',
+  componentContainerScrollEnd = 'componentContainerScrollEnd',
+  importSchema = 'importSchema',
+
 }

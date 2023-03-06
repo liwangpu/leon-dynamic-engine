@@ -5,7 +5,7 @@ import { _Renderer } from '@lowcode-engine/renderer';
 import { EditorContext, PagePresentationUtilContext, PagePresentationUtilContextProvider } from '../../contexts';
 import { DynamicComponentFactoryContext, IComponentConfiguration, IDynamicComponentFactory } from '@lowcode-engine/core';
 import { DynamicComponentCustomRenderer, DynamicComponent } from '../DynamicComponent';
-import { filter, map } from 'rxjs/operators';
+import { filter, first, map } from 'rxjs/operators';
 import { EventTopicEnum } from '../../enums';
 import { SubSink } from 'subsink';
 import Sortable from 'sortablejs';
@@ -15,6 +15,7 @@ import { ComponentToolBarWrapper } from '../ComponentToolBar';
 const DISABLE_COMPONENT_UI_EFFECT = 'disable-component-ui-effect';
 const COMPONENT_CONTAINER_DRAGGING = 'editor-dynamic-component-container--dragging';
 const COMPONENT_HOVER = 'editor-dynamic-component--hover';
+const COMPONENT_ACTIVE = 'editor-dynamic-component--active';
 
 const componentFactory: IDynamicComponentFactory = {
   getDynamicComponentRenderFactory: () => {
@@ -126,6 +127,7 @@ const PagePresentation: React.FC = observer(() => {
         if (activeComponentId) {
           e.stopPropagation();
           store.interactionStore.activeComponent(activeComponentId);
+          event.emit(EventTopicEnum.componentActiving, activeComponentId);
         }
       };
 
@@ -165,11 +167,46 @@ const PagePresentation: React.FC = observer(() => {
         componentHoverUIEffectHandler.hover(componentId);
       });
 
-    // subs.sink = event.message
-    //   .pipe(filter(e => e.topic === EventTopicEnum.componentActiving))
-    //   .subscribe(d => {
-    //     console.log(`active:`, d);
-    //   });
+    const componentActiveUIEffectHandler = (() => {
+      let lastActiveComponentId: string;
+      let lastActiveComponentRootDom: HTMLElement;
+      let lastActiveComponentHost: HTMLElement;
+      return {
+        activeComponent(id: string) {
+          if (lastActiveComponentId === id) { return; }
+          const componentHost = dom.getComponentHost(id);
+          const componentRootDom = dom.getComponentRootDom(id);
+          if (!componentHost) {
+            console.error(`没有找到${id}组件host dom,请检查事件周期是否合理`);
+            return;
+          }
+
+          componentHost.classList.add(COMPONENT_ACTIVE);
+          if (lastActiveComponentHost) {
+            lastActiveComponentHost.classList.remove(COMPONENT_ACTIVE);
+          }
+
+          // console.log(`componentHost:`, componentHost);
+          lastActiveComponentId = id;
+          lastActiveComponentRootDom = componentRootDom;
+          lastActiveComponentHost = componentHost;
+        }
+      };
+    })();
+
+    subs.sink = event.message
+      .pipe(filter(e => e.topic === EventTopicEnum.componentDomInit && e.data === store.interactionStore.pageComponentId))
+      .pipe(first(), map(e => e.data))
+      .subscribe(pageId => {
+        componentActiveUIEffectHandler.activeComponent(pageId);
+      });
+
+    subs.sink = event.message
+      .pipe(filter(e => e.topic === EventTopicEnum.componentActiving), map(e => e.data))
+      .subscribe(id => {
+        // console.log(`active:`, d);
+        componentActiveUIEffectHandler.activeComponent(id);
+      });
 
     return () => {
       activeDetector.disconnect();

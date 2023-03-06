@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "npmScope": "dynamic-engine",
+  "npmScope": "editor-test",
   "affected": {
     "defaultBase": "master"
   },
@@ -9,7 +9,7 @@
       "runner": "@nrwl/nx-cloud",
       "options": {
         "cacheableOperations": ["build", "lint", "test", "e2e"],
-        "accessToken": "MzM4YWQyMTQtNGYwMi00NWQyLWJmYzgtODY0ZmU2MjRjODIyfHJlYWQtd3JpdGU="
+        "accessToken": "MzVjMDMyYTEtMjlhOC00NTU1LWEwOTItYmVhMmFmZGYwNmQwfHJlYWQtd3JpdGU="
       }
     }
   },
@@ -18,14 +18,18 @@
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
     },
+    "e2e": {
+      "inputs": ["default", "^production"]
+    },
     "lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"]
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore"
+      ]
     },
     "test": {
       "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"]
-    },
-    "e2e": {
-      "inputs": ["default", "^production"]
     }
   },
   "namedInputs": {
@@ -47,13 +51,13 @@
         "bundler": "webpack",
         "babel": true
       },
+      "component": {
+        "style": "less"
+      },
       "library": {
         "style": "less",
         "linter": "eslint",
-        "unitTestRunner": "jest"
-      },
-      "component": {
-        "style": "less"
+        "unitTestRunner": "none"
       }
     }
   }

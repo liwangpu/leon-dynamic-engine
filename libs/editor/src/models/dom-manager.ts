@@ -5,12 +5,10 @@ import * as _ from 'lodash';
 export interface IDomManager {
 
   checkComponentHost(el: HTMLElement): boolean;
-
   getComponentHost(id: string): HTMLElement | undefined;
-
+  getComponentRootDom(id: string): HTMLElement | undefined;
   getAllComponentHosts(): HTMLElement[];
   getAllComponentSlotHosts(): HTMLElement[];
-
   getComponentId(el: HTMLElement): string;
   getComponentMatchedSlotHost(mapKeys: Array<string>): Array<HTMLElement>;
   getSlotDomProperty(el: HTMLElement): string;
@@ -28,16 +26,19 @@ export interface IDomManager {
 
   registryComponentSlotHost(componentType: string, slotProperty: string, el: HTMLElement): void;
   unregisterComponentSlotHost(el: HTMLElement): void;
+
+  registryComponentRoot(id: string, el: HTMLElement): void;
+  unregisterComponentRoot(id: string): void;
 }
 
 export class DomManager implements IDomManager {
 
   public constructor(private context: IEditorContext) { }
-
   private readonly id2RootDomMap = new Map<string, HTMLElement>();
   private readonly rootDom2IdMap = new Map<HTMLElement, string>();
   private readonly componentSlotProperty2DomMap = new Map<string, Array<HTMLElement>>();
   private readonly componentSlotDom2PropertyMap = new Map<HTMLElement, string>();
+  private readonly componentRootDomMap = new Map<string, HTMLElement>();
   private allDoms: Array<HTMLElement> = [];
 
   public checkComponentHost(el: HTMLElement): boolean {
@@ -77,6 +78,9 @@ export class DomManager implements IDomManager {
     return [...this.componentSlotDom2PropertyMap.keys()];
   }
 
+  public getComponentRootDom(id: string): HTMLElement {
+    return this.componentRootDomMap.get(id);
+  }
 
   public registryComponentHost(id: string, el: HTMLElement): void {
     this.id2RootDomMap.set(id, el);
@@ -107,6 +111,14 @@ export class DomManager implements IDomManager {
     const mapDoms = this.componentSlotProperty2DomMap.get(mapKey) || [];
     _.remove(mapDoms, d => d === el);
     this.componentSlotProperty2DomMap.set(mapKey, mapDoms);
+  }
+
+  public registryComponentRoot(id: string, el: HTMLElement): void {
+    this.componentRootDomMap.set(id, el);
+  }
+
+  public unregisterComponentRoot(id: string): void {
+    this.componentRootDomMap.delete(id);
   }
 
 }

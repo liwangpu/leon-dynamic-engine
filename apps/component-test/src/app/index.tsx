@@ -8,7 +8,7 @@ import { DataStoreCollocationContext, DataStoreModel, IDataStoreCollocation } fr
 import { connectReduxDevtools } from 'mst-middlewares';
 
 const packages: Array<IComponentPackage> = [
-  PrimaryComponentMarket.getInstance(),
+  PrimaryComponentMarket.instance,
 ];
 
 const App: React.FC = memo(() => {

@@ -1,11 +1,21 @@
 {
+  "name": "component-configuration-shared",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/component-configuration-shared/src",
   "projectType": "library",
   "tags": [],
   "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/component-configuration-shared/**/*.{ts,tsx,js,jsx}"
+        ]
+      }
+    },
     "build": {
-      "executor": "@nrwl/web:rollup",
+      "executor": "@nrwl/rollup:rollup",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/component-configuration-shared",
@@ -22,21 +32,6 @@
             "output": "."
           }
         ]
-      }
-    },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/component-configuration-shared/**/*.{ts,tsx,js,jsx}"]
-      }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/component-configuration-shared"],
-      "options": {
-        "jestConfig": "libs/component-configuration-shared/jest.config.ts",
-        "passWithNoTests": true
       }
     }
   }

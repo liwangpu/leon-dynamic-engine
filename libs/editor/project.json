@@ -1,11 +1,19 @@
 {
+  "name": "editor",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/editor/src",
   "projectType": "library",
   "tags": [],
   "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/editor/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
     "build": {
-      "executor": "@nrwl/web:rollup",
+      "executor": "@nrwl/rollup:rollup",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/editor",
@@ -22,21 +30,6 @@
             "output": "."
           }
         ]
-      }
-    },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/editor/**/*.{ts,tsx,js,jsx}"]
-      }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/editor"],
-      "options": {
-        "jestConfig": "libs/editor/jest.config.ts",
-        "passWithNoTests": true
       }
     }
   }

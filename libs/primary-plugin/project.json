@@ -1,11 +1,19 @@
 {
+  "name": "primary-plugin",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/primary-plugin/src",
   "projectType": "library",
   "tags": [],
   "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/primary-plugin/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
     "build": {
-      "executor": "@nrwl/web:rollup",
+      "executor": "@nrwl/rollup:rollup",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/primary-plugin",
@@ -22,21 +30,6 @@
             "output": "."
           }
         ]
-      }
-    },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/primary-plugin/**/*.{ts,tsx,js,jsx}"]
-      }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/primary-plugin"],
-      "options": {
-        "jestConfig": "libs/primary-plugin/jest.config.ts",
-        "passWithNoTests": true
       }
     }
   }

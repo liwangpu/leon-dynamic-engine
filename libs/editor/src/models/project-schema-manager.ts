@@ -3,6 +3,7 @@ import { generateDesignState, nestComponentTree } from '../store';
 import { IEditorContext } from './editor-manager';
 import { getSnapshot, IDisposer, onAction } from 'mobx-state-tree';
 import * as _ from 'lodash';
+import { EventTopicEnum } from '../enums';
 
 const listenPaths = ['/configurationStore', '/treeStore'];
 const listenActions = ['setState'];
@@ -26,6 +27,7 @@ export class ProjectSchemaManager implements IProjectManager {
     const slotSingletonMap = this.context.slot.getAllSlotSingletonMap();
     const state = generateDesignState(schema, slotPropertyMap, slotSingletonMap);
     this.context.store.setState(state);
+    this.context.event.emit(EventTopicEnum.importSchema, { pageComponentId: state.interactionStore.pageComponentId });
   }
 
   public export(): IProjectSchema {
@@ -76,7 +78,6 @@ export class ProjectSchemaManager implements IProjectManager {
   public updateComponents(confs: Array<Partial<IComponentConfiguration>>): void {
     this.context.store.configurationStore.updateComponentConfigurations(confs);
   }
-
 
   public monitorSchema(onChange: (schema: IProjectSchema) => void): IDisposer {
     if (!_.isFunction(onChange)) { return; }

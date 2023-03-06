@@ -16,7 +16,6 @@
         "index": "apps/editor-test/src/index.html",
         "baseHref": "/",
         "main": "apps/editor-test/src/main.tsx",
-        "polyfills": "apps/editor-test/src/polyfills.ts",
         "tsConfig": "apps/editor-test/tsconfig.app.json",
         "assets": [
           "apps/editor-test/src/favicon.ico",
@@ -26,13 +25,14 @@
           "apps/editor-test/src/styles.less"
         ],
         "scripts": [],
-        "webpackConfig": "@nrwl/react/plugins/webpack"
+        "isolatedConfig": true,
+        "webpackConfig": "apps/editor-test/webpack.config.js"
       },
       "configurations": {
         "development": {
           "extractLicenses": false,
           "optimization": false,
-          "sourceMap": true,
+          "sourceMap": false,
           "vendorChunk": true
         },
         "production": {
@@ -88,6 +88,12 @@
       "options": {
         "jestConfig": "apps/editor-test/jest.config.ts",
         "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
       }
     }
   },
