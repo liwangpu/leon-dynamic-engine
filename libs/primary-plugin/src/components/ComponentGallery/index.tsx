@@ -1,11 +1,11 @@
 import styles from './index.module.less';
-import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import React from 'react';
 import Sortable from 'sortablejs';
 import classnames from 'classnames';
 import { UpOutlined } from '@ant-design/icons';
 import { IComponentConfiguration, IComponentDescription } from '@lowcode-engine/core';
-import { EventTopicEnum, LeftAreaPluginContext } from '@lowcode-engine/editor';
+import { EventTopicEnum } from '@lowcode-engine/editor';
 import { INotification } from '../../models';
 import * as _ from 'lodash';
 import GalleryHeader from '../GalleryHeader';
@@ -24,7 +24,6 @@ export const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(prop
 
   const [componentGroupFoldedState, setComponentGroupFoldedState] = useState<{ [key: string]: boolean }>({});
   const optionalGroupContainerEl = useRef(null);
-  const pluginCtx = useContext(LeftAreaPluginContext);
 
   useEffect(() => {
     listenComponentDragging();

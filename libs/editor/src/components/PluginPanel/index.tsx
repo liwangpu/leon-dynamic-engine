@@ -62,14 +62,11 @@ const PluginPanel: React.FC = observer(() => {
   const leftAreaPluginCtx = useMemo<ILeftAreaPluginContext>(() => {
     return {
       close() {
-        console.log(`close:`, activePanel);
-        // setActivePanel(null);
         handleActivePanel();
       }
     };
   }, [skeletonGroupOfLeftArea]);
   const handleActivePanel = (name?: string) => {
-    // debugger;
     if (activePanel === name) {
       name = null;
     }

@@ -96,10 +96,10 @@
     border: 1px solid transparent;
 
     &--horizontal {
-      .editor-sortable-ghost {
+      &>.editor-sortable-ghost {
         &.dragging {
           @s: @component-dragging-size;
-          flex: 0 0 @s !important;
+          flex: 0 0 @s  !important;
           width: @s  !important;
           height: 100% !important;
           max-width: @s  !important;
@@ -118,7 +118,7 @@
       background-color: #f6ffed !important;
     }
 
-    .editor-sortable-ghost {
+    &>.editor-sortable-ghost {
 
       &.dragging {
         @s: @component-dragging-size;
@@ -137,6 +137,12 @@
 
         &>.dragdrop-placeholder-flag {
           display: block !important;
+        }
+
+        &.editor-dynamic-component--active {
+          &>*:last-child {
+            visibility: hidden !important;
+          }
         }
       }
     }

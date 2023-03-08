@@ -1,6 +1,6 @@
 import styles from './index.module.less';
 import React, { memo } from 'react';
-import SimpleNavsPage, { INavItem } from '../../components/SimpleNavsPage';
+import { SimpleNavsPage, INavItem } from '@app-test/spare-parts';
 
 const routers: Array<INavItem> = [
   {

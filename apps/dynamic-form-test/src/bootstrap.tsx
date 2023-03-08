@@ -4,8 +4,7 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 
 import App from './app';
 
-const FullPage = React.lazy(() => import('./app/pages/FullPage'));
-const TableTest = React.lazy(() => import('./app/pages/TableTest'));
+const GeneralTest = React.lazy(() => import('./app/pages/GeneralTest'));
 
 
 function WrapperSuspense(WrappedComponent: React.ComponentType) {
@@ -22,16 +21,12 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path: 'full-page',
-        element: WrapperSuspense(FullPage),
-      },
-      {
-        path: 'table-test',
-        element: WrapperSuspense(TableTest),
+        path: 'general-test',
+        element: WrapperSuspense(GeneralTest),
       },
       {
         index: true,
-        element: <Navigate to="full-page" replace={true} />,
+        element: <Navigate to="general-test" replace={true} />,
       }
     ]
   },

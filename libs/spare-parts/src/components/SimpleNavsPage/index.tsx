@@ -18,7 +18,7 @@ export interface IPageOperationProps {
   routes: Array<INavItem>;
 };
 
-const SimpleNavsPage: React.FC<IPageOperationProps> = memo(props => {
+export const SimpleNavsPage: React.FC<IPageOperationProps> = memo(props => {
 
   const navigate = useNavigate();
 
@@ -84,4 +84,3 @@ const SimpleNavsPage: React.FC<IPageOperationProps> = memo(props => {
 
 SimpleNavsPage.displayName = 'SimpleNavsPage';
 
-export default SimpleNavsPage;

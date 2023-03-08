@@ -1,21 +1,17 @@
 import styles from './index.module.less';
-import React, { useContext, useEffect, useRef } from 'react';
-import { observer } from 'mobx-react-lite';
-import { Renderer } from '@lowcode-engine/renderer';
-import { ComponentPackageContext } from '../../contexts';
-import { IComponentConfiguration } from '@lowcode-engine/core';
+import React, { memo, useEffect, useRef } from 'react';
 import JSONEditor from 'jsoneditor';
 import 'jsoneditor/dist/jsoneditor.css';
 import * as _ from 'lodash';
+import { FormBuilder } from '@lowcode-engine/dynamic-form';
 
 export interface IRealTimeRendererProps {
-  value: IComponentConfiguration;
-  onChange: (val: { [key: string]: any }) => void;
+  value: any;
+  onChange?: (val: { [key: string]: any }) => void;
 }
 
-const RealTimeRenderer: React.FC<IRealTimeRendererProps> = observer(props => {
+const RealTimeRenderer: React.FC<IRealTimeRendererProps> = memo(props => {
 
-  const packages = useContext(ComponentPackageContext);
   const container = useRef<HTMLDivElement>();
   const jsoneditor = useRef<any>();
   const latestJson = useRef<any>();
@@ -26,7 +22,9 @@ const RealTimeRenderer: React.FC<IRealTimeRendererProps> = observer(props => {
       onChangeText: str => {
         try {
           latestJson.current = JSON.parse(str);
-          props.onChange(latestJson.current);
+          if (_.isFunction(props.onChange)) {
+            props.onChange(latestJson.current);
+          }
         } catch (error) {
           //
         }
@@ -54,7 +52,7 @@ const RealTimeRenderer: React.FC<IRealTimeRendererProps> = observer(props => {
       </div>
       <div className={styles['layout__right']}>
         <div className={styles['wrapper']}>
-          <Renderer schema={props.value} packages={packages} />
+          <FormBuilder />
         </div>
       </div>
     </div>

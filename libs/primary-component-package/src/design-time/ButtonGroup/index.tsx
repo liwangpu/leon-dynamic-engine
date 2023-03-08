@@ -9,10 +9,10 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
   const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
   const hostRef = useRef<HTMLDivElement>();
   const contentRef = useRef<HTMLDivElement>();
-  // const ChildrenComponents = useMemo(() => {
-  //   if (!conf.children || !conf.children.length) { return null; }
-  //   return conf.children.map(c => (<DynamicComponent key={c.id} configuration={c} />))
-  // }, [conf.children]);
+  const ChildrenComponents = useMemo(() => {
+    if (!conf.children || !conf.children.length) { return null; }
+    return conf.children.map(c => (<DynamicComponent key={c.id} configuration={c} />))
+  }, [conf.children]);
 
   const onMenuClick = () => {
     // console.log(`title:`,);
@@ -62,7 +62,10 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
       <div className={styles['button-group__event-blocker']} onClick={onMenuClick}></div>
       <Dropdown.Button menu={{ items: [] }} size='small'>{conf.title}</Dropdown.Button>
 
-      <div className={styles['button-group__content']} data-dynamic-component-container='children' data-dynamic-container-owner={conf.id} ref={contentRef}>
+      <div className={styles['button-group__content']} ref={contentRef}>
+        <div className={styles['button-container']} data-dynamic-component-container='children' data-dynamic-container-owner={conf.id}>
+          {ChildrenComponents}
+        </div>
       </div>
     </div>
   );

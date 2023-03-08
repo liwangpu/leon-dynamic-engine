@@ -1,8 +1,8 @@
 import styles from './index.module.scss';
 import { memo, useMemo } from 'react';
-import SimpleNavsPage, { INavItem } from './components/SimpleNavsPage';
 import { ComponentPackageContext } from './contexts';
 import { IComponentPackage } from '@lowcode-engine/core';
+import { SimpleNavsPage, INavItem } from '@app-test/spare-parts';
 import { ComponentPackage as PrimaryComponentMarket } from '@lowcode-engine/primary-component-package';
 import { DataStoreCollocationContext, DataStoreModel, IDataStoreCollocation } from '@lowcode-engine/renderer';
 import { connectReduxDevtools } from 'mst-middlewares';
