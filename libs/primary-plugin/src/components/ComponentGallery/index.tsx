@@ -1,14 +1,14 @@
 import styles from './index.module.less';
-import { observer } from 'mobx-react-lite';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import React from 'react';
 import Sortable from 'sortablejs';
 import classnames from 'classnames';
 import { UpOutlined } from '@ant-design/icons';
 import { IComponentConfiguration, IComponentDescription } from '@lowcode-engine/core';
-import { EventTopicEnum } from '@lowcode-engine/editor';
+import { EventTopicEnum, LeftAreaPluginContext } from '@lowcode-engine/editor';
 import { INotification } from '../../models';
 import * as _ from 'lodash';
+import GalleryHeader from '../GalleryHeader';
 
 export type ComponentGroup = {
   title: string;
@@ -20,10 +20,11 @@ export interface OptionalComponentPanelProps {
   notification?: INotification;
 }
 
-export const ComponentGallery: React.FC<OptionalComponentPanelProps> = observer(props => {
+export const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(props => {
 
   const [componentGroupFoldedState, setComponentGroupFoldedState] = useState<{ [key: string]: boolean }>({});
   const optionalGroupContainerEl = useRef(null);
+  const pluginCtx = useContext(LeftAreaPluginContext);
 
   useEffect(() => {
     listenComponentDragging();
@@ -111,9 +112,7 @@ export const ComponentGallery: React.FC<OptionalComponentPanelProps> = observer(
 
   return (
     <div className={styles['optional-component-panel']}>
-      <div className={styles['content-panel-header']}>
-        <p className={styles['content-panel-header__title']}>组件库</p>
-      </div>
+      <GalleryHeader title='组件库' />
       <div className={styles['optional-list']} ref={optionalGroupContainerEl}>
         {OptionalGroups}
       </div>

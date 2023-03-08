@@ -1,0 +1,101 @@
+{
+  "name": "dynamic-form-test",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/dynamic-form-test/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/dynamic-form-test",
+        "index": "apps/dynamic-form-test/src/index.html",
+        "baseHref": "/",
+        "main": "apps/dynamic-form-test/src/main.tsx",
+        "tsConfig": "apps/dynamic-form-test/tsconfig.app.json",
+        "assets": [
+          "apps/dynamic-form-test/src/favicon.ico",
+          "apps/dynamic-form-test/src/assets"
+        ],
+        "styles": [
+          "apps/dynamic-form-test/src/styles.less"
+        ],
+        "scripts": [],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/dynamic-form-test/webpack.config.js"
+      },
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": false,
+          "vendorChunk": true
+        },
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/dynamic-form-test/src/environments/environment.ts",
+              "with": "apps/dynamic-form-test/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/webpack:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "dynamic-form-test:build",
+        "hmr": true,
+        "port": 8103
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "dynamic-form-test:build:development"
+        },
+        "production": {
+          "buildTarget": "dynamic-form-test:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "apps/dynamic-form-test/**/*.{ts,tsx,js,jsx}"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "apps/dynamic-form-test/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}

@@ -4,6 +4,7 @@ export * from './enums/event-topic';
 export * from './contexts/data-store-collocation';
 export * from './contexts/component-setter-panel';
 export * from './contexts/editor';
+export * from './contexts/left-area-plugin';
 export type { IEventMessage, IEventManager } from './models/event-manager';
 export type { IEditorContext } from './models/editor-manager';
 export type { IPlugin, IPluginRegister } from './models/plugin';

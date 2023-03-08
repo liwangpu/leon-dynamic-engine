@@ -1,7 +1,7 @@
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
 import { useContext, useMemo, useState } from 'react';
-import { EditorContext } from '../../contexts';
+import { EditorContext, ILeftAreaPluginContext, LeftAreaPluginContext } from '../../contexts';
 import React from 'react';
 import classnames from 'classnames';
 import { EventTopicEnum, SkeletonAreaEnum } from '../../enums';
@@ -59,8 +59,17 @@ const PluginPanel: React.FC = observer(() => {
     ));
     return [_Icons, _Panels];
   }, [skeletonGroupOfLeftArea, activePanel]);
-
-  const handleActivePanel = (name: string) => {
+  const leftAreaPluginCtx = useMemo<ILeftAreaPluginContext>(() => {
+    return {
+      close() {
+        console.log(`close:`, activePanel);
+        // setActivePanel(null);
+        handleActivePanel();
+      }
+    };
+  }, [skeletonGroupOfLeftArea]);
+  const handleActivePanel = (name?: string) => {
+    // debugger;
     if (activePanel === name) {
       name = null;
     }
@@ -96,7 +105,9 @@ const PluginPanel: React.FC = observer(() => {
         {Icons}
       </div>
       <div className={styles['plugin-panel__content']}>
-        {Panels}
+        <LeftAreaPluginContext.Provider value={leftAreaPluginCtx}>
+          {Panels}
+        </LeftAreaPluginContext.Provider>
       </div>
     </div>
   );

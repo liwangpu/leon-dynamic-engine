@@ -11,6 +11,7 @@ import { DataNode } from 'rc-tree/lib/interface';
 import { INotification } from '../../models';
 import * as _ from 'lodash';
 import { EventTopicEnum } from '@lowcode-engine/editor';
+import GalleryHeader from '../GalleryHeader';
 
 enum FolderCategory {
   field = 'field',
@@ -45,7 +46,6 @@ export interface IModelGalleryProps {
 }
 
 const NodeIcon: React.FC<{ data: { isObjectNode?: boolean; fieldType?: string; folderCategory?: FolderCategory } }> = memo((props) => {
-  // console.log(`data:`, props.data);
   const { isObjectNode, folderCategory, fieldType } = props.data;
 
   if (isObjectNode) {
@@ -145,7 +145,6 @@ export const ModelGallery: React.FC<IModelGalleryProps> = memo(({ mainModelId, m
 
   const [treeData, setTreeData] = useState<Array<any>>([]);
   const [expandedKeys, setExpandedKeys] = useState<Array<string>>([]);
-
   const switcherIcon = obj => {
 
     if (obj.isLeaf) {
@@ -249,24 +248,21 @@ export const ModelGallery: React.FC<IModelGalleryProps> = memo(({ mainModelId, m
 
   return (
     <div className={styles['model-gallery']}>
-      <div className={styles['content-panel-header']}>
-        <p className={styles['content-panel-header__title']}>模型</p>
-        <div className={styles['field-panel']}>
-          {treeData.length && (
-            <Tree
-              className="model-gallery-tree"
-              showLine={true}
-              showIcon={false}
-              icon={ps => (<NodeIcon data={ps.data as any} />)}
-              treeData={treeData}
-              switcherIcon={switcherIcon}
-              selectable={false}
-              defaultExpandedKeys={expandedKeys}
-              loadData={onLoadData}
-            // onExpand={onExpand}
-            />
-          )}
-        </div>
+      <GalleryHeader title='模型' />
+      <div className={styles['field-panel']}>
+        {treeData.length && (
+          <Tree
+            className="model-gallery-tree"
+            showLine={true}
+            showIcon={false}
+            icon={ps => (<NodeIcon data={ps.data as any} />)}
+            treeData={treeData}
+            switcherIcon={switcherIcon}
+            selectable={false}
+            defaultExpandedKeys={expandedKeys}
+            loadData={onLoadData}
+          />
+        )}
       </div>
     </div>
   );

@@ -152,12 +152,12 @@ const PagePresentation: React.FC = observer(() => {
           const componentRootDom = dom.getComponentRootDom(id);
 
           if (lastActiveComponentRootDom) {
-            const evt = new CustomEvent('cancel-active-component', {});
+            const evt = new CustomEvent('editor-event:cancel-active-component', {});
             lastActiveComponentRootDom.dispatchEvent(evt);
           }
 
           if (componentRootDom) {
-            const evt = new CustomEvent('active-component', {});
+            const evt = new CustomEvent('editor-event:active-component', {});
             componentRootDom.dispatchEvent(evt);
           }
 
@@ -214,7 +214,6 @@ const PagePresentation: React.FC = observer(() => {
     subs.sink = event.message
       .pipe(filter(e => e.topic === EventTopicEnum.componentActiving), map(e => e.data))
       .subscribe(id => {
-        // console.log(`active:`, d);
         componentActiveUIEffectHandler.activeComponent(id);
       });
 
