@@ -73,7 +73,7 @@ export const ListSetter: React.FC<IListSetter> = memo(props => {
     return () => {
       instance.destroy();
     };
-  }, [sortable]);
+  }, [sortable, dragHandle]);
 
   return (
     <div className='list-setter'>
