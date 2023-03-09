@@ -6,8 +6,10 @@ import './index.less';
 import * as _ from 'lodash';
 import { Subject } from 'rxjs';
 
-export interface IFormBuilderProps {
+export interface IFormBuilderProps<T = { [key: string]: any }> {
   metadata: IFormMetadata;
+  value?: T;
+  onChange(configuration: T): void;
 }
 
 const setterRendererCtx: ISettterRendererContext = {
@@ -16,11 +18,11 @@ const setterRendererCtx: ISettterRendererContext = {
   }
 };
 
-export const FormBuilder: React.FC<IFormBuilderProps> = memo(props => {
+export const FormBuilder: React.FC<IFormBuilderProps> = memo(({ metadata, value, onChange }) => {
 
   const [form] = Form.useForm();
   const SetterRenderer = setterRendererCtx.getFactory();
-  const children = (props.metadata && props.metadata.children) ? props.metadata.children : [];
+  const children = (metadata && metadata.children) ? metadata.children : [];
   const Children = useMemo(() => {
     return children.map(it => (
       <SetterRenderer config={it as any} key={it.key} />
@@ -31,12 +33,11 @@ export const FormBuilder: React.FC<IFormBuilderProps> = memo(props => {
   const handleChange = useCallback(_.debounce(async () => {
     let val = form.getFieldsValue();
     valueChangeObs.next(val);
-    console.log(`val:`, val);
-    // if (_.isFunction(metadata.onChange)) {
-    //   val = await metadata.onChange(val);
-    // }
-    // onChange(val);
-  }, 100), [props.metadata]);
+    if (_.isFunction(metadata.onChange)) {
+      val = await metadata.onChange(val);
+    }
+    onChange(val);
+  }, 100), [metadata]);
 
   return (
     <div className='dynamic-form-builder'>
@@ -45,6 +46,7 @@ export const FormBuilder: React.FC<IFormBuilderProps> = memo(props => {
           form={form}
           className='dynamic-form-builder'
           layout='vertical'
+          initialValues={value}
           validateTrigger={false}
           onValuesChange={handleChange}
         >

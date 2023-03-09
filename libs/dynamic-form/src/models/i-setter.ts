@@ -27,11 +27,11 @@ export interface IGroupSetter extends ISetterBase {
 
 export interface IListSetter extends ISetterBase {
   setter: SetterType.list;
-  listItem?: React.FC<any>;
+  listItem?: string;
   sortable?: boolean;
   dragHandle?: string;
   listItemKeyField?: string;
-  listFooter?: React.FC<any>;
+  listFooter?: string;
 }
 
 

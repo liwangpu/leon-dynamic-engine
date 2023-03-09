@@ -1,14 +1,18 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import styles from './index.module.less';
 import { Button } from 'antd';
-import { IRealTimeRendererRefType, RealTimeRenderer } from '@app-test/spare-parts';
+import { IRealTimeRendererRefType, RealTimeRenderer, useLocalStorage } from '@app-test/spare-parts';
 import { FormBuilder, IFormMetadata, SetterType } from '@lowcode-engine/dynamic-form';
+import registerSetter, { CustomListFooter, CustomListItem } from './setters';
+
+registerSetter();
 
 const GeneralTest: React.FC = memo(() => {
 
   const ref = React.createRef<IRealTimeRendererRefType>();
+  const { value, setValue } = useLocalStorage('general-test-form-value');
 
-  const setGeneralForm = () => {
+  const setGeneralForm = useCallback(() => {
     let md: IFormMetadata = {
       children: [
         {
@@ -43,7 +47,17 @@ const GeneralTest: React.FC = memo(() => {
                       name: 'married'
                     },
                   ],
-                }
+                },
+                {
+                  key: 'user1',
+                  setter: SetterType.list,
+                  name: 'users',
+                  label: '用户',
+                  listItem: 'cus-item',
+                  sortable: true,
+                  dragHandle: '.drag-handle',
+                  listFooter: 'cus-footer',
+                },
               ]
             },
             {
@@ -70,17 +84,23 @@ const GeneralTest: React.FC = memo(() => {
       ]
     };
     ref.current.setValue(md);
-  };
+  }, []);
+
+  const resetFormValue = useCallback(() => {
+    setValue(undefined);
+    location.reload();
+  }, []);
 
   return (
     <div className={styles['page']}>
       <div className={styles['page__header']}>
+        <Button type="primary" size='small' danger onClick={resetFormValue}>清除表单值</Button>
         <Button type="primary" size='small' onClick={setGeneralForm}>通用表单</Button>
       </div>
       <div className={styles['page__content']}>
         <RealTimeRenderer storageKey='general-test-renderer' ref={ref} >
           {val => (
-            <FormBuilder metadata={val} />
+            <FormBuilder metadata={val} value={value} onChange={setValue} />
           )}
         </RealTimeRenderer>
       </div>

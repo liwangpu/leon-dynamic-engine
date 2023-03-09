@@ -3,6 +3,7 @@ import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useSta
 import JSONEditor from 'jsoneditor';
 import 'jsoneditor/dist/jsoneditor.css';
 import * as _ from 'lodash';
+import { useLocalStorage } from '../../hooks';
 
 export interface IRealTimeRendererRefType {
   setValue: (val: any) => void;
@@ -17,13 +18,11 @@ export const RealTimeRenderer: React.MemoExoticComponent<React.ForwardRefExoticC
 
   const container = useRef<HTMLDivElement>();
   const jsoneditor = useRef<any>();
-  const [value, setValue] = useState<any>(localStorage.getItem(props.storageKey) ? JSON.parse(localStorage.getItem(props.storageKey)) : {});
-
+  const { value, setValue } = useLocalStorage(props.storageKey);
   useImperativeHandle(ref, () => ({
     setValue(val: any) {
       jsoneditor.current.update(val);
       setValue(val);
-      localStorage.setItem(props.storageKey, JSON.stringify(val));
     }
   }));
 
@@ -34,7 +33,6 @@ export const RealTimeRenderer: React.MemoExoticComponent<React.ForwardRefExoticC
         try {
           const val = JSON.parse(str);
           setValue(val);
-          localStorage.setItem(props.storageKey, JSON.stringify(val));
         } catch (error) {
           //
         }

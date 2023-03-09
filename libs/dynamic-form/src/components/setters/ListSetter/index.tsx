@@ -1,7 +1,7 @@
-import { memo, useEffect, useRef } from 'react';
+import { memo, useContext, useEffect, useMemo, useRef } from 'react';
 import { Form } from 'antd';
 import { IListSetter } from '../../../models';
-import { FormListContext, FormListItemContext, FormNamePathContext, IFormListContext, IFormListItemContext } from '../../../contexts';
+import { FormListContext, FormListItemContext, FormNamePathContext, IFormListContext, IFormListItemContext, SettterRendererContext } from '../../../contexts';
 import React from 'react';
 import Sortable from 'sortablejs';
 import * as _ from 'lodash';
@@ -21,8 +21,20 @@ PlainText.displayName = 'PlainText';
 export const ListSetter: React.FC<IListSetter> = memo(props => {
 
   const { listItem, listFooter, sortable, dragHandle } = props;
-  const Item = listItem;
-  const Footer = listFooter;
+  const setterRendererCtx = useContext(SettterRendererContext);
+  const SetterRenderer = setterRendererCtx.getFactory();
+  const contentConf = useMemo(() => {
+    if (!listItem) { return null; }
+
+    return {
+      itemConf: {
+        setter: listItem
+      },
+      footerConf: {
+        setter: listFooter
+      }
+    };
+  }, [listItem, listFooter]);
   const contentRef = useRef<HTMLDivElement>();
   const listOperationRef = useRef<{ move: (from: number, to: number) => void }>();
   const name = useSetterName();
@@ -61,7 +73,7 @@ export const ListSetter: React.FC<IListSetter> = memo(props => {
     return () => {
       instance.destroy();
     };
-  }, []);
+  }, [sortable]);
 
   return (
     <div className='list-setter'>
@@ -77,18 +89,18 @@ export const ListSetter: React.FC<IListSetter> = memo(props => {
                     const itemCtx: IFormListItemContext = { ...data, operation: { delete: () => operation.remove(data.name) } };
                     return (
                       <React.Fragment key={data.key}>
-                        <FormNamePathContext.Provider value={[...itemNamePathPref,data.name]}>
+                        <FormNamePathContext.Provider value={[...itemNamePathPref, data.name]}>
                           <FormListItemContext.Provider value={itemCtx} >
-                            {listItem && <Item />}
+                            {listItem && <SetterRenderer config={contentConf.itemConf as any} />}
                           </FormListItemContext.Provider>
                         </FormNamePathContext.Provider>
                       </React.Fragment>
                     );
                   })}
                 </div>
-                {Footer && (
+                {listFooter && (
                   <div className='list-setter__footer'>
-                    <Footer />
+                    {listFooter && <SetterRenderer config={contentConf.footerConf as any} />}
                   </div>
                 )}
               </FormListContext.Provider>
