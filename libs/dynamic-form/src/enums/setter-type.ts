@@ -1,3 +1,12 @@
 export enum SetterType {
-  string = 'string'
+  tabs = 'tabs',
+  string = 'string',
+  number = 'number',
+  boolean = 'boolean',
+  checkBox = 'checkBox',
+  radio = 'radio',
+  group = 'group',
+  primaryHeading = 'primaryHeading',
+  secondaryHeading = 'secondaryHeading',
+  list = 'list',
 }

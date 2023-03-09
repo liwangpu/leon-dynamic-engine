@@ -1,5 +1,5 @@
-import { Setter } from './i-setter';
+import { ISetter } from './i-setter';
 
 export interface IFormMetadata {
-  children: Array<Setter>;
+  children: Array<ISetter>;
 }
