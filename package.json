@@ -12,7 +12,8 @@
     "build:editor": "nx build editor",
     "build:primary-plugin": "nx build primary-plugin",
     "build:component-configuration-shared": "nx build component-configuration-shared",
-    "build:primary-component-package": "nx build primary-component-package"
+    "build:primary-component-package": "nx build primary-component-package",
+    "build:editor-test": "nx build editor-test"
   },
   "private": true,
   "dependencies": {

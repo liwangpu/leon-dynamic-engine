@@ -1,7 +1,7 @@
 import { DownOutlined, LeftOutlined, RightOutlined, VerticalLeftOutlined, VerticalRightOutlined } from '@ant-design/icons';
 import { IDynamicComponentProps } from '@lowcode-engine/core';
 import React, { memo } from 'react';
-import { IPaginationComponentConfiguration } from '../../models';
+import { IPaginationComponentConfiguration } from '../../../models';
 import styles from './index.module.less';
 import classnames from 'classnames';
 
