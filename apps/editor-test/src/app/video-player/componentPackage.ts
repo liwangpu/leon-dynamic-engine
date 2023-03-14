@@ -1,6 +1,6 @@
-import { DynamicForm } from '@lowcode-engine/component-configuration-shared';
 import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from '@lowcode-engine/core';
 import { ComponentTypes } from './enums';
+import { pascalFormat } from '@lowcode-engine/component-configuration-shared';
 
 export const ComponentDescriptions: IComponentDescription[] = [
   {
@@ -39,12 +39,7 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentRunTimeModule(type: ComponentTypes, platform: string): Promise<IRunTimePackageModule> {
-    switch (type) {
-      case ComponentTypes.videoPlayer:
-        return import('./run-time/VideoPlayer');
-      default:
-        return null;
-    }
+    return import(`./components/${pascalFormat(type)}/RunTime`);
   }
 
   /**
@@ -53,12 +48,7 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentDesignTimeModule(type: ComponentTypes, platform: string): Promise<IDesignTimePackageModule> {
-    switch (type) {
-      case ComponentTypes.videoPlayer:
-        return import('./run-time/VideoPlayer');
-      default:
-        return null;
-    }
+    return null;
   }
 
   /**
@@ -67,17 +57,14 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentConfigurationModule(type: ComponentTypes, platform: string): Promise<IConfigurationPackageModule> {
-    // 自己开发配置面板
-    switch (type) {
-      case ComponentTypes.videoPlayer:
-        return import('./configurations/VideoPlayer');
-      default:
-        return null;
-    }
+    // // 自己开发配置面板
+    return import(`./components/${pascalFormat(type)}/Configuration`);
 
     // // 使用动态表单配置面板
     // await import('./configurations/metadata-register');
     // return DynamicForm.instance.loadForm();
+
+    return null;
   }
 
 }

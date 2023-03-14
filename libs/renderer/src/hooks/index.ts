@@ -11,14 +11,18 @@ export function useComponentStyle(conf: IComponentConfiguration) {
     if (conf.height) {
       _style['height'] = conf.height;
     }
+
     if (conf.gridColumnSpan) {
       let sec = GRID_SYSTEM_SECTION_TOTAL;
       try {
         const fn = new Function(`return ${conf.gridColumnSpan}`);
         sec = fn() * GRID_SYSTEM_SECTION_TOTAL;
-      } catch { }
+      } catch (err) {
+        console.error(`gridColumnStart转化失败,数值信息为${conf.gridColumnSpan}`);
+      }
       _style['gridColumnStart'] = `span ${sec}`;
     }
+
     return _style;
   }, [conf]);
 

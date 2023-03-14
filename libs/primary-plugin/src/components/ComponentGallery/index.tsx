@@ -3,7 +3,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import React from 'react';
 import Sortable from 'sortablejs';
 import classnames from 'classnames';
-import { UpOutlined } from '@ant-design/icons';
+import { CodeSandboxOutlined, UpOutlined } from '@ant-design/icons';
 import { IComponentConfiguration, IComponentDescription } from '@lowcode-engine/core';
 import { EventTopicEnum } from '@lowcode-engine/editor';
 import { INotification } from '../../models';
@@ -101,6 +101,9 @@ export const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(prop
             styles['optional-component'],
             'optional-component'
           )} key={c.type} title={c.title} data-type={c.type}>
+            <div className={styles['optional-component__icon']}>
+              <CodeSandboxOutlined />
+            </div>
             <p className={styles['optional-component__title']}>{c.title}</p>
             <div className='dragdrop-placeholder-flag'></div>
           </div>

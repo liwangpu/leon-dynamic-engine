@@ -27,6 +27,7 @@
     "mobx-react-lite": "^3.4.2",
     "mobx-state-tree": "^5.1.7",
     "mst-middlewares": "^5.1.7",
+    "react-json-view": "^1.21.3",
     "nanoid": "^4.0.1",
     "rc-tree": "^5.7.2",
     "react": "18.2.0",

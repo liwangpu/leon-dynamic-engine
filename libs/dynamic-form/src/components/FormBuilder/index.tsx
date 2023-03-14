@@ -1,5 +1,5 @@
 import { Form } from 'antd';
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { ISettterContext, ISettterRendererContext, SettterContext, SettterRendererContext } from '../../contexts';
 import { IFormMetadata, ISetter, SetterRegistry } from '../../models';
 import './index.less';
@@ -38,6 +38,18 @@ export const FormBuilder: React.FC<IFormBuilderProps> = memo(({ metadata, value,
     }
     onChange(val);
   }, 100), [metadata]);
+
+  useEffect(() => {
+    if (_.isFunction(metadata.onLoad)) {
+      metadata.onLoad(value, valueChangeObs);
+    }
+
+    return () => {
+      if (_.isFunction(metadata.onDestroy)) {
+        metadata.onDestroy();
+      }
+    };
+  }, [metadata]);
 
   return (
     <div className='dynamic-form-builder'>

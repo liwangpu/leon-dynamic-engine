@@ -1,5 +1,5 @@
 import { IComponentConfiguration } from '@lowcode-engine/core';
-import { GridSystemSection } from '@lowcode-engine/component-configuration-shared';
+// import { GridSystemSection } from '@lowcode-engine/component-configuration-shared';
 
 export interface IFormItemConfiguration extends IComponentConfiguration {
   placeholder?: string;

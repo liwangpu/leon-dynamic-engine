@@ -1,12 +1,14 @@
 import { SetterType } from '../enums';
 
-interface ISetterBase {
+export interface ISetterBase {
   key: string;
+  setter: string;
   label?: string;
   name?: string;
   required?: boolean;
   help?: string;
   disabled?: boolean;
+  [key: string]: any;
 }
 
 
@@ -72,4 +74,4 @@ export interface IRadioSetter extends ISetterBase {
 }
 
 
-export type ISetter = ITabsSetter | IListSetter | IGroupSetter | IPrimaryHeadingSetter | ISecondaryHeadingSetter | IStringSetter | INumberSetter | IBooleanSetter | ICheckBoxSetter | IRadioSetter;
+export type ISetter = ISetterBase | ITabsSetter | IListSetter | IGroupSetter | IPrimaryHeadingSetter | ISecondaryHeadingSetter | IStringSetter | INumberSetter | IBooleanSetter | ICheckBoxSetter | IRadioSetter;

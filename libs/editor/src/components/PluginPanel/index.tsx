@@ -101,7 +101,12 @@ const PluginPanel: React.FC = observer(() => {
       <div className={styles['plugin-panel__sidebar']}>
         {Icons}
       </div>
-      <div className={styles['plugin-panel__content']}>
+      <div className={classnames(
+        styles['plugin-panel__content'],
+        {
+          [styles['plugin-panel__content--active']]: !!activePanel
+        }
+      )}>
         <LeftAreaPluginContext.Provider value={leftAreaPluginCtx}>
           {Panels}
         </LeftAreaPluginContext.Provider>

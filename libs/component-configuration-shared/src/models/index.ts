@@ -1,2 +1,1 @@
-export * from './dynamic-form';
-export * from './i-setter';
+export * from './metadata-register';

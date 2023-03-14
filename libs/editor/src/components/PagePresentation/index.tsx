@@ -152,12 +152,12 @@ const PagePresentation: React.FC = observer(() => {
           const componentRootDom = dom.getComponentRootDom(id);
 
           if (lastActiveComponentRootDom) {
-            const evt = new CustomEvent('editor-event:cancel-active-component', {});
+            const evt = new CustomEvent('editor-event:cancel-active-component', { bubbles: true });
             lastActiveComponentRootDom.dispatchEvent(evt);
           }
 
           if (componentRootDom) {
-            const evt = new CustomEvent('editor-event:active-component', {});
+            const evt = new CustomEvent('editor-event:active-component', { bubbles: true });
             componentRootDom.dispatchEvent(evt);
           }
 

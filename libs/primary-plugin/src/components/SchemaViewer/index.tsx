@@ -1,77 +1,61 @@
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import React from 'react';
-import JSONEditor from 'jsoneditor';
 import 'jsoneditor/dist/jsoneditor.css';
-import { EventTopicEnum, IEventManager, IProjectManager } from '@lowcode-engine/editor';
+import { IProjectManager } from '@lowcode-engine/editor';
 import * as _ from 'lodash';
-import { distinctUntilChanged, filter, map } from 'rxjs';
+import { Button, message } from 'antd';
+import GalleryHeader from '../GalleryHeader';
+import JsonViewer from 'react-json-view';
+import { CopyOutlined } from '@ant-design/icons';
 
 export interface SchemaViewerProps {
   project: IProjectManager;
-  event: IEventManager;
 }
 
 const SchemaViewer: React.FC<SchemaViewerProps> = observer(props => {
 
-  const container = useRef<HTMLDivElement>();
-  const jsoneditor = useRef<any>();
-  const latestJson = useRef<any>();
-
-  const onSchemaChange = useCallback(_.debounce(schema => {
-    props.project.import(schema);
-  }, 250), []);
+  const [val, setVal] = useState<any>();
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
-    if (jsoneditor.current) { return; }
-    const options = {
-      mode: 'code',
-      mainMenuBar: false,
-      navigationBar: true,
-      statusBar: true,
-      onChangeText: str => {
-        try {
-          latestJson.current = JSON.parse(str);
-          onSchemaChange(latestJson.current);
-        } catch (error) {
-          //
-        }
-      }
-    };
-    jsoneditor.current = new JSONEditor(container.current, options);
-    return () => {
-      jsoneditor.current.destroy();
-      jsoneditor.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!jsoneditor.current) { return; }
-    const subscription = props.event.message
-      .pipe(filter(evt => evt.topic === EventTopicEnum.pluginPanelActiving))
-      .pipe(map(evt => evt.data))
-      .pipe(distinctUntilChanged())
-      .pipe(filter(name => name === 'SCHEMA'))
-      .subscribe(() => {
-        jsoneditor.current.resize();
-      });
-
     const disposer = props.project.monitorSchema(schema => {
-      if (_.isEqual(schema, latestJson.current)) { return; }
-      jsoneditor.current.update(schema);
-      latestJson.current = schema;
+      setVal(schema);
     });
 
     return () => {
-      latestJson.current = null;
       disposer();
-      subscription.unsubscribe();
     };
   }, []);
 
+  const copySchema = () => {
+    messageApi.info('复制成功!');
+    navigator.clipboard.writeText(JSON.stringify(val));
+  };
+
   return (
-    <div className={styles['schema-viewer']} ref={container} />
+    <div className={styles['schema-viewer']}>
+      <GalleryHeader title='元数据' >
+        <div className={styles['toolbar']}>
+          <Button
+            type="text"
+            title='复制'
+            icon={<CopyOutlined />}
+            size='small'
+            onClick={copySchema}
+          />
+        </div>
+      </GalleryHeader>
+      {contextHolder}
+      <div className={styles['schema-viewer__content']}>
+        <JsonViewer
+          src={val}
+          enableClipboard={false}
+        // theme='ocean' 
+        />
+      </div>
+    </div>
   );
 });
 

@@ -1,17 +1,15 @@
-import { DynamicForm } from '@lowcode-engine/component-configuration-shared';
 import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from '@lowcode-engine/core';
 import { ComponentTypes } from './enums';
-// import RegisterConfigurationMetadata from './configurations/metadatas';
-// import RegisterSetter from './configurations/setters';
+import { DynamicConfigPanelLoader, pascalFormat } from '@lowcode-engine/component-configuration-shared';
 
 export const ComponentDescriptions: IComponentDescription[] = [
   {
     type: ComponentTypes.listPage,
-    title: '页面'
+    title: '列表页面'
   },
   {
     type: ComponentTypes.detailPage,
-    title: '页面'
+    title: '详情页面'
   },
   {
     type: ComponentTypes.button,
@@ -55,6 +53,8 @@ export const ComponentDescriptions: IComponentDescription[] = [
   }
 ];
 
+const noDesignTimeComponents = new Set<ComponentTypes>([ComponentTypes.listPage, ComponentTypes.detailPage, ComponentTypes.block]);
+
 export class ComponentPackage implements IComponentPackage {
 
   name = 'PrimaryComponentPackage';
@@ -85,28 +85,7 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentRunTimeModule(type: ComponentTypes, platform: string): Promise<IRunTimePackageModule> {
-    switch (type) {
-      case ComponentTypes.listPage:
-        return import('./run-time/ListPage');
-      case ComponentTypes.detailPage:
-        return import('./run-time/DetailPage');
-      case ComponentTypes.button:
-        return import('./run-time/Button');
-      case ComponentTypes.block:
-        return import('./run-time/Block');
-      case ComponentTypes.tabs:
-        return import('./run-time/Tabs');
-      case ComponentTypes.tab:
-        return import('./run-time/Tab');
-      case ComponentTypes.text:
-        return import('./run-time/Text');
-      case ComponentTypes.number:
-        return import('./run-time/Number');
-      case ComponentTypes.table:
-        return import('./run-time/Table');
-      default:
-        return null;
-    }
+    return import(`./components/${pascalFormat(type)}/RunTime`);
   }
 
   /**
@@ -115,24 +94,9 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentDesignTimeModule(type: ComponentTypes, platform: string): Promise<IDesignTimePackageModule> {
-    switch (type) {
-      case ComponentTypes.button:
-        return import('./design-time/Button');
-      case ComponentTypes.buttonGroup:
-        return import('./design-time/ButtonGroup');
-      case ComponentTypes.text:
-        return import('./design-time/Text');
-      case ComponentTypes.number:
-        return import('./design-time/Number');
-      case ComponentTypes.table:
-        return import('./design-time/Table');
-      case ComponentTypes.pagination:
-        return import('./design-time/Pagination');
-      case ComponentTypes.tableOperatorColumn:
-        return import('./design-time/TableOperatorColumn');
-      default:
-        return null;
-    }
+    if (noDesignTimeComponents.has(type)) { return null; }
+
+    return import(`./components/${pascalFormat(type)}/DesignTime`);
   }
 
   /**
@@ -141,9 +105,7 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentConfigurationModule(type: ComponentTypes, platform: string): Promise<IConfigurationPackageModule> {
-    // RegisterConfigurationMetadata();
-    // RegisterSetter();
-    return DynamicForm.instance.loadForm();
+    return DynamicConfigPanelLoader(() => import(`./components/${pascalFormat(type)}/Configuration`));
   }
 
 }

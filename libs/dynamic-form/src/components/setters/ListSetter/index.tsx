@@ -18,7 +18,7 @@ const PlainText: React.FC<{ value?: any; onChange?: (val: any) => void }> = memo
 
 PlainText.displayName = 'PlainText';
 
-export const ListSetter: React.FC<IListSetter> = memo(props => {
+const ListSetter: React.FC<IListSetter> = memo(props => {
 
   const { listItem, listFooter, sortable, dragHandle } = props;
   const setterRendererCtx = useContext(SettterRendererContext);
@@ -113,3 +113,5 @@ export const ListSetter: React.FC<IListSetter> = memo(props => {
 });
 
 ListSetter.displayName = 'ListSetter';
+
+export default ListSetter;

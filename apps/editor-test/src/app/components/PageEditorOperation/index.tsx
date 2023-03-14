@@ -54,9 +54,9 @@ const PageEditorOperation: React.FC<PageOperationProps> = observer(props => {
   return (
     <div className={styles['page-operation']}>
       <Button type="default" icon={<EyeOutlined />} onClick={previewPage} >预览</Button>
-      <Button type="primary" danger icon={<SaveOutlined />} onClick={clear} >清空</Button>
-      <Button type="primary" icon={<ClearOutlined />} onClick={saveSchema} >保存</Button>
-    </div>
+      <Button type="primary" danger icon={<ClearOutlined />} onClick={clear} >清空</Button>
+      <Button type="primary" icon={<SaveOutlined />} onClick={saveSchema} >保存</Button>
+    </div >
   );
 });
 

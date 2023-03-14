@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 import { EventTopicEnum } from '../enums';
 
 const listenPaths = ['/configurationStore', '/treeStore'];
-const listenActions = ['setState'];
+const listenActions = ['setState', 'deleteComponent', 'addComponent'];
 
 export interface IProjectManager {
   import(schema: IProjectSchema): void;

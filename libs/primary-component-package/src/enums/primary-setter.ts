@@ -1,4 +1,4 @@
 export enum PrimarySetterType {
-  componentTypeSetter = 'componentTypeSetter',
-  gridColumnSpanSetter = 'gridColumnSpanSetter',
+  componentType = 'componentType',
+  gridColumnSpan = 'gridColumnSpan',
 }

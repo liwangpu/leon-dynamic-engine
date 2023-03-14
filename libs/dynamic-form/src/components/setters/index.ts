@@ -7,7 +7,7 @@ import BooleanSetter from './BooleanSetter';
 import CheckBoxSetter from './CheckBoxSetter';
 import RadioSetter from './RadioSetter';
 import GroupSetter from './GroupSetter';
-import { ListSetter } from './ListSetter';
+import ListSetter from './ListSetter';
 import { PrimaryHeadingSetter, SecondaryHeadingSetter } from './HeadingSetter';
 
 export function initSetter(): void {

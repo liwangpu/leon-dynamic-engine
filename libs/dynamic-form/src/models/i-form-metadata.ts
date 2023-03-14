@@ -2,8 +2,9 @@ import { Observable } from 'rxjs';
 import { ISetter } from './i-setter';
 
 export interface IFormMetadata {
+  title?: string;
   children: Array<ISetter>;
-  onLoad?: ( valueChange$: Observable<{[key:string]:any}>) => Promise<void>;
+  onLoad?: (initValue: any, valueChange$: Observable<{ [key: string]: any }>) => Promise<void>;
   onDestroy?: () => Promise<void>;
-  onChange?: (value: {[key:string]:any}) => Promise<{[key:string]:any}>;
+  onChange?: (value: { [key: string]: any }) => Promise<{ [key: string]: any }>;
 }

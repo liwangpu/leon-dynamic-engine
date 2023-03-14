@@ -5,6 +5,7 @@ import { IConfigurationTransfer, IModelLoader, ModelGallery } from './components
 import SchemaViewer from './components/SchemaViewer';
 import ComponentToolBar, { IComponentToolBarMap } from './components/ComponentToolBar';
 import { INotification } from './models';
+import * as _ from 'lodash';
 
 export function ModelGalleryPluginRegister(mainModelId: string, modelLoader: IModelLoader, configurationTransfer: IConfigurationTransfer): IPluginRegister {
   return (function _ModelGalleryPluginRegister({ skeleton, event }) {
@@ -69,7 +70,7 @@ export function SchemaViewerPluginRegister(): IPluginRegister {
           title: '元数据',
           area: SkeletonAreaEnum.leftArea,
           icon: <CodeFilled />,
-          content: <SchemaViewer project={project} event={event} />
+          content: <SchemaViewer project={project}/>
         });
       },
       destroy: async () => {

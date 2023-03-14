@@ -7,12 +7,12 @@ import { StoreContext } from './app/contexts';
 import { ModelRepository, PageRepository } from './app/models';
 import hotkeys from 'hotkeys-js';
 
-// 添加用作测试的一些快捷按键
-hotkeys('f7', function (event, handler) {
-  // Prevent the default refresh event under WINDOWS system
-  event.preventDefault();
-  console.log(`shortct key f7 click`,);
-});
+// // 添加用作测试的一些快捷按键
+// hotkeys('f7', function (event, handler) {
+//   // Prevent the default refresh event under WINDOWS system
+//   event.preventDefault();
+//   console.log(`shortct key f7 click`,);
+// });
 
 const store = createStore();
 
@@ -23,7 +23,7 @@ const PagePreview = React.lazy(() => import('./app/pages/PagePreview'));
 const EditorPluginTest = React.lazy(() => import('./app/pages/EditorPluginTest'));
 const ComponentGalleryTest = React.lazy(() => import('./app/pages/ComponentGalleryTest'));
 const ModelGalleryTest = React.lazy(() => import('./app/pages/ModelGalleryTest'));
-const DynamicFormTest = React.lazy(() => import('./app/pages/DynamicFormTest'));
+// const DynamicFormTest = React.lazy(() => import('./app/pages/DynamicFormTest'));
 
 function WrapperSuspense(WrappedComponent: React.ComponentType) {
   return (
@@ -75,10 +75,10 @@ const router = createBrowserRouter([
             path: 'model-gallery',
             element: WrapperSuspense(ModelGalleryTest),
           },
-          {
-            path: 'dynamic-form',
-            element: WrapperSuspense(DynamicFormTest),
-          },
+          // {
+          //   path: 'dynamic-form',
+          //   element: WrapperSuspense(DynamicFormTest),
+          // },
           {
             index: true,
             element: <Navigate to="dynamic-form" replace={true} />,

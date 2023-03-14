@@ -2,20 +2,18 @@ import React, { memo, useCallback, useContext, useMemo } from 'react';
 import styles from './index.module.less';
 import { useLoaderData, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
-import { ComponentGalleryPluginRegister, ComponentToolBarRegister, IBusinessModel, ModelGalleryPluginRegister } from '@lowcode-engine/primary-plugin';
+import { ComponentGalleryPluginRegister, ComponentToolBarRegister, IBusinessModel, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
 import PageEditorOperation from '../../components/PageEditorOperation';
 import { ComponentPackageContext } from '../../contexts';
-import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode,RegisterConfigurationMetadata,RegisterSetter } from '@lowcode-engine/primary-component-package';
+import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode,RegisterSetter,GridSystemSection } from '@lowcode-engine/primary-component-package';
 import { Button } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { GenerateNestedComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
-import { GridSystemSection } from '@lowcode-engine/component-configuration-shared';
 import { ModelRepository } from '../../models';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
 import { IVideoPlayerComponentConfiguration } from '../../video-player';
 
-RegisterConfigurationMetadata();
 RegisterSetter();
 
 const buttonTypes: Array<ComponentTypes> = [
@@ -186,7 +184,6 @@ const PageEditor: React.FC = memo(() => {
           ]
         }
       ]),
-
       // 模型库注册插件
       ModelGalleryPluginRegister(businessModel, async id => {
         return ModelRepository.getInstance().get(id);
@@ -203,7 +200,7 @@ const PageEditor: React.FC = memo(() => {
         [ComponentTypes.pagination]: [],
       }),
       // schema源码插件
-      // SchemaViewerPluginRegister(),
+      SchemaViewerPluginRegister(),
       // 页面返回按钮注册插件
       (function pageReturnPluginRegistry({ skeleton }) {
         const skeletonKey = 'EDITOR_RETURN_ST';
