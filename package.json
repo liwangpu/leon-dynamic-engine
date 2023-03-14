@@ -7,6 +7,7 @@
     "start:component-test": "nx serve component-test",
     "start:editor-test": "nx serve editor-test --host=0.0.0.0",
     "start:dynamic-form-test": "nx serve dynamic-form-test",
+    "build":"npm run build:editor-test",
     "build:core": "nx build core",
     "build:renderer": "nx build renderer",
     "build:editor": "nx build editor",

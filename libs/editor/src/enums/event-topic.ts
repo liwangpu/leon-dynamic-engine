@@ -11,5 +11,6 @@ export enum EventTopicEnum {
   componentContainerScrollStart = 'componentContainerScrollStart',
   componentContainerScrollEnd = 'componentContainerScrollEnd',
   importSchema = 'importSchema',
+  sizeConfigurationUpdate = 'sizeConfigurationUpdate'
 
 }

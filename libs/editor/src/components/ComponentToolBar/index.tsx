@@ -41,7 +41,7 @@ class ToolBar {
     this.componentIntersecting.set(id, intersecting);
   }
 
-  private reposition(): void {
+  public reposition(): void {
     const componentHost = this.dom.getComponentHost(this.activeComponentId);
     if (!componentHost || !this.host) { return; }
     let rect = componentHost.getBoundingClientRect();
@@ -70,6 +70,12 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
       .pipe(filter(evt => evt.topic === EventTopicEnum.componentStartDragging))
       .subscribe(() => {
         toolbar.toggleStatus(false);
+      });
+
+    subs.sink = event.message
+      .pipe(filter(evt => evt.topic === EventTopicEnum.sizeConfigurationUpdate))
+      .subscribe(() => {
+        toolbar.reposition();
       });
 
     subs.sink = event.message

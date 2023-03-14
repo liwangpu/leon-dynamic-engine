@@ -2,6 +2,7 @@ import { ComponentDiscoveryProvider, IComponentDiscovery, IComponentPackage } fr
 import { createStore, EditorStoreModel } from '../store';
 import { ConfigurationAddingHandlerManager } from './configuration-handler-manager';
 import { DomManager, IDomManager } from './dom-manager';
+import { EditorStorage, IEditorStorage } from './editor-storage';
 import { EventManager, IEventManager } from './event-manager';
 import { IProjectManager, ProjectSchemaManager } from './project-schema-manager';
 import { ISkeletonManager, SkeletonManager } from './skeleton-manager';
@@ -11,6 +12,7 @@ export interface IEditorContext {
   skeleton: ISkeletonManager;
   project: IProjectManager;
   store: EditorStoreModel;
+  storage: IEditorStorage;
   componentDiscovery: IComponentDiscovery;
   dom: IDomManager;
   event: IEventManager;
@@ -26,6 +28,7 @@ export class EditorContextManager implements IEditorContext {
   public readonly event = new EventManager(this);
   public readonly slot = new SlotManager(this);
   public readonly configurationAddingHandler = new ConfigurationAddingHandlerManager(this);
+  public readonly storage = new EditorStorage(this);
   public readonly store = createStore();
   public readonly componentDiscovery;
   public constructor(packages: Array<IComponentPackage>) {

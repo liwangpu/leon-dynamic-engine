@@ -50,8 +50,12 @@ const SchemaViewer: React.FC<SchemaViewerProps> = observer(props => {
       {contextHolder}
       <div className={styles['schema-viewer__content']}>
         <JsonViewer
+          name='SCHEMA'
           src={val}
+          indentWidth={2}
           enableClipboard={false}
+          displayObjectSize={false}
+          displayDataTypes={false}
         // theme='ocean' 
         />
       </div>

@@ -73,6 +73,12 @@ export async function DynamicConfigPanelLoader(loader: () => Promise<{ default: 
       })();
     }, [setterContext]);
 
+    useEffect(() => {
+      return () => {
+        metadataRegistry.clear();
+      };
+    }, []);
+
     return (
       <div className={styles['dynamic-config-panel']}>
         {metadata && (
