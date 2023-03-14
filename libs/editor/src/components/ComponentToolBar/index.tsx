@@ -24,7 +24,7 @@ class ToolBar {
 
   public toggleStatus(enabled: boolean): void {
     if (!this.host) { return; }
-    // console.log(`componentIntersecting:`, componentIntersecting);
+
     if (enabled) {
       if (!this.componentIntersecting.has(this.activeComponentId) || this.componentIntersecting.get(this.activeComponentId)) {
         this.reposition();
@@ -73,12 +73,6 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
       });
 
     subs.sink = event.message
-      .pipe(filter(evt => evt.topic === EventTopicEnum.sizeConfigurationUpdate))
-      .subscribe(() => {
-        toolbar.reposition();
-      });
-
-    subs.sink = event.message
       .pipe(filter(evt => evt.topic === EventTopicEnum.componentEndDragging))
       // 需要延迟一下,因为toolbarIntersectingChange需要点时间
       .pipe(delay(80))
@@ -91,6 +85,7 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
       .pipe(map(evt => evt.data))
       .subscribe((componentId: string) => {
         toolbar.active(componentId);
+        componentHostResizeDetector.observe(componentId);
       });
 
     subs.sink = event.message
@@ -101,8 +96,7 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
       .pipe(filter(evt => evt.topic === EventTopicEnum.componentContainerScrollEnd))
       .subscribe(() => toolbar.toggleStatus(true));
 
-    // 设计器可视区域窗口大小调整事件监听器
-    const resizeDetector = (() => {
+    const componentHostResizeDetector = (() => {
       let lastResizeAt = Date.now();
       let resizeTimeout = null;
       let isFirst = true;
@@ -127,21 +121,28 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
         }, 100);
       }
 
-      const resizeObs = new ResizeObserver(() => resizeDetecting());
+      let obs: ResizeObserver;
       return {
-        observe() {
-          resizeObs.observe(document.body);
+        observe(componentId: string) {
+          if (obs) {
+            obs.disconnect();
+          }
+          obs = new ResizeObserver(() => resizeDetecting());
+          let host = dom.getComponentHost(componentId);
+          obs.observe(host);
         },
         disconnect() {
-          resizeObs.disconnect();
+          if (obs) {
+            obs.disconnect();
+            obs = null;
+          }
         }
       };
     })();
 
-    resizeDetector.observe();
     return () => {
       subs.unsubscribe();
-      resizeDetector.disconnect();
+      componentHostResizeDetector.disconnect();
     };
   }, []);
 

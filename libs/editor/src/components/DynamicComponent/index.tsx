@@ -8,8 +8,6 @@ import * as _ from 'lodash';
 import { useComponentStyle } from '@lowcode-engine/renderer';
 import classnames from 'classnames';
 
-const COMPONENT_ROOT_DOM_ACTIVE_FLAG = 'active-state';
-
 export interface IDynamicComponentProps {
   configuration: IComponentConfiguration;
 }
@@ -112,8 +110,6 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
     const toolbarIntersectingFlagRef = useRef<HTMLDivElement>(null);
     const componentContainerRefs = useRef<HTMLElement[]>();
     const componentId = conf.id;
-    // const activeComponentId = store.interactionStore.activeComponentId;
-    // const componentType = store.treeStore.selectComponentType(componentId);
 
     useEffect(() => {
       const componentHost = componentHostRef.current;
@@ -149,14 +145,26 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
       hoverDetector.observe();
 
       // 监听组件工具栏指示标记显隐性
-      const intersectingObs = new IntersectionObserver(function (entries) {
-        event.emit(EventTopicEnum.toolbarIntersectingChange, { componentId, intersecting: entries[0].isIntersecting === true });
-      }, {});
+      const intersectingDetector = (() => {
+        const intersectingObs = new IntersectionObserver(entries => {
+          event.emit(EventTopicEnum.toolbarIntersectingChange, { componentId, intersecting: entries[0].isIntersecting === true });
+        }, {});
 
-      intersectingObs.observe(toolbarIntersectingFlagRef.current);
+        return {
+          observe() {
+            intersectingObs.observe(toolbarIntersectingFlagRef.current);
+          },
+          disconnect() {
+            intersectingObs.disconnect();
+          }
+        };
+      })();
+
+      intersectingDetector.observe();
+
       dom.registryComponentHost(componentId, componentHostRef.current);
       return () => {
-        intersectingObs.disconnect();
+        intersectingDetector.disconnect();
         hoverDetector.disconnect();
         dom.unregisterComponentHost(componentId);
         dom.unregisterComponentRoot(componentId);
@@ -336,34 +344,10 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
       };
     }, []);
 
-    // useEffect(() => {
-    //   const componentRootDom = componentRootRef.current;
-    //   let activeTrigger: boolean = false;
-    //   // 之所以在这里发event事件,是因为希望componentActiving发送之前,dom已经初始化完毕
-    //   if (componentId === activeComponentId) {
-    //     event.emit(EventTopicEnum.componentActiving, componentId);
-    //     activeTrigger = true;
-    //     if (componentRootDom) {
-    //       componentRootDom.classList.add(COMPONENT_ROOT_DOM_ACTIVE_FLAG);
-    //       const evt = new CustomEvent('active-component', {});
-    //       componentRootDom.dispatchEvent(evt);
-    //     }
-    //   } else {
-    //     if (componentRootDom) {
-    //       componentRootDom.classList.remove(COMPONENT_ROOT_DOM_ACTIVE_FLAG);
-    //       const evt = new CustomEvent('cancel-active-component', {});
-    //       componentRootDom.dispatchEvent(evt);
-    //     }
-    //   }
-    // }, [activeComponentId]);
-
     return (
       <div className={classnames(
         'dynamic-component',
         'editor-dynamic-component',
-        // {
-        //   ['editor-dynamic-component--active']: activeComponentId === componentId
-        // }
       )} data-dynamic-component={componentId} data-dynamic-component-type={conf.type} style={style} ref={componentHostRef}>
         <div className='toolbar-intersecting-flag' ref={toolbarIntersectingFlagRef}></div>
         <div className='dragdrop-placeholder-flag'></div>

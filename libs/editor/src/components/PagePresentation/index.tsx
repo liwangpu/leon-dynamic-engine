@@ -102,6 +102,7 @@ const PagePresentation: React.FC = observer(() => {
     })();
 
     const activeDetector = (() => {
+      let lastActiveComponentId: string;
       const componentActiveListener = (e: MouseEvent) => {
         const elPath: Array<EventTarget> = e.composedPath();
         let presentationLocated = false;
@@ -124,10 +125,11 @@ const PagePresentation: React.FC = observer(() => {
           }
         }
 
-        if (activeComponentId) {
+        if (activeComponentId && lastActiveComponentId !== activeComponentId) {
           e.stopPropagation();
           store.interactionStore.activeComponent(activeComponentId);
           event.emit(EventTopicEnum.componentActiving, activeComponentId);
+          lastActiveComponentId = activeComponentId;
         }
       };
 
@@ -208,7 +210,7 @@ const PagePresentation: React.FC = observer(() => {
       .pipe(filter(e => e.topic === EventTopicEnum.componentDomInit && e.data === store.interactionStore.pageComponentId))
       .pipe(first(), map(e => e.data))
       .subscribe(pageId => {
-        componentActiveUIEffectHandler.activeComponent(pageId);
+        event.emit(EventTopicEnum.componentActiving, pageId);
       });
 
     subs.sink = event.message
