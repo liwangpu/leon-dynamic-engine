@@ -20,38 +20,46 @@ const registerMetadata: IMetadataRegister = add => {
           children: [
             {
               key: 'basic-info',
-              title: '属性',
+              setter: SetterType.tabPane,
+              label: '属性',
               children: [
                 {
-                  key: 'type',
-                  setter: PrimarySetterType.componentType,
-                  name: 'type',
-                  label: '组件类型',
-                  disabled: true,
+                  key: 'basic-info',
+                  setter: SetterType.primaryHeading,
+                  label: '基础信息',
+                  children: [
+                    {
+                      key: 'type',
+                      setter: PrimarySetterType.componentType,
+                      name: 'type',
+                      label: '组件类型',
+                      disabled: true,
+                    },
+                    {
+                      key: 'title',
+                      setter: SetterType.string,
+                      name: 'title',
+                      label: '标题',
+                    },
+                    {
+                      key: 'code',
+                      setter: SetterType.string,
+                      name: 'code',
+                      label: '编码',
+                    },
+                    {
+                      key: 'features',
+                      setter: SetterType.checkBox,
+                      name: 'features',
+                      label: '表格功能',
+                      data: [
+                        { value: TableFeature.serialNumberColumn, label: '序号' },
+                        { value: TableFeature.operationColumn, label: '操作列' },
+                        { value: TableFeature.pagination, label: '分页' },
+                      ]
+                    }
+                  ],
                 },
-                {
-                  key: 'title',
-                  setter: SetterType.string,
-                  name: 'title',
-                  label: '标题',
-                },
-                {
-                  key: 'code',
-                  setter: SetterType.string,
-                  name: 'code',
-                  label: '编码',
-                },
-                {
-                  key: 'features',
-                  setter: SetterType.checkBox,
-                  name: 'features',
-                  label: '表格功能',
-                  data: [
-                    { value: TableFeature.serialNumberColumn, label: '序号' },
-                    { value: TableFeature.operationColumn, label: '操作列' },
-                    { value: TableFeature.pagination, label: '分页' },
-                  ]
-                }
               ]
             },
           ]

@@ -9,6 +9,7 @@ import RadioSetter from './RadioSetter';
 import GroupSetter from './GroupSetter';
 import ListSetter from './ListSetter';
 import { PrimaryHeadingSetter, SecondaryHeadingSetter } from './HeadingSetter';
+import GridColumnSpanSetter from './GridColumnSpanSetter';
 
 export function initSetter(): void {
   SetterRegistry.instance.registerSetter(SetterType.tabs, TabsSetter);
@@ -21,4 +22,5 @@ export function initSetter(): void {
   SetterRegistry.instance.registerSetter(SetterType.boolean, BooleanSetter);
   SetterRegistry.instance.registerSetter(SetterType.checkBox, CheckBoxSetter);
   SetterRegistry.instance.registerSetter(SetterType.radio, RadioSetter);
+  SetterRegistry.instance.registerSetter(SetterType.gridColumnSpan, GridColumnSpanSetter);
 }

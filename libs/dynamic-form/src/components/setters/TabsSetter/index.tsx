@@ -10,8 +10,8 @@ const Setter: React.FC<ITabsSetter> = memo(props => {
   const Items = useMemo<Array<any>>(() => {
     if (!props.children) { return []; }
     return props.children.map(t => ({
-      key: t.title,
-      label: t.title,
+      key: t.key,
+      label: t.label,
       children: (
         <>
           {t.children && (

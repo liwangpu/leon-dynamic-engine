@@ -12,13 +12,14 @@ export interface ISetterBase {
 }
 
 
+export interface ITabSetter extends ISetterBase {
+  setter: SetterType.tabPane;
+  children: Array<ISetter>;
+}
+
 export interface ITabsSetter extends ISetterBase {
   setter: SetterType.tabs;
-  children: Array<{
-    key: string;
-    title: string;
-    children?: Array<ISetter>;
-  }>;
+  children: Array<ITabSetter>;
 }
 
 export interface IGroupSetter extends ISetterBase {
@@ -74,4 +75,4 @@ export interface IRadioSetter extends ISetterBase {
 }
 
 
-export type ISetter = ISetterBase | ITabsSetter | IListSetter | IGroupSetter | IPrimaryHeadingSetter | ISecondaryHeadingSetter | IStringSetter | INumberSetter | IBooleanSetter | ICheckBoxSetter | IRadioSetter;
+export type ISetter = ISetterBase | ITabsSetter | ITabSetter | IListSetter | IGroupSetter | IPrimaryHeadingSetter | ISecondaryHeadingSetter | IStringSetter | INumberSetter | IBooleanSetter | ICheckBoxSetter | IRadioSetter;

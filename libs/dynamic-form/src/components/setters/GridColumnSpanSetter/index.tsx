@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import styles from './index.module.less';
 import { Form, Radio } from 'antd';
-import { ISetterBase } from '@lowcode-engine/dynamic-form';
-import { GridSystemSection } from '../../enums';
+import { ISetterBase } from '../../../models';
+import { GridSystemSection } from '../../../enums';
 
 const options = [
   { label: '1/4', value: GridSystemSection['1/4'] },

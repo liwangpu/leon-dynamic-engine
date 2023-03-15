@@ -1,5 +1,6 @@
 export enum SetterType {
   tabs = 'tabs',
+  tabPane = 'tabPane',
   string = 'string',
   number = 'number',
   boolean = 'boolean',
@@ -9,4 +10,5 @@ export enum SetterType {
   primaryHeading = 'primaryHeading',
   secondaryHeading = 'secondaryHeading',
   list = 'list',
+  gridColumnSpan = 'gridColumnSpan'
 }

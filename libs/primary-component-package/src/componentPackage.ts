@@ -85,7 +85,7 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentRunTimeModule(type: ComponentTypes, platform: string): Promise<IRunTimePackageModule> {
-    return import(`./components/${pascalFormat(type)}/RunTime`);
+    return import(`./components/${pascalFormat(type)}/run-time`);
   }
 
   /**
@@ -96,7 +96,7 @@ export class ComponentPackage implements IComponentPackage {
   async loadComponentDesignTimeModule(type: ComponentTypes, platform: string): Promise<IDesignTimePackageModule> {
     if (noDesignTimeComponents.has(type)) { return null; }
 
-    return import(`./components/${pascalFormat(type)}/DesignTime`);
+    return import(`./components/${pascalFormat(type)}/design-time`);
   }
 
   /**
@@ -105,7 +105,7 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentConfigurationModule(type: ComponentTypes, platform: string): Promise<IConfigurationPackageModule> {
-    return DynamicConfigPanelLoader(() => import(`./components/${pascalFormat(type)}/Configuration`));
+    return DynamicConfigPanelLoader(() => import(`./components/${pascalFormat(type)}/configuration`));
   }
 
 }

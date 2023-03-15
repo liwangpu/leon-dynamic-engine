@@ -71,7 +71,7 @@ ChildrenContentWrapper.displayName = 'ChildrenContentWrapper';
 const ComponentRenderWrapper = (Component: ComponentType<any>) => {
 
   const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
-    let conf = { ...props.configuration };
+    const conf = { ...props.configuration };
     const componentId = conf.id;
     const { store, slot } = useContext(EditorContext);
     const slotProperties = slot.getSlotProperties(conf.type);
@@ -217,7 +217,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
             setData: (dataTransfer, dragEl: HTMLElement) => {
               const id = dragEl.getAttribute('data-dynamic-component');
               const conf = store.configurationStore.selectComponentConfigurationWithoutChildren(id);
-              let componentTitle = store.configurationStore.selectComponentTitle(id)
+              const componentTitle = store.configurationStore.selectComponentTitle(id)
               pagePresentationUtil.dragPreviewNode.innerHTML = componentTitle;
               pagePresentationUtil.dragPreviewNode.classList.remove('hidden');
               dataTransfer.setDragImage(pagePresentationUtil.dragPreviewNode, 0, 0);
@@ -231,7 +231,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
               const containerSlotProperty: string = evt.to.getAttribute('data-dynamic-component-container');
               const confStr = dragEvt.dataTransfer.getData('Text');
               if (!confStr) { return; }
-              let conf: IComponentConfiguration = JSON.parse(confStr);
+              const conf: IComponentConfiguration = JSON.parse(confStr);
               if (conf.id) { return; }
               const matchedSlotProperties = slot.getMatchedSlotProperties(conf.type);
               const container2SlotProperty = dom.getSlotDomProperty(evt.to);
@@ -242,9 +242,9 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
                 const slotProperties = slot.getSlotProperties(subConf.type);
                 const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
                 subConf = await configurationAddingHandler.handle(subConf, parentConf, slotProperty);
-                let pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
+                const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
                 store.addComponent(pureConf, parentId, index, slotProperty);
-                for (let sp of slotProperties) {
+                for (const sp of slotProperties) {
                   const singleton = slot.checkSlotSingleton(subConf.type, sp);
                   let components: Array<IComponentConfiguration> = [];
                   if (subConf[sp]) {
@@ -278,7 +278,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
               const dragEvt: DragEvent = (evt as any).originalEvent;
               const confStr = dragEvt.dataTransfer.getData('Text');
               if (!confStr) { return; }
-              let conf: IComponentConfiguration = JSON.parse(confStr);
+              const conf: IComponentConfiguration = JSON.parse(confStr);
               if (!conf.id) { return; }
               const getMatchedSlotProperties = slot.getMatchedSlotProperties(conf.type);
               const container2SlotProperty = dom.getSlotDomProperty(evt.to);
@@ -348,7 +348,12 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
       <div className={classnames(
         'dynamic-component',
         'editor-dynamic-component',
-      )} data-dynamic-component={componentId} data-dynamic-component-type={conf.type} style={style} ref={componentHostRef}>
+      )}
+        data-dynamic-component={componentId}
+        data-dynamic-component-type={conf.type}
+        style={style}
+        ref={componentHostRef}
+      >
         <div className='toolbar-intersecting-flag' ref={toolbarIntersectingFlagRef}></div>
         <div className='dragdrop-placeholder-flag'></div>
         <div className='presentation-flag presentation-flag__activated-state'></div>

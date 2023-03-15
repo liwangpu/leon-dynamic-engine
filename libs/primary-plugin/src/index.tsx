@@ -70,7 +70,7 @@ export function SchemaViewerPluginRegister(): IPluginRegister {
           title: '元数据',
           area: SkeletonAreaEnum.leftArea,
           icon: <CodeFilled />,
-          content: <SchemaViewer project={project}/>
+          content: <SchemaViewer project={project} />
         });
       },
       destroy: async () => {
@@ -81,14 +81,14 @@ export function SchemaViewerPluginRegister(): IPluginRegister {
 }
 
 export function ComponentToolBarRegister(toolBarMap?: IComponentToolBarMap): IPluginRegister {
-  return function _ContextMenuRegister({ skeleton, store }) {
+  return function _ContextMenuRegister({ skeleton, store, project }) {
     const skeletonKey = 'COMPONENT_TOOLBAR_PLUGIN';
     return {
       init: async () => {
         skeleton.add({
           key: skeletonKey,
           area: SkeletonAreaEnum.toolbar,
-          content: <ComponentToolBar store={store} toolBarMap={toolBarMap || {}} />
+          content: <ComponentToolBar store={store} toolBarMap={toolBarMap || {}} project={project} />
         });
       },
       destroy: async () => {

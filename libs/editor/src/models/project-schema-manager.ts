@@ -69,6 +69,7 @@ export class ProjectSchemaManager implements IProjectManager {
 
   public deleteComponent(id: string): void {
     this.context.store.deleteComponent(id);
+    this.context.event.emit(EventTopicEnum.componentActiving, this.context.store.interactionStore.activeComponentId);
   }
 
   public updateComponent(conf: Partial<IComponentConfiguration>): void {
