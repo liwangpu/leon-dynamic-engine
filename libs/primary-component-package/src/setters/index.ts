@@ -8,5 +8,3 @@ export function RegisterSetter(): void {
   SetterRegistry.instance.registerSetter(PrimarySetterType.buttonActionItem, ButtonActionItem);
   SetterRegistry.instance.registerSetter(PrimarySetterType.buttonActionListFooter, ButtonActionListFooter);
 }
-
-export { PrimarySetterType };
