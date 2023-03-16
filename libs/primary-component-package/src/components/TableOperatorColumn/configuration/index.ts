@@ -1,7 +1,6 @@
 import type { IMetadataRegister } from '@lowcode-engine/component-configuration-shared';
 import { SetterType } from '@lowcode-engine/dynamic-form';
-import { PrimarySetterType } from '../../../setters';
-import { ComponentTypes } from '../../../enums';
+import { ComponentTypes, PrimarySetterType } from '../../../enums';
 
 const registerMetadata: IMetadataRegister = add => {
 
