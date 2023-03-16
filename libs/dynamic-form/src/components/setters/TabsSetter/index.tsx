@@ -26,6 +26,7 @@ const Setter: React.FC<ITabsSetter> = memo(props => {
 
   return (
     <Tabs
+      className='tabs-setter'
       items={Items}
     />
   );

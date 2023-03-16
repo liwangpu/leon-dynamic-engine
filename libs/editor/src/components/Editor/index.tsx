@@ -6,7 +6,6 @@ import { EditorContextManager, IEditorContext, IPlugin, IPluginRegister } from '
 import { DataStoreCollocationContext, EditorContext } from '../../contexts';
 import Banner from '../Banner';
 import PluginPanel from '../PluginPanel';
-import { _Renderer } from '@lowcode-engine/renderer';
 import PagePresentation from '../PagePresentation';
 import { ComponentDiscoveryContext, IComponentPackage } from '@lowcode-engine/core';
 import ComponentSettingPanel from '../ComponentSettingPanel';
@@ -30,13 +29,13 @@ export const Editor: React.FC<IEditorProps> = observer(props => {
       collocationContext.hosting(editor.store);
     }
     const plugins: Array<IPlugin> = [];
-    for (let pluginRegister of props.plugins) {
+    for (const pluginRegister of props.plugins) {
       const plugin = pluginRegister(editor);
       plugins.push(plugin);
     }
 
     (async () => {
-      for (let plugin of plugins) {
+      for (const plugin of plugins) {
         await plugin.init();
       }
       setInitialized(true);
