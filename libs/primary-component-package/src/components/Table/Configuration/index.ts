@@ -2,9 +2,17 @@ import { IMetadataRegister } from '@lowcode-engine/component-configuration-share
 import { SetterType } from '@lowcode-engine/dynamic-form';
 import { IPaginationComponentConfiguration, ISerialNumberColumnComponentConfiguration, ITableComponentConfiguration, ITableOperatorColumnComponentConfiguration } from '../../../models';
 import { ComponentTypes, PrimarySetterType, TableFeature, TableSlot } from '../../../enums';
-import { distinctUntilChanged, map, Observable } from 'rxjs';
+import { distinctUntilChanged, map, Observable, pipe, UnaryFunction } from 'rxjs';
 import { GenerateNestedComponentId } from '@lowcode-engine/core';
 import { SubSink } from 'subsink';
+
+const checkTableFeature = (feature: TableFeature): UnaryFunction<Observable<ITableComponentConfiguration>, Observable<boolean>> => {
+  return pipe(
+    map(c => c.features),
+    map(arr => arr && arr.includes(feature)),
+    distinctUntilChanged()
+  );
+};
 
 const registerMetadata: IMetadataRegister = add => {
 
@@ -71,38 +79,35 @@ const registerMetadata: IMetadataRegister = add => {
         const operatorColumnId = GenerateNestedComponentId(config.id, ComponentTypes.tableOperatorColumn);
         // 分页功能配置切换
         subs.sink = obs
-          .pipe(map(c => c.features), map(arr => arr.includes(TableFeature.pagination)))
-          .pipe(distinctUntilChanged())
+          .pipe(checkTableFeature(TableFeature.pagination))
           .subscribe((enable: boolean) => {
             if (enable) {
               const conf: IPaginationComponentConfiguration = { id: paginationId, type: ComponentTypes.pagination, title: '分页器', pageSize: 10 };
-              editor.project.addComponent(conf, config.id, 0, TableSlot.pagination);
+              editor.configuration.addComponent(conf, config.id, 0, TableSlot.pagination);
             } else {
-              editor.project.deleteComponent(paginationId);
+              editor.configuration.deleteComponent(paginationId);
             }
           });
         // 序号列功能配置切换
         subs.sink = obs
-          .pipe(map(c => c.features), map(arr => arr.includes(TableFeature.serialNumberColumn)))
-          .pipe(distinctUntilChanged())
+          .pipe(checkTableFeature(TableFeature.serialNumberColumn))
           .subscribe((enable: boolean) => {
             if (enable) {
               const conf: ISerialNumberColumnComponentConfiguration = { id: serialNumberColumnId, type: ComponentTypes.tableSerialNumberColumn, title: '序号列', visible: true };
-              editor.project.addComponent(conf, config.id, 0, TableSlot.serialNumberColumn);
+              editor.configuration.addComponent(conf, config.id, 0, TableSlot.serialNumberColumn);
             } else {
-              editor.project.deleteComponent(serialNumberColumnId);
+              editor.configuration.deleteComponent(serialNumberColumnId);
             }
           });
         // 表格操作列功能配置切换
         subs.sink = obs
-          .pipe(map(c => c.features), map(arr => arr.includes(TableFeature.operationColumn)))
-          .pipe(distinctUntilChanged())
+          .pipe(checkTableFeature(TableFeature.operationColumn))
           .subscribe((enable: boolean) => {
             if (enable) {
               const conf: ITableOperatorColumnComponentConfiguration = { id: operatorColumnId, type: ComponentTypes.tableOperatorColumn, title: '操作列', visible: true };
-              editor.project.addComponent(conf, config.id, 0, TableSlot.operatorColumn);
+              editor.configuration.addComponent(conf, config.id, 0, TableSlot.operatorColumn);
             } else {
-              editor.project.deleteComponent(operatorColumnId);
+              editor.configuration.deleteComponent(operatorColumnId);
             }
           });
       },

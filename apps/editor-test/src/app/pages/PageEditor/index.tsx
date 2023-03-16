@@ -5,7 +5,7 @@ import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/edito
 import { ComponentGalleryPluginRegister, ComponentToolBarRegister, IBusinessModel, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
 import PageEditorOperation from '../../components/PageEditorOperation';
 import { ComponentPackageContext } from '../../contexts';
-import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode,RegisterSetter,GridSystemSection } from '@lowcode-engine/primary-component-package';
+import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode, RegisterSetter, GridSystemSection } from '@lowcode-engine/primary-component-package';
 import { Button } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined } from '@ant-design/icons';
@@ -30,9 +30,7 @@ const PageEditor: React.FC = memo(() => {
 
   const packages = useContext(ComponentPackageContext);
   const { businessModel } = useParams();
-  const [search] = useSearchParams();
-  const pageType = search.get('pageType');
-  const { model, schema } = useLoaderData() as { model: IBusinessModel, schema: IComponentConfiguration };
+  const { schema } = useLoaderData() as { model: IBusinessModel, schema: IComponentConfiguration };
   const navigate = useNavigate();
   const goBack = useCallback(() => {
     navigate(`/app/business-detail/${businessModel}`);
@@ -41,7 +39,7 @@ const PageEditor: React.FC = memo(() => {
   const plugins = useMemo<Array<IPluginRegister>>(() => {
     return [
       // 组件插槽相关注册插件
-      (function pageOperationPluginRegistry({ slot }) {
+      function pageOperationPluginRegistry({ slot }) {
         return {
           init: async () => {
             slot.registerMap({
@@ -100,9 +98,9 @@ const PageEditor: React.FC = memo(() => {
             });
           }
         };
-      }),
+      },
       // 组件元数据处理管道注册插件
-      (function configAddingHandlerPluginRegistry({ configurationAddingHandler }) {
+      function configAddingHandlerPluginRegistry({ configurationAddingHandler }) {
         return {
           init: async () => {
 
@@ -139,15 +137,36 @@ const PageEditor: React.FC = memo(() => {
             });
           },
         };
-      }),
+      },
+      // // 组件面板配置数据选择器注册插件
+      // function configSelectorPluginRegistry({ configuration }) {
+      //   return {
+      //     init: async () => {
+      //       configuration.registerConfigurationSelector({
+      //         type: ComponentTypes.listPage
+      //       }, (editor, conf) => {
+      //         const tree = editor.store.treeStore.trees.get(conf.id);
+      //         const childrenIds = tree.slots.get('children');
+      //         const children = [];
+      //         childrenIds.forEach(id => {
+      //           let sc = editor.store.configurationStore.configurations.get(id);
+      //           // let c = sc.toData(true);
+      //           children.push({ id: sc.id, code: sc.origin['code'] });
+      //         });
+      //         conf['children'] = children;
+      //         return conf;
+      //       });
+      //     },
+      //   };
+      // },
       // 文档模型注册插件
-      (function pageProjectPluginRegistry({ project }) {
+      function pageProjectPluginRegistry({ project }) {
         return {
           init: async () => {
             project.import(schema);
           }
         };
-      }),
+      },
       // 组件库注册插件
       ComponentGalleryPluginRegister([
         {
@@ -202,7 +221,7 @@ const PageEditor: React.FC = memo(() => {
       // schema源码插件
       SchemaViewerPluginRegister(),
       // 页面返回按钮注册插件
-      (function pageReturnPluginRegistry({ skeleton }) {
+      function pageReturnPluginRegistry({ skeleton }) {
         const skeletonKey = 'EDITOR_RETURN_ST';
         return {
           init: async () => {
@@ -218,9 +237,9 @@ const PageEditor: React.FC = memo(() => {
             skeleton.remove(skeletonKey);
           }
         };
-      }),
+      },
       // 设计器保存按钮区域注册插件
-      (function pageOperationPluginRegistry({ skeleton, project }) {
+      function pageOperationPluginRegistry({ skeleton, project }) {
         const skeletonKey = 'PAGE_OPERATION_ST';
         return {
           init: async () => {
@@ -234,7 +253,7 @@ const PageEditor: React.FC = memo(() => {
             skeleton.remove(skeletonKey);
           }
         };
-      }),
+      },
     ];
   }, []);
 

@@ -1,7 +1,7 @@
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
 import React, { useMemo } from 'react';
-import { EditorStoreModel, IProjectManager } from '@lowcode-engine/editor';
+import { EditorStoreModel, IConfigurationManager, IProjectManager } from '@lowcode-engine/editor';
 import { ToolBarMenu } from '../../enums';
 import { Button } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -14,11 +14,11 @@ export interface IComponentToolBarMap {
 
 export interface IComponentToolBarProps {
   store: EditorStoreModel;
-  project: IProjectManager;
+  configuration: IConfigurationManager;
   toolBarMap: IComponentToolBarMap;
 }
 
-const ComponentToolBar: React.FC<IComponentToolBarProps> = observer(({ store, toolBarMap, project }) => {
+const ComponentToolBar: React.FC<IComponentToolBarProps> = observer(({ store, toolBarMap, configuration }) => {
   const componentId = store.interactionStore.activeComponentId;
   const componentType = store.treeStore.selectComponentType(componentId);
 
@@ -31,7 +31,7 @@ const ComponentToolBar: React.FC<IComponentToolBarProps> = observer(({ store, to
   }, [componentType]);
 
   const deleteComponent = () => {
-    project.deleteComponent(componentId);
+    configuration.deleteComponent(componentId);
   };
 
   return (

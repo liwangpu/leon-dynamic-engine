@@ -1,11 +1,12 @@
 import { IComponentConfiguration } from '@lowcode-engine/core';
-import React, { ComponentType, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { ComponentType, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './index.module.less';
 import { Empty } from 'antd';
 import { ComponentSetterPanelContext, EditorContext, ISetterPanelContext } from '../../contexts';
 import { observer } from 'mobx-react-lite';
 import * as _ from 'lodash';
 import classnames from 'classnames';
+import { toJS } from 'mobx';
 
 export interface DynamicComponentSettingPanelProps {
   componentId: string;
@@ -61,36 +62,43 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
 
   const Wrapper: React.FC<PanelWrapperProps> = observer(props => {
 
-    const { store, project } = useContext(EditorContext);
-    const configuration = store.configurationStore.selectComponentConfigurationWithoutChildren(props.componentId); // 不包含插槽等属性
-    const parentType = store.treeStore.selectParentComponentType(props.componentId);
-    const parentSlotProperty = store.treeStore.selectParentSlotProperty(props.componentId);
+    const editorCtx = useContext(EditorContext);
+    const conf = editorCtx.store.configurationStore.selectComponentConfigurationWithoutChildren(props.componentId, true); // 不包含插槽等属性
+    const parentType = editorCtx.store.treeStore.selectParentComponentType(props.componentId);
+    const parentSlotProperty = editorCtx.store.treeStore.selectParentSlotProperty(props.componentId);
     const settingItemCxt = useMemo(() => {
       let ctx: ISetterPanelContext = {
-        type: configuration.type,
+        type: conf.type,
         parentType,
         slot: parentSlotProperty
       };
       return ctx;
-    }, [configuration.type, parentType, parentSlotProperty]);
-    const valueChange = useCallback(_.debounce(conf => {
-      project.updateComponent({ ...configuration, ...conf });
+    }, [conf.type, parentType, parentSlotProperty]);
+
+    const configSelector = editorCtx.configuration.getConfigurationSelector(settingItemCxt);
+    const value = _.isFunction(configSelector) ? _.cloneDeep(configSelector(editorCtx, conf)) : conf;
+
+    const valueChange = useCallback(_.debounce(c => {
+      const current = { ...conf, ...c };
+      console.log(`current:`, current);
+      editorCtx.configuration.updateComponent(current);
     }, 250), []);
 
-    const onValueChange = useCallback((conf: IComponentConfiguration) => {
-      valueChange(conf);
+    const onValueChange = useCallback((c: IComponentConfiguration) => {
+      valueChange(c);
     }, [valueChange]);
+
+    console.log(`initVal:`, value);
 
     return (
       <ComponentSetterPanelContext.Provider value={settingItemCxt}>
-        <ComponentSettingPanel value={configuration} parentType={parentType} onChange={onValueChange} />
+        <ComponentSettingPanel value={value} parentType={parentType} onChange={onValueChange} />
       </ComponentSetterPanelContext.Provider>
     );
   });
-
+  Wrapper.displayName = 'ConfigPanelRenderWrapper';
   return Wrapper;
 };
 
-DynamicComponentSettingPanel.displayName = 'DynamicComponentSettingPanel';
 
 export default DynamicComponentSettingPanel;

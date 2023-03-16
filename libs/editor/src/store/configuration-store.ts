@@ -37,9 +37,9 @@ export const ConfigurationStore = types.model({
   // ComponentConfigurationValidateErrors: types.map(ComponentConfigurationValidateErrors),
 })
   .views(self => ({
-    selectComponentConfigurationWithoutChildren: (id: string): IComponentConfiguration => {
+    selectComponentConfigurationWithoutChildren: (id: string, mutable?: boolean): IComponentConfiguration => {
       if (!id || !self.configurations.has(id)) { return null; }
-      return self.configurations.get(id).toData();
+      return self.configurations.get(id).toData(mutable);
     },
     selectComponentConfigurationWithChildren: (id: string): IComponentConfiguration => {
       if (!id || !self.configurations.has(id)) { return null; }

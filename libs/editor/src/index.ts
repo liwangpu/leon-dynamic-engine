@@ -10,6 +10,7 @@ export type { IEditorContext } from './models/editor-manager';
 export type { IPlugin, IPluginRegister } from './models/plugin';
 export type { IProjectManager } from './models/project-schema-manager';
 export type { ISkeleton, ISkeletonManager } from './models/skeleton-manager';
+export type { IConfigurationManager } from './models/configuration-manager';
 export type { ISlotPropertyMatch, ISlotPropertyDefinition, ISlotManager } from './models/slot-manager';
 export type { IConfigurationAddingHandlerFilter, IConfigurationAddingHandler, IConfigurationAddingHandlerManager } from './models/configuration-handler-manager';
 export type { EditorStoreModel } from './store';

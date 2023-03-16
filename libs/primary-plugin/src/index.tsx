@@ -81,14 +81,14 @@ export function SchemaViewerPluginRegister(): IPluginRegister {
 }
 
 export function ComponentToolBarRegister(toolBarMap?: IComponentToolBarMap): IPluginRegister {
-  return function _ContextMenuRegister({ skeleton, store, project }) {
+  return function _ContextMenuRegister({ skeleton, store, configuration }) {
     const skeletonKey = 'COMPONENT_TOOLBAR_PLUGIN';
     return {
       init: async () => {
         skeleton.add({
           key: skeletonKey,
           area: SkeletonAreaEnum.toolbar,
-          content: <ComponentToolBar store={store} toolBarMap={toolBarMap || {}} project={project} />
+          content: <ComponentToolBar store={store} toolBarMap={toolBarMap || {}} configuration={configuration} />
         });
       },
       destroy: async () => {
