@@ -82,10 +82,7 @@ export class ConfigurationManager implements IConfigurationManager {
   }
 
   public updateComponent(conf: Partial<IComponentConfiguration>): void {
-    // console.log(`conf:`, conf);
-
     const maintainSlot = (subConf: Partial<IComponentConfiguration>) => {
-      console.log(`subConf:`, _.cloneDeep(subConf));
       // 查看组件插槽设定,把插槽部分配置维护到组件树
       // 如果插槽部分数据不规范,不给予维护
       if (!subConf || !subConf.id || !subConf.type) {
