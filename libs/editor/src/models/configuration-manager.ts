@@ -82,11 +82,51 @@ export class ConfigurationManager implements IConfigurationManager {
   }
 
   public updateComponent(conf: Partial<IComponentConfiguration>): void {
-    this.context.store.configurationStore.updateComponentConfigurations([conf]);
+    // console.log(`conf:`, conf);
+
+    const maintainSlot = (subConf: Partial<IComponentConfiguration>) => {
+      console.log(`subConf:`, _.cloneDeep(subConf));
+      // 查看组件插槽设定,把插槽部分配置维护到组件树
+      // 如果插槽部分数据不规范,不给予维护
+      if (!subConf || !subConf.id || !subConf.type) {
+        console.warn(`插槽属性不规范,不会进行插槽数据同步:`, subConf);
+        return;
+      }
+      const slotProperties = this.context.slot.getSlotProperties(subConf.type);
+      for (const slotProperty of slotProperties) {
+        if (_.isNil(subConf[slotProperty])) { break; }
+
+        // 把插槽部分移除,单独维护
+        const singleton = this.context.slot.checkSlotSingleton(subConf.type, slotProperty);
+        const slotValue: Array<Partial<IComponentConfiguration>> = singleton ? [subConf[slotProperty]] : subConf[slotProperty];
+        // id维护到父组件插槽上
+        const childrenIds = slotValue.map(x => x.id);
+        const originChildrenIds = this.context.store.treeStore.selectSlotChildrenIds(subConf.id, slotProperty);
+        for (const c of slotValue) {
+          // 先看看没有没有新增的组件,因为新增的组件需要维护到组件树上
+          if (!originChildrenIds || !originChildrenIds.some(oid => oid === c.id)) {
+            this.context.store.treeStore.addComponentTree(c as any, subConf.id, slotProperty);
+          }
+          maintainSlot(c);
+        }
+        this.context.store.treeStore.updateSlot(subConf.id, slotProperty, childrenIds);
+        delete subConf[slotProperty];
+      }
+      this.context.store.configurationStore.updateComponentConfiguration(subConf);
+    };
+
+
+    maintainSlot(conf);
+
+
   }
 
   public updateComponents(confs: Array<Partial<IComponentConfiguration>>): void {
-    this.context.store.configurationStore.updateComponentConfigurations(confs);
+    if (confs && confs.length) {
+      confs.forEach(c => {
+        this.updateComponent(c);
+      });
+    }
   }
 
   private static generateFilterKey(filter: ISetterPanelContext) {

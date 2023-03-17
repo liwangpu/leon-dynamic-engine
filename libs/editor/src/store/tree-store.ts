@@ -67,6 +67,23 @@ export const TreeStore = types.model({
       parentTree.updateSlot(slotProperty, newSlotComponentIds);
       tree.parentId = parentId;
       tree.slotProperty = slotProperty;
+    },
+    updateSlot: (id: string, slotProperty: string, childrenIds: Array<string>) => {
+      if (!id || !slotProperty || !childrenIds) { return; }
+      const componentTrees = self.trees;
+      const tree = componentTrees.get(id);
+      tree.updateSlot(slotProperty, childrenIds);
+    },
+    addComponentTree: (conf: IComponentConfiguration, parentId: string, slotProperty: string) => {
+      // 注意,纯粹的加上tree节点,不会更新父节点的slot
+      const tree = ComponentTree.create({
+        id: conf.id,
+        type: conf.type,
+        parentId,
+        slotProperty,
+        slots: {}
+      });
+      self.trees.set(conf.id, tree);
     }
   }));
 

@@ -46,6 +46,23 @@ const registerMetadata: IMetadataRegister = add => {
                     }
                   ],
                 },
+                {
+                  key: 't1',
+                  setter: SetterType.primaryHeading,
+                  label: '测试',
+                  children: [
+                    {
+                      key: 'children',
+                      setter: SetterType.list,
+                      name: 'children',
+                      label: '子组件',
+                      listItem: 'page-children-item',
+                      listFooter: 'page-children-footer',
+                      sortable: true,
+                      dragHandle: '.drag-handle',
+                    }
+                  ]
+                }
               ]
             },
           ]

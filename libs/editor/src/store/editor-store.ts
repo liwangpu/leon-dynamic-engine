@@ -75,7 +75,7 @@ const EditorStore = types.model({
     if (!innerIds.includes(config.id)) {
       innerIds.splice(index, 0, config.id);
     }
-    self.configurationStore.updateComponentConfigurations([config]);
+    self.configurationStore.updateComponentConfiguration(config);
     parentTree.updateSlot(slotProperty, innerIds);
   },
 }));

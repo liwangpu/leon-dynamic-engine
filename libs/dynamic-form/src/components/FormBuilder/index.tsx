@@ -51,6 +51,10 @@ export const FormBuilder: React.FC<IFormBuilderProps> = memo(({ metadata, value,
     };
   }, [metadata]);
 
+  useEffect(() => {
+    form.setFieldsValue(value);
+  }, [value]);
+
   return (
     <div className='dynamic-form-builder'>
       <SettterRendererContext.Provider value={setterRendererCtx}>
@@ -58,7 +62,6 @@ export const FormBuilder: React.FC<IFormBuilderProps> = memo(({ metadata, value,
           form={form}
           className='dynamic-form-builder'
           layout='vertical'
-          initialValues={value}
           validateTrigger={false}
           onValuesChange={handleChange}
         >

@@ -80,7 +80,6 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
 
     const valueChange = useCallback(_.debounce(c => {
       const current = { ...conf, ...c };
-      console.log(`current:`, current);
       editorCtx.configuration.updateComponent(current);
     }, 250), []);
 

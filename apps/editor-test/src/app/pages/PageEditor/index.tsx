@@ -138,27 +138,29 @@ const PageEditor: React.FC = memo(() => {
           },
         };
       },
-      // // 组件面板配置数据选择器注册插件
-      // function configSelectorPluginRegistry({ configuration }) {
-      //   return {
-      //     init: async () => {
-      //       configuration.registerConfigurationSelector({
-      //         type: ComponentTypes.listPage
-      //       }, (editor, conf) => {
-      //         const tree = editor.store.treeStore.trees.get(conf.id);
-      //         const childrenIds = tree.slots.get('children');
-      //         const children = [];
-      //         childrenIds.forEach(id => {
-      //           let sc = editor.store.configurationStore.configurations.get(id);
-      //           // let c = sc.toData(true);
-      //           children.push({ id: sc.id, code: sc.origin['code'] });
-      //         });
-      //         conf['children'] = children;
-      //         return conf;
-      //       });
-      //     },
-      //   };
-      // },
+      // 组件面板配置数据选择器注册插件
+      function configSelectorPluginRegistry({ configuration }) {
+        return {
+          init: async () => {
+            configuration.registerConfigurationSelector({
+              type: ComponentTypes.listPage
+            }, (editor, conf) => {
+              const tree = editor.store.treeStore.trees.get(conf.id);
+              const childrenIds = tree.slots.get('children');
+              if (childrenIds?.length) {
+                const children = [];
+                childrenIds.forEach(id => {
+                  let sc = editor.store.configurationStore.configurations.get(id);
+                  // let c = sc.toData(true);
+                  children.push({ id: sc.id, type: sc.type, title: sc.title });
+                });
+                conf['children'] = children;
+              }
+              return conf;
+            });
+          },
+        };
+      },
       // 文档模型注册插件
       function pageProjectPluginRegistry({ project }) {
         return {

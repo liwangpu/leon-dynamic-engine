@@ -68,16 +68,13 @@ export const ConfigurationStore = types.model({
     }
   }))
   .actions(self => ({
-    updateComponentConfigurations: (configs: Array<Partial<IComponentConfiguration>>) => {
-      if (!configs || !configs.length) { return; }
-      for (let config of configs) {
-        let conf = self.configurations.get(config.id);
-        if (!conf) {
-          self.configurations.set(config.id, { id: config.id, type: config.type, title: config.title });
-          conf = self.configurations.get(config.id);
-        }
-        conf.setConfig(config as IComponentConfiguration);
+    updateComponentConfiguration: (config: Partial<IComponentConfiguration>) => {
+      let conf = self.configurations.get(config.id);
+      if (!conf) {
+        self.configurations.set(config.id, { id: config.id, type: config.type, title: config.title });
+        conf = self.configurations.get(config.id);
       }
+      conf.setConfig(config as IComponentConfiguration);
     },
   }));
 
