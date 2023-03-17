@@ -51,23 +51,26 @@ export async function DynamicConfigPanelLoader(loader: () => Promise<{ default: 
     useEffect(() => {
       (async () => {
         // 先找最精确匹配的设置面板,如果找不到然后逐次降低优先级
-        let metaGenerator = getMetdata(setterContext);
-        if (!metaGenerator) {
-          metaGenerator = getMetdata({ type: setterContext.type, parentType: setterContext.parentType });
+        const matchedFilters = [
+          setterContext,
+          { type: setterContext.type, parentType: setterContext.parentType },
+          { type: setterContext.type, slot: setterContext.slot },
+          { type: setterContext.type },
+        ];
+        let metaGenerator: IFormMetadataGenerator;
+        for (const f of matchedFilters) {
+          metaGenerator = getMetdata(f);
+          if (metaGenerator) {
+            break;
+          }
         }
-        if (!metaGenerator) {
-          metaGenerator = getMetdata({ type: setterContext.type, slot: setterContext.slot });
-        }
-        if (!metaGenerator) {
-          metaGenerator = getMetdata({ type: setterContext.type })
-        }
+
         if (!metaGenerator) {
           setMetadata(null);
           setMetadataLoaded(true);
           return;
         }
         const md = await metaGenerator(editorContext);
-        // console.log(`md:`, md);
         setMetadata(md);
         setMetadataLoaded(true);
       })();

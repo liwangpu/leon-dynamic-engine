@@ -24,21 +24,19 @@ export class ConfigurationManager implements IConfigurationManager {
 
   public getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector {
     // 先找最精确匹配的,如果找不到然后逐次降低优先级
-    let key = ConfigurationManager.generateFilterKey(filter);
-    if (!key) {
-      key = ConfigurationManager.generateFilterKey({ type: filter.type, parentType: filter.parentType });
-    }
-    if (!key) {
-      key = ConfigurationManager.generateFilterKey({ type: filter.type, slot: filter.slot });
-    }
-    if (!key) {
-      key = ConfigurationManager.generateFilterKey({ type: filter.type })
-    }
-    if (!key) {
-      return;
-    }
+    const matchedFilters = [
+      filter,
+      { type: filter.type, parentType: filter.parentType },
+      { type: filter.type, slot: filter.slot },
+      { type: filter.type },
+    ];
 
-    return this.selectors.get(key);
+    for (let f of matchedFilters) {
+      const key = ConfigurationManager.generateFilterKey(f);
+      if (this.selectors.has(key)) {
+        return this.selectors.get(key);
+      }
+    }
   }
 
   public registerConfigurationSelector(filter: ISetterPanelContext, selector: IConfigurationSelector): void {

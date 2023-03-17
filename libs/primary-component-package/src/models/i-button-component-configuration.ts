@@ -1,4 +1,5 @@
-import { IComponentConfiguration } from '@lowcode-engine/core';
+import { IComponentConfiguration, IEvent } from '@lowcode-engine/core';
+import { ButtonEventType } from '../enums';
 
 export enum ButtonUIType {
   defaultType = 'default',
@@ -7,6 +8,10 @@ export enum ButtonUIType {
   link = 'link'
 }
 
+
 export interface IButtonComponentConfiguration extends IComponentConfiguration {
   uiType?: ButtonUIType;
+  event: {
+    [ButtonEventType.click]: IEvent;
+  };
 }

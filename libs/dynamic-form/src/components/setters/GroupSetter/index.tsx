@@ -1,5 +1,4 @@
 import { memo, useContext, useMemo } from 'react';
-import { Form, Input } from 'antd';
 import { IGroupSetter } from '../../../models';
 import { useSetterName } from '../../../hooks';
 import { FormNamePathContext, SettterRendererContext } from '../../../contexts';

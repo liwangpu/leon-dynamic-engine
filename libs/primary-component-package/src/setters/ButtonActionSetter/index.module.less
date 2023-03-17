@@ -24,10 +24,6 @@
   }
 }
 
-.plain-text {
-  flex: 1;
-}
-
 .footer {
   display: flex;
   width: 100%;
@@ -47,5 +43,24 @@
     line-height: 20px;
     font-weight: 400;
     margin-right: 4px;
+  }
+}
+
+.setting-modal {
+  display: block;
+
+  :global {
+    .ant-modal-content {
+      // padding: 0 !important;
+    }
+  }
+}
+
+.modal {
+  display: flex;
+  flex-flow: column nowrap;
+
+  &--open-url {
+    height: 240px;
   }
 }
