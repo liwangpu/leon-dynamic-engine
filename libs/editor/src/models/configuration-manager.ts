@@ -82,12 +82,16 @@ export class ConfigurationManager implements IConfigurationManager {
   }
 
   public updateComponent(conf: Partial<IComponentConfiguration>): void {
+    if (!conf) { return; }
     const maintainSlot = (subConf: Partial<IComponentConfiguration>) => {
       // 查看组件插槽设定,把插槽部分配置维护到组件树
       // 如果插槽部分数据不规范,不给予维护
-      if (!subConf || !subConf.id || !subConf.type) {
+      if (!subConf || !subConf.type) {
         console.warn(`插槽属性不规范,不会进行插槽数据同步:`, subConf);
         return;
+      }
+      if (!subConf.id) {
+        subConf.id = GenerateComponentId(conf.type);
       }
       const slotProperties = this.context.slot.getSlotProperties(subConf.type);
       for (const slotProperty of slotProperties) {
@@ -99,6 +103,14 @@ export class ConfigurationManager implements IConfigurationManager {
         // id维护到父组件插槽上
         const childrenIds = slotValue.map(x => x.id);
         const originChildrenIds = this.context.store.treeStore.selectSlotChildrenIds(subConf.id, slotProperty);
+        // 先检查是否有已经删除的组件
+        const deletedIds = _.difference(originChildrenIds, childrenIds);
+        if (deletedIds.length) {
+          deletedIds.forEach(oid => {
+            this.context.store.deleteComponent(oid);
+          });
+        }
+
         for (const c of slotValue) {
           // 先看看没有没有新增的组件,因为新增的组件需要维护到组件树上
           if (!originChildrenIds || !originChildrenIds.some(oid => oid === c.id)) {
@@ -112,10 +124,7 @@ export class ConfigurationManager implements IConfigurationManager {
       this.context.store.configurationStore.updateComponentConfiguration(subConf);
     };
 
-
     maintainSlot(conf);
-
-
   }
 
   public updateComponents(confs: Array<Partial<IComponentConfiguration>>): void {
