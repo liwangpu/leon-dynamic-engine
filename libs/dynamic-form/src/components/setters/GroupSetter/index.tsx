@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 
 const Setter: React.FC<IGroupSetter> = memo(props => {
 
-  const { label, children } = props;
+  const { children } = props;
   const name = useSetterName();
   const namePath = _.isArray(name) ? name : [name];
   const setterRendererCtx = useContext(SettterRendererContext);
@@ -23,12 +23,7 @@ const Setter: React.FC<IGroupSetter> = memo(props => {
 
   return (
     <FormNamePathContext.Provider value={namePath}>
-      <div className='group-setter'>
-        {label && (
-          <p className='primary-heading-setter__title'>{label}</p>
-        )}
         {ChildrenSetters}
-      </div>
     </FormNamePathContext.Provider>
   );
 });

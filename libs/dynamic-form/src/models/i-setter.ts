@@ -8,6 +8,7 @@ export interface ISetterBase {
   required?: boolean;
   help?: string;
   disabled?: boolean;
+  gridColumnSpan?: '1' | '1/2' | '1/3' | '1/4';
   [key: string]: any;
 }
 
@@ -48,6 +49,12 @@ export interface ISecondaryHeadingSetter extends ISetterBase {
   children?: Array<ISetter>;
 }
 
+export interface IGridLayoutSetter extends ISetterBase {
+  setter: SetterType.gridLayout;
+  columns?: number;
+  children?: Array<ISetter>;
+}
+
 export interface IStringSetter extends ISetterBase {
   setter: SetterType.string;
   minLeng?: number;
@@ -74,5 +81,11 @@ export interface IRadioSetter extends ISetterBase {
   data?: Array<{ value: string; label: string }>;
 }
 
+export interface ISelectSetter extends ISetterBase {
+  setter: SetterType.select;
+  multiple?: boolean;
+  data?: Array<{ value: string; label: string }>;
+}
 
-export type ISetter = ISetterBase | ITabsSetter | ITabSetter | IListSetter | IGroupSetter | IPrimaryHeadingSetter | ISecondaryHeadingSetter | IStringSetter | INumberSetter | IBooleanSetter | ICheckBoxSetter | IRadioSetter;
+
+export type ISetter = ISetterBase | ITabsSetter | ITabSetter | IGridLayoutSetter | IListSetter | IGroupSetter | IPrimaryHeadingSetter | ISecondaryHeadingSetter | IStringSetter | INumberSetter | IBooleanSetter | ICheckBoxSetter | IRadioSetter | ISelectSetter;

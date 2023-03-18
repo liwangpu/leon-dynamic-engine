@@ -86,8 +86,6 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
       valueChange(c);
     }, [valueChange]);
 
-    console.log(`initVal:`, value);
-
     return (
       <ComponentSetterPanelContext.Provider value={settingItemCxt}>
         <ComponentSettingPanel value={value} parentType={parentType} onChange={onValueChange} />

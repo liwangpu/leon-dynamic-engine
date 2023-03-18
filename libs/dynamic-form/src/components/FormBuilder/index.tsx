@@ -1,15 +1,21 @@
 import { Form } from 'antd';
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
-import { ISettterContext, ISettterRendererContext, SettterContext, SettterRendererContext } from '../../contexts';
+import { FormNamePathContext, ISettterContext, ISettterRendererContext, SettterContext, SettterRendererContext } from '../../contexts';
 import { IFormMetadata, ISetter, SetterRegistry } from '../../models';
 import './index.less';
 import * as _ from 'lodash';
 import { Subject } from 'rxjs';
+import { GRID_SYSTEM_SECTION_TOTAL } from '../../consts';
+import { SetterType } from '../../enums';
+
+const VIRTUAL_SETTERS = new Set<string>([
+  SetterType.group
+]);
 
 export interface IFormBuilderProps<T = { [key: string]: any }> {
   metadata: IFormMetadata;
   value?: T;
-  onChange(configuration: T): void;
+  onChange?(configuration: T): void;
 }
 
 const setterRendererCtx: ISettterRendererContext = {
@@ -23,6 +29,7 @@ export const FormBuilder: React.FC<IFormBuilderProps> = memo(({ metadata, value,
   const [form] = Form.useForm();
   const SetterRenderer = setterRendererCtx.getFactory();
   const children = (metadata && metadata.children) ? metadata.children : [];
+
   const Children = useMemo(() => {
     return children.map(it => (
       <SetterRenderer config={it as any} key={it.key} />
@@ -36,7 +43,9 @@ export const FormBuilder: React.FC<IFormBuilderProps> = memo(({ metadata, value,
     if (_.isFunction(metadata.onChange)) {
       val = await metadata.onChange(val);
     }
-    onChange(val);
+    if (_.isFunction(onChange)) {
+      onChange(val);
+    }
   }, 100), [metadata]);
 
   useEffect(() => {
@@ -51,23 +60,26 @@ export const FormBuilder: React.FC<IFormBuilderProps> = memo(({ metadata, value,
     };
   }, [metadata]);
 
-  useEffect(() => {
-    form.setFieldsValue(value);
-  }, [value]);
+  // useEffect(() => {
+  //   form.setFieldsValue(value);
+  // }, [value]);
 
   return (
     <div className='dynamic-form-builder'>
-      <SettterRendererContext.Provider value={setterRendererCtx}>
-        <Form
-          form={form}
-          className='dynamic-form-builder'
-          layout='vertical'
-          validateTrigger={false}
-          onValuesChange={handleChange}
-        >
-          {Children}
-        </Form>
-      </SettterRendererContext.Provider>
+      <FormNamePathContext.Provider value={null}>
+        <SettterRendererContext.Provider value={setterRendererCtx}>
+          <Form
+            form={form}
+            className='dynamic-form-builder'
+            layout='vertical'
+            initialValues={value}
+            validateTrigger={false}
+            onValuesChange={handleChange}
+          >
+            {Children}
+          </Form>
+        </SettterRendererContext.Provider>
+      </FormNamePathContext.Provider>
     </div>
   );
 });
@@ -81,6 +93,22 @@ const _SetterRenderer: React.FC<{ config: ISetter }> = memo(({ config }) => {
     return SetterRegistry.instance.getSetter(config.setter);
   }, [config]);
 
+  const style = useMemo(() => {
+    const _style: { [key: string]: any } = {};
+    let sec = GRID_SYSTEM_SECTION_TOTAL;
+    if (config.gridColumnSpan) {
+      try {
+        const fn = new Function(`return ${config.gridColumnSpan}`);
+        sec = fn() * GRID_SYSTEM_SECTION_TOTAL;
+      } catch (err) {
+        console.error(`gridColumnStart转化失败,数值信息为${config.gridColumnSpan}`);
+      }
+    }
+    _style['gridColumnStart'] = `span ${sec}`;
+
+    return _style;
+  }, []);
+
   const setterCtx = useMemo<ISettterContext>(() => {
     return {
       config
@@ -89,7 +117,15 @@ const _SetterRenderer: React.FC<{ config: ISetter }> = memo(({ config }) => {
 
   return (
     <SettterContext.Provider value={setterCtx}>
-      {Setter ? (<Setter {...config} />) : (
+      {Setter &&
+        VIRTUAL_SETTERS.has(config.setter) ? (<Setter {...config} />) : (
+        <div className='form-builder-setter-wrapper' style={style}>
+          <Setter {...config} />
+        </div>
+      )
+      }
+
+      {!Setter && (
         <div>{`"${config.setter}" Setter未注册`}</div>
       )}
     </SettterContext.Provider>

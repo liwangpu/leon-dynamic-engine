@@ -63,9 +63,8 @@
   }
 }
 
-
 .group-setter {
-  display: block;
+  display: grid;
 }
 
 .tabs-setter {
@@ -88,4 +87,23 @@
   align-items: center;
   width: 100%;
   height: 100%;
+}
+
+.grid-layout-setter {
+  position: relative;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(min-content, max-content);
+  grid-column-gap: 14px;
+  grid-row-gap: 8px;
+}
+
+.form-builder-setter-wrapper {
+  display: block;
+  position: relative;
+
+  &>* {
+    width: 100%;
+  }
 }

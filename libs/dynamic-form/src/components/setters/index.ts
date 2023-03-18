@@ -6,10 +6,12 @@ import NumberSetter from './NumberSetter';
 import BooleanSetter from './BooleanSetter';
 import CheckBoxSetter from './CheckBoxSetter';
 import RadioSetter from './RadioSetter';
+import SelectSetter from './SelectSetter';
 import GroupSetter from './GroupSetter';
 import ListSetter from './ListSetter';
 import { PrimaryHeadingSetter, SecondaryHeadingSetter } from './HeadingSetter';
 import GridColumnSpanSetter from './GridColumnSpanSetter';
+import GridLayoutSetter from './GridLayoutSetter';
 
 export function initSetter(): void {
   SetterRegistry.instance.registerSetter(SetterType.tabs, TabsSetter);
@@ -22,5 +24,7 @@ export function initSetter(): void {
   SetterRegistry.instance.registerSetter(SetterType.boolean, BooleanSetter);
   SetterRegistry.instance.registerSetter(SetterType.checkBox, CheckBoxSetter);
   SetterRegistry.instance.registerSetter(SetterType.radio, RadioSetter);
+  SetterRegistry.instance.registerSetter(SetterType.select, SelectSetter);
   SetterRegistry.instance.registerSetter(SetterType.gridColumnSpan, GridColumnSpanSetter);
+  SetterRegistry.instance.registerSetter(SetterType.gridLayout, GridLayoutSetter);
 }

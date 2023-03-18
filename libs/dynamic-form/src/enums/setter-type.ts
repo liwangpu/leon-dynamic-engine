@@ -7,6 +7,8 @@ export enum SetterType {
   checkBox = 'checkBox',
   radio = 'radio',
   group = 'group',
+  select = 'select',
+  gridLayout = 'gridLayout',
   primaryHeading = 'primaryHeading',
   secondaryHeading = 'secondaryHeading',
   list = 'list',
