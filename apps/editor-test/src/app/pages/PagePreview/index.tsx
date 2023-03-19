@@ -7,7 +7,7 @@ import { Renderer } from '@lowcode-engine/renderer';
 import { INavigationBackContext, NavigationBackContext } from '@lowcode-engine/primary-component-package';
 import { Button } from 'antd';
 import { ArrowLeftOutlined, EditOutlined } from '@ant-design/icons';
-import { EventActionType, EventCenterEngineContext, IEventAction, IEventCenterEngineContext, IOpenUrlEventAction } from '@lowcode-engine/core';
+import { EventActionType, EventCenterEngineContext, IEventCenterEngineContext, IOpenUrlEventAction } from '@lowcode-engine/core';
 
 const PagePreview: React.FC = observer(() => {
 
@@ -35,7 +35,7 @@ const PagePreview: React.FC = observer(() => {
     const openUrlHandler = async (action: IOpenUrlEventAction, data?: any) => {
       window.open(action.params.url, action.params.target);
     };
-    
+
     return {
       dispatch: async (event, data) => {
 
@@ -51,6 +51,12 @@ const PagePreview: React.FC = observer(() => {
             }
           }
         }
+      },
+      registerAction: (component, action, executor) => {
+
+      },
+      deRegisterAction: (component) => {
+
       },
     };
   }, []);

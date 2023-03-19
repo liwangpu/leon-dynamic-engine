@@ -1,11 +1,27 @@
 import styles from './index.module.less';
-import { IDynamicComponentProps } from '@lowcode-engine/core';
-import React, { memo, useRef } from 'react';
+import { IDynamicComponentProps, useEventCenter } from '@lowcode-engine/core';
+import React, { memo, useEffect, useRef } from 'react';
 import { IVideoPlayerComponentConfiguration } from '../../../models';
 
 const VideoPlayer: React.FC<IDynamicComponentProps<IVideoPlayerComponentConfiguration>> = memo(props => {
+
   const { title, vedioUrl, showControl } = props.configuration;
+  const { registerAction, disconnect } = useEventCenter(props.configuration);
   const videoPlayerRef = useRef<any>();
+
+  registerAction({
+    type: 'start',
+    title: '开始',
+  }, async () => {
+
+  });
+
+  useEffect(() => {
+    return () => {
+      disconnect();
+    };
+  }, []);
+
   return (
     <div className={styles['video-player']}>
       <p>{title}</p>

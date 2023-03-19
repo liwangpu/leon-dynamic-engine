@@ -4,13 +4,31 @@ import { Button, Dropdown, Form, MenuProps, Modal, ModalFuncProps } from 'antd';
 import { memo, useContext } from 'react';
 import { EventActionType, GenerateShortId, IEventAction } from '@lowcode-engine/core';
 import { CloseOutlined, DownOutlined, HolderOutlined, SettingOutlined } from '@ant-design/icons';
-import { faker } from '@faker-js/faker';
 import classnames from 'classnames';
 import React from 'react';
 
-export const EventActionContext = React.createContext<IEventAction>(null);
+const EventActionContext = React.createContext<IEventAction>(null);
 
-const OpenUrlForm: IFormMetadata = {
+const ActionSettingModal: React.FC<{ onChange: (val: any) => void; wrapperFlag: string; metadata: IFormMetadata }> = memo(props => {
+  return (
+    <div className={classnames(
+      styles['modal'],
+      styles[`modal--${props.wrapperFlag}`],
+    )}>
+      <EventActionContext.Consumer>
+        {
+          (v) => (
+            <FormBuilder metadata={props.metadata} value={v} onChange={props.onChange} />
+          )
+        }
+      </EventActionContext.Consumer>
+    </div>
+  );
+});
+
+ActionSettingModal.displayName = 'OpenUrlSetting';
+
+const openUrlForm: IFormMetadata = {
   children: [
     {
       key: 'grid-layout',
@@ -20,7 +38,7 @@ const OpenUrlForm: IFormMetadata = {
           key: 'title',
           setter: SetterType.string,
           name: 'title',
-          label: '标题',
+          label: '动作名称',
           gridColumnSpan: '1/2',
         },
         {
@@ -53,26 +71,23 @@ const OpenUrlForm: IFormMetadata = {
   ]
 };
 
-const OpenUrlSetting: React.FC<{ onChange: (val: any) => void }> = memo(({ onChange }) => {
-
-  return (
-    <div className={classnames(
-      styles['modal'],
-      styles['modal--open-url'],
-    )}>
-      <EventActionContext.Consumer>
+const executeComponentActionForm: IFormMetadata = {
+  children: [
+    {
+      key: 'grid-layout',
+      setter: SetterType.gridLayout,
+      children: [
         {
-          (v) => (
-            <FormBuilder metadata={OpenUrlForm} value={v} onChange={onChange} />
-          )
-        }
-      </EventActionContext.Consumer>
-
-    </div>
-  );
-});
-
-OpenUrlSetting.displayName = 'OpenUrlSetting';
+          key: 'title',
+          setter: SetterType.string,
+          name: 'title',
+          label: '动作名称',
+          gridColumnSpan: '1/2',
+        },
+      ]
+    }
+  ]
+};
 
 const EventActionSetter: React.FC<{ value?: IEventAction; onChange?: (val: any) => void }> = memo(({ value, onChange }) => {
   const itemCtx = useContext(FormListItemContext);
@@ -80,27 +95,52 @@ const EventActionSetter: React.FC<{ value?: IEventAction; onChange?: (val: any) 
 
   const onSetting = () => {
     let currentValue: any;
+    let modalConf: ModalFuncProps;
+
+    const commonModalProps: Partial<ModalFuncProps> = {
+      icon: null,
+      className: styles['setting-modal'],
+      okText: '保存',
+      cancelText: '取消',
+      onOk() {
+        save();
+      },
+    };
+
+    const save = () => {
+      onChange({ ...value, ...currentValue });
+    };
+
+    const formChange = (val: any) => {
+      currentValue = val;
+    };
+
     switch (value.type) {
       case EventActionType.openUrl:
-        const OpenUrlModalConfig: ModalFuncProps = {
+        modalConf = {
+          ...commonModalProps,
           title: '打开链接',
-          icon: null,
-          className: styles['setting-modal'],
           width: '540px',
-          okText: '保存',
-          onOk() {
-            onChange({ ...value, ...currentValue });
-          },
           content: (
-            <OpenUrlSetting onChange={val => {
-              currentValue = val;
-            }} />
+            <ActionSettingModal metadata={openUrlForm} wrapperFlag='open-url' onChange={formChange} />
           ),
         };
-        modal.info(OpenUrlModalConfig);
+        break;
+      case EventActionType.executeComponentAction:
+        modalConf = {
+          ...commonModalProps,
+          title: '执行组件动作',
+          width: '540px',
+          content: (
+            <ActionSettingModal metadata={executeComponentActionForm} wrapperFlag='execute-action' onChange={formChange} />
+          ),
+        };
         break;
       default:
         break;
+    }
+    if (modalConf) {
+      modal.confirm(modalConf);
     }
   };
 
@@ -143,9 +183,6 @@ ButtonActionListItem.displayName = 'ButtonActionListItem';
 
 export const ButtonActionListFooter: React.FC = memo(() => {
   const { operation } = useContext(FormListContext);
-  const addAction = () => {
-    operation.add({ id: GenerateShortId(), name: faker.name.fullName(), age: 12 });
-  };
 
   const items: MenuProps['items'] = [
     {
@@ -155,13 +192,13 @@ export const ButtonActionListFooter: React.FC = memo(() => {
         operation.add({ id: GenerateShortId(), type: EventActionType.openUrl, title: '打开百度', params: { url: 'https://www.baidu.com/', target: '_blank' } });
       },
     },
-    // {
-    //   label: '执行表格头动作',
-    //   key: '1',
-    //   onClick: () => {
-    //     addAction();
-    //   },
-    // },
+    {
+      label: '执行组件动作',
+      key: '1',
+      onClick: () => {
+        operation.add({ id: GenerateShortId(), type: EventActionType.executeComponentAction, title: '执行组件动作', params: { url: 'https://www.baidu.com/', target: '_blank' } });
+      },
+    },
   ];
 
   return (

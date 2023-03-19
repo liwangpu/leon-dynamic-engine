@@ -39,7 +39,7 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentRunTimeModule(type: ComponentTypes, platform: string): Promise<IRunTimePackageModule> {
-    return import(`./components/${pascalFormat(type)}/RunTime`);
+    return import(`./components/${pascalFormat(type)}/run-time`);
   }
 
   /**
@@ -58,7 +58,7 @@ export class ComponentPackage implements IComponentPackage {
    */
   async loadComponentConfigurationModule(type: ComponentTypes, platform: string): Promise<IConfigurationPackageModule> {
     // // 自己开发配置面板
-    return import(`./components/${pascalFormat(type)}/Configuration`);
+    return import(`./components/${pascalFormat(type)}/configuration`);
 
     // // 使用动态表单配置面板
     // await import('./configurations/metadata-register');

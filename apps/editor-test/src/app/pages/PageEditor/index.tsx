@@ -9,7 +9,7 @@ import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComp
 import { Button } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { GenerateNestedComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
+import { EventCenterEngineContext, GenerateNestedComponentId, GenerateShortId, IComponentConfiguration, IEventCenterEngineContext } from '@lowcode-engine/core';
 import { ModelRepository } from '../../models';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
 import { IVideoPlayerComponentConfiguration } from '../../video-player';
@@ -34,6 +34,21 @@ const PageEditor: React.FC = memo(() => {
   const navigate = useNavigate();
   const goBack = useCallback(() => {
     navigate(`/app/business-detail/${businessModel}`);
+  }, []);
+
+  const eventCenterEngineContext = useMemo<IEventCenterEngineContext>(() => {
+
+    return {
+      dispatch: async (event, data?) => {
+
+      },
+      registerAction: (component, action, executor) => {
+
+      },
+      deRegisterAction: (component) => {
+
+      },
+    };
   }, []);
 
   const plugins = useMemo<Array<IPluginRegister>>(() => {
@@ -261,7 +276,9 @@ const PageEditor: React.FC = memo(() => {
 
   return (
     <div className={styles['page-editor']}>
-      <Editor packages={packages} plugins={plugins} />
+      <EventCenterEngineContext.Provider value={eventCenterEngineContext}>
+        <Editor packages={packages} plugins={plugins} />
+      </EventCenterEngineContext.Provider>
     </div>
   );
 });
