@@ -1,10 +1,10 @@
-import type { IMetadataRegister } from '@lowcode-engine/component-configuration-shared';
+import { IMetadataRegister, SharedSetterType } from '@lowcode-engine/component-configuration-shared';
 import { SetterType } from '@lowcode-engine/dynamic-form';
-import { ComponentTypes, PrimarySetterType } from '../../../enums';
+import { ComponentTypes } from '../../../enums';
 
-const registerMetadata: IMetadataRegister = add => {
+const registerMetadata: IMetadataRegister = register => {
 
-  add({
+  register({
     type: ComponentTypes.tableOperatorColumn,
   }, async () => {
 
@@ -26,7 +26,7 @@ const registerMetadata: IMetadataRegister = add => {
                   children: [
                     {
                       key: 'type',
-                      setter: PrimarySetterType.componentType,
+                      setter: SharedSetterType.componentType,
                       name: 'type',
                       label: '组件类型',
                       required: true,

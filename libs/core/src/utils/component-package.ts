@@ -16,11 +16,6 @@ class ComponentPackage implements IComponentPackage {
     return pck.queryComponentDescriptions();
   }
 
-  async getComponentDescription(type: string): Promise<IComponentDescription> {
-    const pck = await this.getRemoteModule();
-    return pck.getComponentDescription(type);
-  }
-
   async loadComponentRunTimeModule(type: string, platform: string): Promise<IRunTimePackageModule> {
     const pck = await this.getRemoteModule();
     return pck.loadComponentRunTimeModule(type, platform);

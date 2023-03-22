@@ -1,11 +1,21 @@
 import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from '@lowcode-engine/core';
 import { ComponentTypes } from './enums';
-import { pascalFormat } from '@lowcode-engine/component-configuration-shared';
+import { DynamicConfigPanelLoader, pascalFormat } from '@lowcode-engine/component-configuration-shared';
 
 export const ComponentDescriptions: IComponentDescription[] = [
   {
     type: ComponentTypes.videoPlayer,
-    title: '视频播放器'
+    title: '视频播放器',
+    actions: [
+      {
+        key: 'start',
+        name: '启动',
+      },
+      {
+        key: 'stop',
+        name: '停止',
+      },
+    ]
   }
 ];
 
@@ -26,11 +36,6 @@ export class ComponentPackage implements IComponentPackage {
 
   async queryComponentDescriptions(): Promise<IComponentDescription[]> {
     return ComponentDescriptions;
-  }
-
-  async getComponentDescription(type: string): Promise<IComponentDescription> {
-    const des = await this.queryComponentDescriptions();
-    return des.find(c => c.type === type);
   }
 
   /**
@@ -57,14 +62,8 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentConfigurationModule(type: ComponentTypes, platform: string): Promise<IConfigurationPackageModule> {
-    // // 自己开发配置面板
-    return import(`./components/${pascalFormat(type)}/configuration`);
-
-    // // 使用动态表单配置面板
-    // await import('./configurations/metadata-register');
-    // return DynamicForm.instance.loadForm();
-
-    return null;
+    return DynamicConfigPanelLoader(() => import(`./components/${pascalFormat(type)}/configuration`));
   }
+
 
 }

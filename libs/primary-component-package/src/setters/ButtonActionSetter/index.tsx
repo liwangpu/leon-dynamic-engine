@@ -1,11 +1,12 @@
 import styles from './index.module.less';
-import { FormBuilder, FormListContext, FormListItemContext, IFormMetadata, SetterType } from '@lowcode-engine/dynamic-form';
+import { FormBuilder, FormListContext, FormListItemContext, IFormMetadata, SetterType, useSetterName } from '@lowcode-engine/dynamic-form';
 import { Button, Dropdown, Form, MenuProps, Modal, ModalFuncProps } from 'antd';
 import { memo, useContext } from 'react';
 import { EventActionType, GenerateShortId, IEventAction } from '@lowcode-engine/core';
 import { CloseOutlined, DownOutlined, HolderOutlined, SettingOutlined } from '@ant-design/icons';
 import classnames from 'classnames';
 import React from 'react';
+import { SharedSetterType } from '@lowcode-engine/component-configuration-shared';
 
 const EventActionContext = React.createContext<IEventAction>(null);
 
@@ -82,8 +83,32 @@ const executeComponentActionForm: IFormMetadata = {
           setter: SetterType.string,
           name: 'title',
           label: '动作名称',
+          required: true,
           gridColumnSpan: '1/2',
         },
+        {
+          key: 'params',
+          setter: SetterType.group,
+          name: 'params',
+          children: [
+            {
+              key: 'component',
+              setter: SharedSetterType.component,
+              name: 'component',
+              label: '组件',
+              gridColumnSpan: '1/2',
+              required: true,
+            },
+            {
+              key: 'action',
+              setter: SharedSetterType.componentAction,
+              name: 'action',
+              label: '操作',
+              required: true,
+              gridColumnSpan: '1/2',
+            },
+          ]
+        }
       ]
     }
   ]
@@ -168,7 +193,8 @@ EventActionSetter.displayName = 'EventActionSetter';
 
 export const ButtonActionListItem: React.FC = memo(() => {
   const itemCtx = useContext(FormListItemContext);
-
+  const name = useSetterName();
+  // console.log(`list item path:`, name);
   return (
     <Form.Item
       name={[itemCtx.name]}
@@ -196,7 +222,7 @@ export const ButtonActionListFooter: React.FC = memo(() => {
       label: '执行组件动作',
       key: '1',
       onClick: () => {
-        operation.add({ id: GenerateShortId(), type: EventActionType.executeComponentAction, title: '执行组件动作', params: { url: 'https://www.baidu.com/', target: '_blank' } });
+        operation.add({ id: GenerateShortId(), type: EventActionType.executeComponentAction, title: '执行组件动作', params: { component: null } });
       },
     },
   ];

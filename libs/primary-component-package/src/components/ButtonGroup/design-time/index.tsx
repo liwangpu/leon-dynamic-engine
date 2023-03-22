@@ -32,7 +32,7 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
         let rect = host.getBoundingClientRect();
         content.style.display = 'flex';
         content.style.top = `${rect.bottom}px`;
-        content.style.left = `${rect.left}px`;
+        content.style.left = `${rect.left - (120 - rect.width)}px`;
       };
 
       const cancelActiveComponent = () => {

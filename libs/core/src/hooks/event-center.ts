@@ -1,9 +1,16 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { EventCenterEngineContext } from '../contexts';
 import { IComponentConfiguration, IEvent } from '../models';
 
 export function useEventCenter(conf: IComponentConfiguration) {
   const engine = useContext(EventCenterEngineContext);
+
+  useEffect(() => {
+    return () => {
+      if (!engine) { return; }
+      engine.deRegisterAction(conf);
+    };
+  }, []);
 
   return {
     dispatch: async (event: IEvent, data?: any) => {
@@ -14,17 +21,9 @@ export function useEventCenter(conf: IComponentConfiguration) {
       // console.log(`dispatch:`, event, data);
       return engine.dispatch(event, data);
     },
-    registerAction: (action: { type: string, title: string }, executor: (data?: any) => Promise<any>) => {
-      if (!engine) {
-        return;
-      }
+    registerAction: (action: string, executor: (data?: any) => Promise<any>) => {
+      if (!engine) { return; }
       console.log(`registerAction:`, action);
     },
-    disconnect: () => {
-      if (!engine) {
-        return;
-      }
-      engine.deRegisterAction(conf);
-    }
   };
 }

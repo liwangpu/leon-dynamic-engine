@@ -5,7 +5,7 @@ import { ComponentTypes } from '../../../enums';
 const registerMetadata: IMetadataRegister = register => {
 
   register({
-    type: ComponentTypes.pagination
+    type: ComponentTypes.videoPlayer
   }, async () => {
 
     return {
@@ -36,15 +36,20 @@ const registerMetadata: IMetadataRegister = register => {
                       setter: SetterType.string,
                       name: 'title',
                       label: '标题',
+                      required: true,
                     },
                     {
-                      key: 'pageSize',
-                      setter: SetterType.number,
-                      name: 'pageSize',
-                      label: '每页条数',
+                      key: 'vedioUrl',
+                      setter: SetterType.string,
+                      name: 'vedioUrl',
+                      label: '视频地址',
                       required: true,
-                      min: 0,
-                      step: 1
+                    },
+                    {
+                      key: 'showControl',
+                      setter: SetterType.boolean,
+                      name: 'showControl',
+                      label: '显示控件',
                     },
                   ],
                 },

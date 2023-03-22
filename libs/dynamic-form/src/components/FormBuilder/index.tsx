@@ -1,6 +1,6 @@
 import { Form } from 'antd';
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
-import { FormNamePathContext, ISettterContext, ISettterRendererContext, SettterContext, SettterRendererContext } from '../../contexts';
+import { FormInstanceContext, FormNamePathContext, ISettterContext, ISettterRendererContext, SettterContext, SettterRendererContext } from '../../contexts';
 import { IFormMetadata, ISetter, SetterRegistry } from '../../models';
 import './index.less';
 import * as _ from 'lodash';
@@ -27,6 +27,7 @@ const setterRendererCtx: ISettterRendererContext = {
 export const FormBuilder: React.FC<IFormBuilderProps> = memo(({ metadata, value, onChange }) => {
 
   const [form] = Form.useForm();
+
   const SetterRenderer = setterRendererCtx.getFactory();
   const children = (metadata && metadata.children) ? metadata.children : [];
 
@@ -66,20 +67,22 @@ export const FormBuilder: React.FC<IFormBuilderProps> = memo(({ metadata, value,
 
   return (
     <div className='dynamic-form-builder'>
-      <FormNamePathContext.Provider value={null}>
-        <SettterRendererContext.Provider value={setterRendererCtx}>
-          <Form
-            form={form}
-            className='dynamic-form-builder'
-            layout='vertical'
-            initialValues={value}
-            validateTrigger={false}
-            onValuesChange={handleChange}
-          >
-            {Children}
-          </Form>
-        </SettterRendererContext.Provider>
-      </FormNamePathContext.Provider>
+      <FormInstanceContext.Provider value={form}>
+        <FormNamePathContext.Provider value={null}>
+          <SettterRendererContext.Provider value={setterRendererCtx}>
+            <Form
+              form={form}
+              className='dynamic-form-builder'
+              layout='vertical'
+              initialValues={value}
+              validateTrigger={false}
+              onValuesChange={handleChange}
+            >
+              {Children}
+            </Form>
+          </SettterRendererContext.Provider>
+        </FormNamePathContext.Provider>
+      </FormInstanceContext.Provider>
     </div>
   );
 });

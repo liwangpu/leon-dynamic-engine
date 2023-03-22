@@ -1,7 +1,7 @@
-import { IMetadataRegister } from '@lowcode-engine/component-configuration-shared';
+import { IMetadataRegister, SharedSetterType } from '@lowcode-engine/component-configuration-shared';
 import { SetterType } from '@lowcode-engine/dynamic-form';
 import { IPaginationComponentConfiguration, ISerialNumberColumnComponentConfiguration, ITableComponentConfiguration, ITableOperatorColumnComponentConfiguration } from '../../../models';
-import { ComponentTypes, PrimarySetterType, TableFeature, TableSlot } from '../../../enums';
+import { ComponentTypes, TableFeature, TableSlot } from '../../../enums';
 import { distinctUntilChanged, map, Observable, pipe, UnaryFunction } from 'rxjs';
 import { GenerateNestedComponentId } from '@lowcode-engine/core';
 import { SubSink } from 'subsink';
@@ -14,9 +14,9 @@ const checkTableFeature = (feature: TableFeature): UnaryFunction<Observable<ITab
   );
 };
 
-const registerMetadata: IMetadataRegister = add => {
+const registerMetadata: IMetadataRegister = register => {
 
-  add({
+  register({
     type: ComponentTypes.table
   }, async editor => {
     const subs = new SubSink();
@@ -38,7 +38,7 @@ const registerMetadata: IMetadataRegister = add => {
                   children: [
                     {
                       key: 'type',
-                      setter: PrimarySetterType.componentType,
+                      setter: SharedSetterType.componentType,
                       name: 'type',
                       label: '组件类型',
                       disabled: true,

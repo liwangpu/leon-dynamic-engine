@@ -1,4 +1,4 @@
-import { ComponentDiscoveryContext, GenerateComponentId, IComponentConfiguration } from '@lowcode-engine/core';
+import { ComponentDiscoveryContext, GenerateComponentId, IComponentConfiguration, IComponentMetadata } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo, memo } from 'react';
 import Sortable from 'sortablejs';
@@ -25,12 +25,22 @@ export const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props
         if (!module) {
           module = await compDiscovery.loadComponentRunTimeModule(props.configuration.type, 'pc');
         }
-        if (module) {
+        if (module && module.default) {
           Component.current = EditorUIEffectWrapper(ComponentRenderWrapper(module.default));
           setComponentLoaded(true);
         }
+
+        // let metadataModule: { default: IComponentMetadata } = await compDiscovery.loadComponentMetadataModule(props.configuration.type);
+        // if (metadataModule && metadataModule.default) {
+        //   console.log(`metadata:`, metadataModule.default);
+
+        // }
       })();
     }
+
+    return () => {
+
+    };
   }, [conf.type]);
 
   return (

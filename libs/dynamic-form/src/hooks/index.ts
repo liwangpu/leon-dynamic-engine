@@ -5,5 +5,9 @@ export function useSetterName(): string | Array<number | string> {
   const setterCtx = useContext(SettterContext);
   const namePathCtx = useContext(FormNamePathContext);
   if (!namePathCtx) { return setterCtx.config.name; }
-  return [...namePathCtx, setterCtx.config.name];
+  const path = [...namePathCtx];
+  if (setterCtx.config.name) {
+    path.push(setterCtx.config.name);
+  }
+  return path;
 }

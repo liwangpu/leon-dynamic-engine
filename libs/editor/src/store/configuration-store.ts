@@ -65,6 +65,22 @@ export const ConfigurationStore = types.model({
       const tree = parent.treeStore.trees.get(id);
       if (!tree) { return null; }
       return tree.type;
+    },
+    selectAllComponentBasicInfo: () => {
+      const parent: EditorStoreModel = getParent(self);
+      const trees = parent.treeStore.trees;
+      const componentIds = trees.keys();
+      const infos: Array<{ id: string, type: string, title: string }> = [];
+      for (const id of componentIds) {
+        const tree = trees.get(id);
+        const conf = self.configurations.get(id);
+        infos.push({
+          id,
+          type: tree.type,
+          title: conf ? conf.title : '组件'
+        });
+      }
+      return infos;
     }
   }))
   .actions(self => ({

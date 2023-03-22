@@ -5,7 +5,8 @@ import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/edito
 import { ComponentGalleryPluginRegister, ComponentToolBarRegister, IBusinessModel, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
 import PageEditorOperation from '../../components/PageEditorOperation';
 import { ComponentPackageContext } from '../../contexts';
-import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode, RegisterSetter, GridSystemSection } from '@lowcode-engine/primary-component-package';
+import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode, RegisterSetter as RegisterPrimarySetter, GridSystemSection } from '@lowcode-engine/primary-component-package';
+import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/component-configuration-shared';
 import { Button } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined } from '@ant-design/icons';
@@ -14,7 +15,8 @@ import { ModelRepository } from '../../models';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
 import { IVideoPlayerComponentConfiguration } from '../../video-player';
 
-RegisterSetter();
+RegisterPrimarySetter();
+RegisterSharedSetter();
 
 const buttonTypes: Array<ComponentTypes> = [
   ComponentTypes.button,

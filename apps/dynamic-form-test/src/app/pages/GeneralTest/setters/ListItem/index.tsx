@@ -1,5 +1,5 @@
 import styles from './index.module.less';
-import { FormListContext, FormListItemContext } from '@lowcode-engine/dynamic-form';
+import { FormListContext, FormListItemContext, useSetterName } from '@lowcode-engine/dynamic-form';
 import { Button, Dropdown, Form, MenuProps } from 'antd';
 import { memo, useContext } from 'react';
 import { GenerateShortId } from '@lowcode-engine/core';
@@ -21,7 +21,8 @@ PlainText.displayName = 'PlainText';
 export const CustomListItem: React.FC = memo(props => {
 
   const itemCtx = useContext(FormListItemContext);
-
+  const name = useSetterName();
+  console.log(`list item path:`, name);
 
   return (
     <div className={styles['item']}>

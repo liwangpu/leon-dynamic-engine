@@ -1,18 +1,18 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import styles from './index.module.less';
 import { Button } from 'antd';
 import { IRealTimeRendererRefType, RealTimeRenderer, useLocalStorage } from '@app-test/spare-parts';
 import { FormBuilder, IFormMetadata, SetterType } from '@lowcode-engine/dynamic-form';
-import registerSetter, { CustomListFooter, CustomListItem } from './setters';
+import registerSetter from './setters';
 
 registerSetter();
 
 const GeneralTest: React.FC = memo(() => {
 
-  const ref = React.createRef<IRealTimeRendererRefType>();
+  const rendererRef = React.createRef<IRealTimeRendererRefType>();
   const { value, setValue } = useLocalStorage('general-test-form-value');
 
-  const setGeneralForm = useCallback(() => {
+  const setGeneralForm = () => {
     let md: IFormMetadata = {
       children: [
         {
@@ -83,10 +83,10 @@ const GeneralTest: React.FC = memo(() => {
         }
       ]
     };
-    ref.current.setValue(md);
-  }, []);
+    rendererRef.current.setValue(md);
+  };
 
-  const setTestForm = useCallback(() => {
+  const setTestForm = () => {
     let md: IFormMetadata = {
       children: [
         {
@@ -145,13 +145,20 @@ const GeneralTest: React.FC = memo(() => {
         }
       ]
     };
-    ref.current.setValue(md);
-  }, []);
+    rendererRef.current.setValue(md);
+  };
 
-  const resetFormValue = useCallback(() => {
+  const setInteractionForm = () => {
+    let md: IFormMetadata = {
+      children: []
+    };
+    rendererRef.current.setValue(md);
+  };
+
+  const resetFormValue = () => {
     setValue(undefined);
     location.reload();
-  }, []);
+  };
 
   const onChange = (val: any) => {
     console.log(`value change:`, val);
@@ -163,10 +170,11 @@ const GeneralTest: React.FC = memo(() => {
       <div className={styles['page__header']}>
         <Button type="primary" size='small' danger onClick={resetFormValue}>清除表单值</Button>
         <Button type="primary" size='small' onClick={setGeneralForm}>通用表单</Button>
-        <Button type="default" size='small' onClick={setTestForm}>测试表单</Button>
+        <Button type="default" size='small' onClick={setInteractionForm}>联动表单</Button>
+        <Button type="default" size='small' onClick={setTestForm}>临时测试表单</Button>
       </div>
       <div className={styles['page__content']}>
-        <RealTimeRenderer storageKey='general-test-renderer' ref={ref} >
+        <RealTimeRenderer storageKey='general-test-renderer' ref={rendererRef} >
           {val => (
             <FormBuilder metadata={val} value={value} onChange={onChange} />
           )}

@@ -1,65 +1,61 @@
 import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from './i-component-package';
+import * as _ from 'lodash';
+import { IComponentMetadata } from './i-component-metadata';
 
-export interface IComponentDiscovery extends IComponentPackage { }
+export type IComponentDiscovery = IComponentPackage;
 
 export class ComponentDiscoveryProvider implements IComponentDiscovery {
 
   protected readonly componentTypePackageMap = new Map<string, IComponentPackage>();
-  constructor(protected packages: IComponentPackage[]) { }
+  protected readonly componentDescriptionMap = new Map<string, IComponentDescription>();
+  protected readonly componentMetadataMap = new Map<string, IComponentMetadata>();
+  protected loadedAllPakageDescriptions = false;
+  protected loadedAllPakageMetadatas = false;
+  constructor(protected packages: Array<IComponentPackage>) { }
 
-  async queryComponentDescriptions(): Promise<IComponentDescription[]> {
+  public async queryComponentDescriptions(): Promise<IComponentDescription[]> {
+    if (this.loadedAllPakageDescriptions) {
+      return [...this.componentDescriptionMap.values()];
+    }
+    this.loadedAllPakageDescriptions = true;
     const descriptions: IComponentDescription[] = [];
-    if (!this.packages?.length) { return descriptions; }
+    if (!this.packages || !this.packages.length) { return descriptions; }
     for (let mk of this.packages) {
       const des = await mk.queryComponentDescriptions();
       des.forEach(d => {
         descriptions.push({ ...d, package: mk.name });
+        this.componentDescriptionMap.set(d.type, d);
         this.componentTypePackageMap.set(d.type, mk);
       });
     }
     return descriptions;
   }
 
-  async getComponentDescription(type: string): Promise<IComponentDescription> {
-    if (!this.packages?.length) { return null; }
-    for (let mk of this.packages) {
-      const d = await mk.getComponentDescription(type);
-      if (!d) { continue; }
-      if (d.type === type) {
-        this.componentTypePackageMap.set(d.type, mk);
-        return { ...d, package: mk.name };
-      }
-    }
-    return null;
-  }
-
-  async loadComponentRunTimeModule(type: string, platform: string): Promise<IRunTimePackageModule> {
-    if (!this.packages?.length) { return null; }
-    if (!this.componentTypePackageMap.has(type)) {
-      await this.getComponentDescription(type);
-    }
-    const pck = this.componentTypePackageMap.get(type);
+  public async loadComponentRunTimeModule(type: string, platform: string): Promise<IRunTimePackageModule> {
+    const pck = await this.getComponentPackage(type);
     if (!pck) { return null; }
     return pck.loadComponentRunTimeModule(type, platform);
   }
 
-  async loadComponentDesignTimeModule(type: string, platform: string): Promise<IDesignTimePackageModule> {
-    if (!this.packages?.length) { return null; }
-    if (!this.componentTypePackageMap.has(type)) {
-      await this.getComponentDescription(type);
-    }
-    const pck = this.componentTypePackageMap.get(type);
+  public async loadComponentDesignTimeModule(type: string, platform: string): Promise<IDesignTimePackageModule> {
+    const pck = await this.getComponentPackage(type);
     if (!pck) { return null; }
     return pck.loadComponentDesignTimeModule(type, platform);
   }
 
-  async loadComponentConfigurationModule(type: string, platform: string): Promise<IConfigurationPackageModule> {
-    if (!this.packages?.length) { return null; }
-    if (!this.componentTypePackageMap.has(type)) {
-      await this.getComponentDescription(type);
-    }
-    const pck = this.componentTypePackageMap.get(type);
+  public async loadComponentConfigurationModule(type: string, platform: string): Promise<IConfigurationPackageModule> {
+    const pck = await this.getComponentPackage(type);
     if (!pck) { return null; }
     return pck.loadComponentConfigurationModule(type, platform);
   }
+
+  private async getComponentPackage(type: string): Promise<IComponentPackage> {
+    if (!this.packages || !this.packages.length) { return null; }
+    if (!this.loadedAllPakageDescriptions) {
+      await this.queryComponentDescriptions();
+    }
+
+    return this.componentTypePackageMap.get(type);
+  }
+
 }

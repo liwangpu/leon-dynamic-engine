@@ -72,12 +72,7 @@ export class ComponentPackage implements IComponentPackage {
 
   async queryComponentDescriptions(): Promise<IComponentDescription[]> {
     return ComponentDescriptions;
-  }
-
-  async getComponentDescription(type: string): Promise<IComponentDescription> {
-    const des = await this.queryComponentDescriptions();
-    return des.find(c => c.type === type);
-  }
+  }  
 
   /**
    * 加载运行时组件模块
