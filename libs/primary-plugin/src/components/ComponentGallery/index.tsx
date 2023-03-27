@@ -50,8 +50,11 @@ export const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(prop
         dropBubble: false,
         dragoverBubble: false,
         ghostClass: "editor-sortable-ghost",
+        scroll: false,
+        bubbleScroll: false,
+        swapThreshold: 0.65,
         setData: async (dataTransfer, dragEl: HTMLElement) => {
-          let data = { type: dragEl.getAttribute('data-type'), title: dragEl.getAttribute('title') };
+          const data = { type: dragEl.getAttribute('data-type'), title: dragEl.getAttribute('title') };
           dataTransfer.setData('Text', JSON.stringify(data));
           currentConf = data as any;
         },
@@ -101,7 +104,9 @@ export const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(prop
         {group.components.map(c => (
           <div className={classnames(
             styles['optional-component'],
-            'optional-component'
+            'optional-component',
+            'editor-dynamic-component',
+            'editor-dynamic-component--preview',
           )} key={c.type} title={c.title} data-type={c.type}>
             <div className={styles['optional-component__icon']}>
               <CodeSandboxOutlined />

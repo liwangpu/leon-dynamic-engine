@@ -94,9 +94,14 @@ const TitleNode: React.FC<{ field: IBusinessField; configurationTransfer: IConfi
         put: false
       },
       sort: false,
+      dropBubble: false,
+      dragoverBubble: false,
+      ghostClass: "editor-sortable-ghost",
+      scroll: false,
+      bubbleScroll: false,
+      swapThreshold: 0.65,
       setData: async (dataTransfer, dragEl: HTMLElement) => {
         const conf = await configurationTransfer(field);
-        console.log(`conf:`, conf);
         if (!conf) { return; }
         dataTransfer.setData('Text', JSON.stringify(conf));
         currentConf = conf;
@@ -125,7 +130,11 @@ const TitleNode: React.FC<{ field: IBusinessField; configurationTransfer: IConfi
 
   return (
     <div className={styles['field-node']} ref={ref}>
-      <div className={styles['dynamic-component-field']}>
+      <div className={classnames(
+        styles['dynamic-component-field'],
+        'editor-dynamic-component',
+        'editor-dynamic-component--preview',
+      )}>
         <span>{field.name}</span>
         <div className='dragdrop-placeholder-flag'></div>
       </div>
@@ -166,7 +175,6 @@ export const ModelGallery: React.FC<IModelGalleryProps> = memo(({ mainModelId, m
       let newTreeData = [...treeData];
       setTreeNode(newTreeData, treeNode.key, trNode.children as any);
       setTreeData(newTreeData);
-      console.log(`newTreeData:`, newTreeData);
     } catch (error) {
       console.log(`err:`, error);
     }

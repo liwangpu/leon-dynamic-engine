@@ -36,7 +36,7 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
           clearTimeout(cancelActiveHandler);
           cancelActiveHandler = null;
         }
-        let rect = host.getBoundingClientRect();
+        const rect = host.getBoundingClientRect();
         content.style.display = 'flex';
         content.style.top = `${rect.bottom}px`;
         content.style.left = `${rect.left - (120 - rect.width)}px`;
@@ -46,10 +46,10 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
       };
 
       const cancelActiveComponent = () => {
+        const evt = new CustomEvent('editor-event:cancel-component-container-unique', { bubbles: true });
+        groupChildrenContainer.dispatchEvent(evt);
         cancelActiveHandler = setTimeout(() => {
           content.style.display = 'none';
-          const evt = new CustomEvent('editor-event:cancel-component-container-unique', { bubbles: true });
-          groupChildrenContainer.dispatchEvent(evt);
         }, 80);
       };
 

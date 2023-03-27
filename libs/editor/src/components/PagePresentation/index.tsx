@@ -53,43 +53,44 @@ const PagePresentation: React.FC = observer(() => {
     const componentSlotUIEffectHandler = (() => {
       let uniqueSlotMode: boolean;
       let uniqueSlotDoms: Array<HTMLElement>;
-      const getComponentSlotDoms = (componentType: string): { matchedSlotDoms: Array<HTMLElement>, notMatchedSlotDoms: Array<HTMLElement> } => {
-        const matchedSlotProperties = slot.getMatchedSlotProperties(componentType);
-        const matchedSlotDoms = dom.getComponentMatchedSlotHost(matchedSlotProperties);
-        const allSlotDoms = dom.getAllComponentSlotHosts();
-        const notMatchedSlotDoms = _.difference(allSlotDoms, matchedSlotDoms);
-        return { matchedSlotDoms, notMatchedSlotDoms };
-      }
+
+      let matchedSlotDoms: Array<HTMLElement>,
+        notMatchedSlotDoms: Array<HTMLElement>;
+
+        const getComponentSlotDoms = (componentType: string) => {
+          const matchedSlotProperties = slot.getMatchedSlotProperties(componentType);
+          const matchedSD = dom.getComponentMatchedSlotHost(matchedSlotProperties);
+          const allSlotDoms = dom.getAllComponentSlotHosts();
+          const notMatchedSD = _.difference(allSlotDoms, matchedSD);
+          return { matchedSlotDoms: matchedSD, notMatchedSlotDoms: notMatchedSD };
+        };
 
       return {
-        enable(conf: IComponentConfiguration) {
-          const { matchedSlotDoms, notMatchedSlotDoms } = getComponentSlotDoms(conf.type);
+        startDraging(conf: IComponentConfiguration) {
+          const { matchedSlotDoms: matchedSD, notMatchedSlotDoms: notMatchSD } = getComponentSlotDoms(conf.type);
+          matchedSlotDoms = matchedSD;
+          notMatchedSlotDoms = notMatchSD;
+
+          if (uniqueSlotMode) {
+            matchedSlotDoms.forEach(el => {
+              if (uniqueSlotDoms.some(ue => ue === el)) {
+                el.classList.add(COMPONENT_CONTAINER_DRAGGING);
+              } else {
+                notMatchedSlotDoms.push(el);
+              }
+            });
+          } else {
+            matchedSlotDoms.forEach(el => {
+              el.classList.add(COMPONENT_CONTAINER_DRAGGING);
+            });
+          }
 
           notMatchedSlotDoms.forEach(el => {
             const sortableInstance: Sortable = el['sortableInstance'];
             sortableInstance.option('disabled', true);
           });
-
-          if (!uniqueSlotMode) {
-            matchedSlotDoms.forEach(el => {
-              const sortableInstance: Sortable = el['sortableInstance'];
-              sortableInstance.option('disabled', false);
-              el.classList.add(COMPONENT_CONTAINER_DRAGGING);
-            });
-          } else {
-            matchedSlotDoms.forEach(el => {
-              const sortableInstance: Sortable = el['sortableInstance'];
-              if (uniqueSlotDoms.some(ue => ue === el)) {
-                sortableInstance.option('disabled', false);
-                el.classList.add(COMPONENT_CONTAINER_DRAGGING);
-              } else {
-                sortableInstance.option('disabled', true);
-              }
-            });
-          }
         },
-        disable(conf: IComponentConfiguration) {
-          const { matchedSlotDoms, notMatchedSlotDoms } = getComponentSlotDoms(conf.type);
+        endDraging() {
           matchedSlotDoms.forEach(el => {
             el.classList.remove(COMPONENT_CONTAINER_DRAGGING);
           });
@@ -97,12 +98,14 @@ const PagePresentation: React.FC = observer(() => {
             const sortableInstance: Sortable = el['sortableInstance'];
             sortableInstance.option('disabled', false);
           });
+          matchedSlotDoms = undefined;
+          notMatchedSlotDoms = undefined;
         },
-        setUniqueSlot(slotDoms: Array<HTMLElement>) {
+        setUniqueDragingSlot(slotDoms: Array<HTMLElement>) {
           uniqueSlotMode = true;
           uniqueSlotDoms = slotDoms;
         },
-        cancelUniqueSlot() {
+        cancelUniqueDragingSlot() {
           uniqueSlotMode = false;
           uniqueSlotDoms = null;
         }
@@ -210,14 +213,14 @@ const PagePresentation: React.FC = observer(() => {
 
       let uniqueTarget: EventTarget;
       const uniqueContainer = (e: CustomEvent) => {
-        componentSlotUIEffectHandler.setUniqueSlot(e.detail.slots);
+        componentSlotUIEffectHandler.setUniqueDragingSlot(e.detail.slots);
         uniqueTarget = e.target;
       };
 
       const cancelUniqueContainer = (e: CustomEvent) => {
         // 有些时候,关闭会有延时,例如A组件关闭唯一插槽后,B组件开启,那么如果因为延时,将会导致B组件开启唯一插槽失败
         if (uniqueTarget === e.target) {
-          componentSlotUIEffectHandler.cancelUniqueSlot();
+          componentSlotUIEffectHandler.cancelUniqueDragingSlot();
         }
       };
 
@@ -245,10 +248,11 @@ const PagePresentation: React.FC = observer(() => {
           // 关闭组件激活和悬浮特效
           componentUIEffectToggler.disable();
           // 高亮组件适配插槽
-          componentSlotUIEffectHandler.enable(data);
+          componentSlotUIEffectHandler.startDraging(data);
         } else {
           componentUIEffectToggler.enable();
-          componentSlotUIEffectHandler.disable(data);
+          // componentSlotUIEffectHandler.disable(data);
+          componentSlotUIEffectHandler.endDraging();
         }
       });
 
