@@ -15,6 +15,41 @@ const registerMetadata: IMetadataRegister = register => {
           setter: SetterType.tabs,
           children: [
             {
+              key: 'basic-info',
+              setter: SetterType.tabPane,
+              label: '属性',
+              children: [
+                {
+                  key: 'basic-info',
+                  setter: SetterType.primaryHeading,
+                  label: '基础信息',
+                  children: [
+                    {
+                      key: 'type',
+                      setter: SharedSetterType.componentType,
+                      name: 'type',
+                      label: '组件类型',
+                      required: true,
+                      disabled: true,
+                    },
+                    {
+                      key: 'title',
+                      setter: SetterType.string,
+                      name: 'title',
+                      label: '标题',
+                      required: true,
+                    },
+                    {
+                      key: 'code',
+                      setter: SetterType.string,
+                      name: 'code',
+                      label: '编码',
+                    },
+                  ],
+                },
+              ],
+            },
+            {
               key: 'event',
               setter: SetterType.tabPane,
               label: '事件',
@@ -110,42 +145,6 @@ const registerMetadata: IMetadataRegister = register => {
                 },
               ],
             },
-            {
-              key: 'basic-info',
-              setter: SetterType.tabPane,
-              label: '属性',
-              children: [
-                {
-                  key: 'basic-info',
-                  setter: SetterType.primaryHeading,
-                  label: '基础信息',
-                  children: [
-                    {
-                      key: 'type',
-                      setter: SharedSetterType.componentType,
-                      name: 'type',
-                      label: '组件类型',
-                      required: true,
-                      disabled: true,
-                    },
-                    {
-                      key: 'title',
-                      setter: SetterType.string,
-                      name: 'title',
-                      label: '标题',
-                      required: true,
-                    },
-                    {
-                      key: 'code',
-                      setter: SetterType.string,
-                      name: 'code',
-                      label: '编码',
-                    },
-                  ],
-                },
-              ],
-            },
-
           ],
         },
       ],

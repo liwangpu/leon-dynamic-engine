@@ -198,6 +198,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
       const slotPropertyDoms: Array<HTMLElement> = [];
 
       if (isContainer) {
+        // console.log(`componentContainerRefs:`, componentContainerRefs);
         // 添加拖拽支持以及滚动监听
         componentContainerRefs.current.forEach(el => {
           // 拖拽支持
@@ -217,12 +218,15 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
               name: 'dynamic-component',
             },
             // dragoverBubble: false,
+            direction: horizontal ? 'horizontal' : 'vertical',
+            dropBubble: false,
+            dragoverBubble: false,
             ghostClass: "editor-sortable-ghost",
             easing: "cubic-bezier(1, 0, 0, 1)",
             // scroll: true,
             // bubbleScroll: true,
             animation: 150,
-            fallbackOnBody: true,
+            // fallbackOnBody: true,
             swapThreshold: 0.65,
             setData: (dataTransfer, dragEl: HTMLElement) => {
               const id = dragEl.getAttribute('data-dynamic-component');
@@ -308,6 +312,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
               store.treeStore.moveComponent(conf.id, parentId, evt.newIndex, slotProperty);
             }
           });
+
           el['sortableInstance'] = instance;
           sortableInstances.push(instance);
 

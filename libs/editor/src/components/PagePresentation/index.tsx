@@ -51,6 +51,8 @@ const PagePresentation: React.FC = observer(() => {
 
     // 组件插槽特效控制器
     const componentSlotUIEffectHandler = (() => {
+      let uniqueSlotMode: boolean;
+      let uniqueSlotDoms: Array<HTMLElement>;
       const getComponentSlotDoms = (componentType: string): { matchedSlotDoms: Array<HTMLElement>, notMatchedSlotDoms: Array<HTMLElement> } => {
         const matchedSlotProperties = slot.getMatchedSlotProperties(componentType);
         const matchedSlotDoms = dom.getComponentMatchedSlotHost(matchedSlotProperties);
@@ -62,13 +64,29 @@ const PagePresentation: React.FC = observer(() => {
       return {
         enable(conf: IComponentConfiguration) {
           const { matchedSlotDoms, notMatchedSlotDoms } = getComponentSlotDoms(conf.type);
-          matchedSlotDoms.forEach(el => {
-            el.classList.add(COMPONENT_CONTAINER_DRAGGING);
-          });
+
           notMatchedSlotDoms.forEach(el => {
             const sortableInstance: Sortable = el['sortableInstance'];
             sortableInstance.option('disabled', true);
           });
+
+          if (!uniqueSlotMode) {
+            matchedSlotDoms.forEach(el => {
+              const sortableInstance: Sortable = el['sortableInstance'];
+              sortableInstance.option('disabled', false);
+              el.classList.add(COMPONENT_CONTAINER_DRAGGING);
+            });
+          } else {
+            matchedSlotDoms.forEach(el => {
+              const sortableInstance: Sortable = el['sortableInstance'];
+              if (uniqueSlotDoms.some(ue => ue === el)) {
+                sortableInstance.option('disabled', false);
+                el.classList.add(COMPONENT_CONTAINER_DRAGGING);
+              } else {
+                sortableInstance.option('disabled', true);
+              }
+            });
+          }
         },
         disable(conf: IComponentConfiguration) {
           const { matchedSlotDoms, notMatchedSlotDoms } = getComponentSlotDoms(conf.type);
@@ -79,6 +97,14 @@ const PagePresentation: React.FC = observer(() => {
             const sortableInstance: Sortable = el['sortableInstance'];
             sortableInstance.option('disabled', false);
           });
+        },
+        setUniqueSlot(slotDoms: Array<HTMLElement>) {
+          uniqueSlotMode = true;
+          uniqueSlotDoms = slotDoms;
+        },
+        cancelUniqueSlot() {
+          uniqueSlotMode = false;
+          uniqueSlotDoms = null;
         }
       };
     })();
@@ -180,7 +206,35 @@ const PagePresentation: React.FC = observer(() => {
       };
     })();
 
+    const uniqueSlotUIEffectHandler = (() => {
+
+      let uniqueTarget: EventTarget;
+      const uniqueContainer = (e: CustomEvent) => {
+        componentSlotUIEffectHandler.setUniqueSlot(e.detail.slots);
+        uniqueTarget = e.target;
+      };
+
+      const cancelUniqueContainer = (e: CustomEvent) => {
+        // 有些时候,关闭会有延时,例如A组件关闭唯一插槽后,B组件开启,那么如果因为延时,将会导致B组件开启唯一插槽失败
+        if (uniqueTarget === e.target) {
+          componentSlotUIEffectHandler.cancelUniqueSlot();
+        }
+      };
+
+      return {
+        observe() {
+          presentationRef.current.addEventListener('editor-event:component-container-unique', uniqueContainer);
+          presentationRef.current.addEventListener('editor-event:cancel-component-container-unique', cancelUniqueContainer);
+        },
+        disconnect() {
+          presentationRef.current.removeEventListener('editor-event:component-container-unique', uniqueContainer);
+          presentationRef.current.removeEventListener('editor-event:cancel-component-container-unique', cancelUniqueContainer);
+        }
+      };
+    })();
+
     activeDetector.observe();
+    uniqueSlotUIEffectHandler.observe();
 
     // 订阅组件拖拽事件,激活相应组件适配插槽
     subs.sink = event.message
@@ -221,6 +275,7 @@ const PagePresentation: React.FC = observer(() => {
 
     return () => {
       activeDetector.disconnect();
+      uniqueSlotUIEffectHandler.disconnect();
       subs.unsubscribe();
     };
   }, []);

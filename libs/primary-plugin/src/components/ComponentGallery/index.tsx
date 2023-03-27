@@ -47,6 +47,8 @@ export const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(prop
           put: false
         },
         sort: false,
+        dropBubble: false,
+        dragoverBubble: false,
         ghostClass: "editor-sortable-ghost",
         setData: async (dataTransfer, dragEl: HTMLElement) => {
           let data = { type: dragEl.getAttribute('data-type'), title: dragEl.getAttribute('title') };
