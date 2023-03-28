@@ -12,7 +12,6 @@ export interface IDynamicContainerDragDropEventData {
   conf: IComponentConfiguration;
   dragItem: HTMLElement;
   ownContainer: HTMLElement;
-  // dropContainer: HTMLElement;
 }
 
 export interface IEventManager {

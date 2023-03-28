@@ -32,6 +32,7 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
       let cancelActiveHandler: NodeJS.Timeout;
 
       const activeComponent = () => {
+        console.log(`active trigger:`,);
         if (cancelActiveHandler) {
           clearTimeout(cancelActiveHandler);
           cancelActiveHandler = null;
@@ -46,6 +47,7 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
       };
 
       const cancelActiveComponent = () => {
+        console.log(`cancel active trigger:`,);
         const evt = new CustomEvent('editor-event:cancel-component-container-unique', { bubbles: true });
         groupChildrenContainer.dispatchEvent(evt);
         cancelActiveHandler = setTimeout(() => {

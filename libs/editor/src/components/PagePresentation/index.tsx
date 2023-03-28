@@ -16,7 +16,6 @@ import { IDynamicContainerDragDropEventData } from '../../models';
 const DISABLE_COMPONENT_UI_EFFECT = 'disable-component-ui-effect';
 const COMPONENT_CONTAINER_DRAGGING = 'editor-dynamic-component-container--dragging';
 const COMPONENT_HOVER = 'editor-dynamic-component--hover';
-const COMPONENT_ACTIVE = 'editor-dynamic-component--active';
 
 const componentFactory: IDynamicComponentFactory = {
   getDynamicComponentRenderFactory: () => {
@@ -194,20 +193,8 @@ const PagePresentation: React.FC = observer(() => {
           e.stopPropagation();
           const lastActiveComponentId = store.interactionStore.activeComponentId;
           if (activeComponentId === lastActiveComponentId) { return; }
-          const lastActiveComponentRootDom = dom.getComponentRootDom(lastActiveComponentId);
-          if (lastActiveComponentRootDom) {
-            const evt = new CustomEvent('editor-event:cancel-active-component', { bubbles: true });
-            lastActiveComponentRootDom.dispatchEvent(evt);
-          }
 
           store.interactionStore.activeComponent(activeComponentId);
-
-          const componentRootDom = dom.getComponentRootDom(activeComponentId);
-
-          if (componentRootDom) {
-            const evt = new CustomEvent('editor-event:active-component', { bubbles: true });
-            componentRootDom.dispatchEvent(evt);
-          }
         }
       };
 
@@ -255,7 +242,7 @@ const PagePresentation: React.FC = observer(() => {
     subs.sink = event.message
       .pipe(filter(e => e.topic === EventTopicEnum.componentStartDragging || e.topic === EventTopicEnum.componentEndDragging))
       .pipe(filter(e => e.data))
-      .subscribe(({ topic, data }: { topic: EventTopicEnum, data: IDynamicContainerDragDropEventData }) => {
+      .subscribe(({ topic, data }: { topic: EventTopicEnum | string, data?: IDynamicContainerDragDropEventData }) => {
         if (topic === EventTopicEnum.componentStartDragging) {
           dragging = true;
           // 关闭组件激活和悬浮特效

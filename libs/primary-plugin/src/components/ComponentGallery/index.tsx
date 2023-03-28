@@ -44,46 +44,43 @@ export const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(prop
         group: {
           name: 'dynamic-component',
           pull: 'clone',
-          put: false
+          put: false,
         },
         sort: false,
-        dropBubble: false,
-        dragoverBubble: false,
+        dragClass: "sortable-drag",
         ghostClass: "editor-sortable-ghost",
-        scroll: false,
-        bubbleScroll: false,
-        swapThreshold: 0.65,
         setData: async (dataTransfer, dragEl: HTMLElement) => {
           const data = { type: dragEl.getAttribute('data-type'), title: dragEl.getAttribute('title') };
           dataTransfer.setData('Text', JSON.stringify(data));
           currentConf = data as any;
         },
         onStart: (evt: Sortable.SortableEvent) => {
+          const itemEl: HTMLElement = evt.item;
           if (_.isFunction(props.notification)) {
             const eventData: IDynamicContainerDragDropEventData = {
               conf: currentConf,
-              dragItem: evt.item,
-              ownContainer: evt.item.parentNode,
+              dragItem: itemEl,
+              ownContainer: itemEl.parentNode as any,
             };
             props.notification(EventTopicEnum.componentStartDragging, eventData);
           }
-          const itemEl = evt.item;
           itemEl.classList.add('dragging');
         },
         onEnd: (evt: Sortable.SortableEvent) => {
+          const itemEl: HTMLElement = evt.item;
+          itemEl.classList.remove('dragging');
           if (_.isFunction(props.notification)) {
             const eventData: IDynamicContainerDragDropEventData = {
               conf: currentConf,
-              dragItem: evt.item,
-              ownContainer: evt.item.parentNode,
+              dragItem: itemEl,
+              ownContainer: itemEl.parentNode as any,
             };
             props.notification(EventTopicEnum.componentEndDragging, eventData);
           }
           currentConf = null;
           if (evt.from === evt.to) { return; }
-          const el: HTMLElement = evt.item as any;
-          el.parentElement!.removeChild(el);
-        }
+          itemEl.parentElement!.removeChild(itemEl);
+        },
       });
       sortableInstances.push(instance);
     });

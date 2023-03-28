@@ -107,30 +107,31 @@ const TitleNode: React.FC<{ field: IBusinessField; configurationTransfer: IConfi
         currentConf = conf;
       },
       onStart: (evt: Sortable.SortableEvent) => {
+        const itemEl: HTMLElement = evt.item;
         if (_.isFunction(notification)) {
           const eventData: IDynamicContainerDragDropEventData = {
             conf: currentConf,
-            dragItem: evt.item,
-            ownContainer: evt.item.parentNode,
+            dragItem: itemEl,
+            ownContainer: itemEl.parentNode as any,
           };
           notification(EventTopicEnum.componentStartDragging, eventData);
         }
-        const itemEl = evt.item;
         itemEl.classList.add('dragging');
       },
       onEnd: (evt: Sortable.SortableEvent) => {
+        const itemEl: HTMLElement = evt.item;
+        itemEl.classList.remove('dragging');
         if (_.isFunction(notification)) {
           const eventData: IDynamicContainerDragDropEventData = {
             conf: currentConf,
-            dragItem: evt.item,
-            ownContainer: evt.item.parentNode,
+            dragItem: itemEl,
+            ownContainer: itemEl.parentNode as any,
           };
           notification(EventTopicEnum.componentEndDragging, eventData);
         }
         currentConf = null;
         if (evt.from === evt.to) { return; }
-        const el: HTMLElement = evt.item as any;
-        el.parentElement!.removeChild(el);
+        itemEl.parentElement!.removeChild(itemEl);
       }
     });
     return () => {

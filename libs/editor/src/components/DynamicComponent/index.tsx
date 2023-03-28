@@ -1,6 +1,6 @@
-import { ComponentDiscoveryContext, GenerateComponentId, IComponentConfiguration, IComponentMetadata } from '@lowcode-engine/core';
+import { ComponentDiscoveryContext, GenerateComponentId, IComponentConfiguration } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
-import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo, memo, useLayoutEffect } from 'react';
+import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo, useLayoutEffect } from 'react';
 import Sortable from 'sortablejs';
 import { EditorContext, PagePresentationUtilContext } from '../../contexts';
 import { EventTopicEnum } from '../../enums';
@@ -119,6 +119,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
     const style = useComponentStyle(props.configuration);
     const componentHostRef = useRef<HTMLDivElement>(null);
     const componentRootRef = useRef<HTMLElement>(null);
+    const activeEventFlag = useRef<boolean>();
     const toolbarIntersectingFlagRef = useRef<HTMLDivElement>(null);
     const componentContainerRefs = useRef<HTMLElement[]>();
     const componentId = conf.id;
@@ -372,6 +373,17 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
     useEffect(() => {
       if (activeComponentId === componentId) {
         event.emit(EventTopicEnum.componentActiving, componentId);
+        activeEventFlag.current = true;
+        setTimeout(() => {
+          const evt = new CustomEvent('editor-event:active-component', { bubbles: true });
+          componentRootRef.current.dispatchEvent(evt);
+        }, 80);
+      } else {
+        if (activeEventFlag.current) {
+          const evt = new CustomEvent('editor-event:cancel-active-component', { bubbles: true });
+          componentRootRef.current.dispatchEvent(evt);
+          activeEventFlag.current = false;
+        }
       }
     }, [activeComponentId]);
 
