@@ -1,12 +1,13 @@
 import { ComponentDiscoveryContext, GenerateComponentId, IComponentConfiguration, IComponentMetadata } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
-import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo, memo } from 'react';
+import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo, memo, useLayoutEffect } from 'react';
 import Sortable from 'sortablejs';
 import { EditorContext, PagePresentationUtilContext } from '../../contexts';
 import { EventTopicEnum } from '../../enums';
 import * as _ from 'lodash';
 import { useComponentStyle } from '@lowcode-engine/renderer';
 import classnames from 'classnames';
+import { IDynamicContainerDragDropEventData } from '../../models';
 
 export interface IDynamicComponentProps {
   configuration: IComponentConfiguration;
@@ -109,11 +110,12 @@ const ComponentRenderWrapper = (Component: ComponentType<any>) => {
 
 const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
 
-  const wrapper: React.FC<IDynamicComponentProps> = memo(props => {
+  const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
 
     const { store, dom, event, slot, configurationAddingHandler } = useContext(EditorContext);
     const pagePresentationUtil = useContext(PagePresentationUtilContext);
     const conf = props.configuration;
+    const activeComponentId = store.interactionStore.activeComponentId;
     const style = useComponentStyle(props.configuration);
     const componentHostRef = useRef<HTMLDivElement>(null);
     const componentRootRef = useRef<HTMLElement>(null);
@@ -121,23 +123,22 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
     const componentContainerRefs = useRef<HTMLElement[]>();
     const componentId = conf.id;
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       const componentHost = componentHostRef.current;
       if (componentHost.children.length) {
         componentRootRef.current = componentHost.children[componentHost.children.length - 1] as any;
         dom.registryComponentRoot(componentId, componentRootRef.current);
       }
+
       const hoverDetector = (() => {
         const componentMouseenterHandler = (e: MouseEvent) => {
           e.stopPropagation();
-          pagePresentationUtil.componentHover(componentId);
-          event.emit(EventTopicEnum.componentHovering, pagePresentationUtil.hoveredComponentId);
+          event.emit(EventTopicEnum.componentHovering, componentId);
         };
 
         const componentMouseleaveHandler = (e: MouseEvent) => {
           e.stopPropagation();
-          pagePresentationUtil.componentUnHover();
-          event.emit(EventTopicEnum.componentHovering, pagePresentationUtil.hoveredComponentId);
+          event.emit(EventTopicEnum.componentUnHovering, componentId);
         };
 
         return {
@@ -203,6 +204,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
           // 拖拽支持
           const slotProperty: string = el.getAttribute('data-dynamic-component-container');
           const horizontal = el.getAttribute('data-dynamic-container-direction') === 'horizontal';
+          const dropOnly = el.getAttribute('data-dynamic-container-drop-only') === 'true';
           dom.registryComponentSlotHost(conf.type, slotProperty, el);
           slotPropertyDoms.push(el);
           el.classList.add('editor-dynamic-component-container');
@@ -215,18 +217,13 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
           const instance = Sortable.create(el, {
             group: {
               name: 'dynamic-component',
+              pull: !dropOnly,
             },
-            // dragoverBubble: false,
-            // direction: horizontal ? 'horizontal' : 'vertical',
-            // dropBubble: false,
-            // dragoverBubble: false,
             ghostClass: "editor-sortable-ghost",
             easing: "cubic-bezier(1, 0, 0, 1)",
             scroll: true,
             bubbleScroll: false,
-            animation: 150,
-            // emptyInsertThreshold: 5,
-            // fallbackOnBody: true,
+            animation: 100,
             swapThreshold: 0.65,
             setData: (dataTransfer, dragEl: HTMLElement) => {
               const id = dragEl.getAttribute('data-dynamic-component');
@@ -277,14 +274,27 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
               addComponent(conf, componentId, evt.newIndex, containerSlotProperty);
             },
             onStart: (evt: Sortable.SortableEvent) => {
-              event.emit(EventTopicEnum.componentStartDragging, currentConf);
+              const eventData: IDynamicContainerDragDropEventData = {
+                conf: currentConf,
+                dragItem: evt.item,
+                ownContainer: evt.item.parentNode,
+              };
+              event.emit(EventTopicEnum.componentStartDragging, eventData);
               const itemEl = evt.item;
               itemEl.classList.add('dragging');
             },
             onEnd: (evt: Sortable.SortableEvent) => {
-              event.emit(EventTopicEnum.componentEndDragging, { ...currentConf });
+              const eventData: IDynamicContainerDragDropEventData = {
+                conf: currentConf,
+                dragItem: evt.item,
+                ownContainer: evt.item.parentNode,
+              };
+
+              event.emit(EventTopicEnum.componentEndDragging, eventData);
               currentConf = null;
               const itemEl = evt.item;
+              itemEl.classList.remove('dragging');
+
               const parentId = evt.to.getAttribute('data-dynamic-container-owner');
               if (!parentId) { return; }
               const containerDom: HTMLElement = evt.to as any;
@@ -359,10 +369,19 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
       };
     }, []);
 
+    useEffect(() => {
+      if (activeComponentId === componentId) {
+        event.emit(EventTopicEnum.componentActiving, componentId);
+      }
+    }, [activeComponentId]);
+
     return (
       <div className={classnames(
         'dynamic-component',
         'editor-dynamic-component',
+        {
+          ['editor-dynamic-component--active']: activeComponentId === componentId
+        }
       )}
         data-dynamic-component={componentId}
         data-dynamic-component-type={conf.type}
@@ -373,6 +392,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
         <div className='dragdrop-placeholder-flag'></div>
         <div className='presentation-flag presentation-flag__activated-state'></div>
         <div className='presentation-flag presentation-flag__hovering-state'></div>
+        <div className='dragging-preview-flag'></div>
         {/* 别在把其他辅助节点加在Component后面,因为设计器会根据最后一个节点获取动态组件根节点dom */}
         <Component configuration={props.configuration} children={props['children']} />
       </div>

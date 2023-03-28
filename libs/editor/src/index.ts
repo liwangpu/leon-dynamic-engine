@@ -7,6 +7,7 @@ export * from './contexts/editor';
 export * from './contexts/left-area-plugin';
 export type { IEventMessage, IEventManager } from './models/event-manager';
 export type { IEditorContext } from './models/editor-manager';
+export type { IDynamicContainerDragDropEventData } from './models/event-manager';
 export type { IPlugin, IPluginRegister } from './models/plugin';
 export type { IProjectManager } from './models/project-schema-manager';
 export type { ISkeleton, ISkeletonManager } from './models/skeleton-manager';

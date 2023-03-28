@@ -5,6 +5,7 @@ export enum EventTopicEnum {
   componentStartDragging = 'componentStartDragging',
   componentEndDragging = 'componentEndDragging',
   componentHovering = 'componentHovering',
+  componentUnHovering = 'componentUnHovering',
   componentActiving = 'componentActiving',
   pluginPanelActiving = 'pluginPanelActiving',
   toolbarIntersectingChange = 'toolbarIntersectingChange',

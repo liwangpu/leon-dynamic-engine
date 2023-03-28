@@ -5,7 +5,7 @@ import Sortable from 'sortablejs';
 import classnames from 'classnames';
 import { CodeSandboxOutlined, UpOutlined } from '@ant-design/icons';
 import { IComponentConfiguration, IComponentDescription } from '@lowcode-engine/core';
-import { EventTopicEnum } from '@lowcode-engine/editor';
+import { EventTopicEnum, IDynamicContainerDragDropEventData } from '@lowcode-engine/editor';
 import { INotification } from '../../models';
 import * as _ from 'lodash';
 import GalleryHeader from '../GalleryHeader';
@@ -60,14 +60,24 @@ export const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(prop
         },
         onStart: (evt: Sortable.SortableEvent) => {
           if (_.isFunction(props.notification)) {
-            props.notification(EventTopicEnum.componentStartDragging, { ...currentConf });
+            const eventData: IDynamicContainerDragDropEventData = {
+              conf: currentConf,
+              dragItem: evt.item,
+              ownContainer: evt.item.parentNode,
+            };
+            props.notification(EventTopicEnum.componentStartDragging, eventData);
           }
           const itemEl = evt.item;
           itemEl.classList.add('dragging');
         },
         onEnd: (evt: Sortable.SortableEvent) => {
           if (_.isFunction(props.notification)) {
-            props.notification(EventTopicEnum.componentEndDragging, { ...currentConf });
+            const eventData: IDynamicContainerDragDropEventData = {
+              conf: currentConf,
+              dragItem: evt.item,
+              ownContainer: evt.item.parentNode,
+            };
+            props.notification(EventTopicEnum.componentEndDragging, eventData);
           }
           currentConf = null;
           if (evt.from === evt.to) { return; }

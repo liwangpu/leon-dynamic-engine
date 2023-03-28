@@ -10,7 +10,7 @@ import 'rc-tree/assets/index.css';
 import { DataNode } from 'rc-tree/lib/interface';
 import { INotification } from '../../models';
 import * as _ from 'lodash';
-import { EventTopicEnum } from '@lowcode-engine/editor';
+import { EventTopicEnum, IDynamicContainerDragDropEventData } from '@lowcode-engine/editor';
 import GalleryHeader from '../GalleryHeader';
 
 enum FolderCategory {
@@ -108,14 +108,24 @@ const TitleNode: React.FC<{ field: IBusinessField; configurationTransfer: IConfi
       },
       onStart: (evt: Sortable.SortableEvent) => {
         if (_.isFunction(notification)) {
-          notification(EventTopicEnum.componentStartDragging, { ...currentConf });
+          const eventData: IDynamicContainerDragDropEventData = {
+            conf: currentConf,
+            dragItem: evt.item,
+            ownContainer: evt.item.parentNode,
+          };
+          notification(EventTopicEnum.componentStartDragging, eventData);
         }
         const itemEl = evt.item;
         itemEl.classList.add('dragging');
       },
       onEnd: (evt: Sortable.SortableEvent) => {
         if (_.isFunction(notification)) {
-          notification(EventTopicEnum.componentEndDragging, { ...currentConf });
+          const eventData: IDynamicContainerDragDropEventData = {
+            conf: currentConf,
+            dragItem: evt.item,
+            ownContainer: evt.item.parentNode,
+          };
+          notification(EventTopicEnum.componentEndDragging, eventData);
         }
         currentConf = null;
         if (evt.from === evt.to) { return; }

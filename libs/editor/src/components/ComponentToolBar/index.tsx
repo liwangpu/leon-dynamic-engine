@@ -24,7 +24,6 @@ class ToolBar {
 
   public toggleStatus(enabled: boolean): void {
     if (!this.host) { return; }
-
     if (enabled) {
       if (!this.componentIntersecting.has(this.activeComponentId) || this.componentIntersecting.get(this.activeComponentId)) {
         this.reposition();
@@ -41,7 +40,11 @@ class ToolBar {
     this.componentIntersecting.set(id, intersecting);
   }
 
-  public reposition(): void {
+  public removeIntersecting(id: string): void {
+    this.componentIntersecting.delete(id);
+  }
+
+  private reposition(): void {
     const componentHost = this.dom.getComponentHost(this.activeComponentId);
     if (!componentHost || !this.host) { return; }
     let rect = componentHost.getBoundingClientRect();
@@ -59,24 +62,39 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
   useEffect(() => {
     const subs = new SubSink();
     const toolbar = new ToolBar(wrapperRef.current, dom);
+
+    let dragging = false;
+
+    // 组件拖拽过程中,不要监听显隐性,因为拖拽过程中会有显隐性变化,而这个变化对于最终结果而已没有意义
+    // 而且发现拖拽过程中,intersecting发出了false事件,但是拖拽完毕后并没有发出true事件,有点神奇
     subs.sink = event.message
-      .pipe(filter(evt => evt.topic === EventTopicEnum.toolbarIntersectingChange))
+      .pipe(filter(evt => evt.topic === EventTopicEnum.toolbarIntersectingChange), filter(() => !dragging))
       .pipe(map(evt => evt.data))
       .subscribe((data: { componentId: string, intersecting: boolean }) => {
         toolbar.setIntersecting(data.componentId, data.intersecting);
       });
 
     subs.sink = event.message
+      .pipe(filter(evt => evt.topic === EventTopicEnum.componentDomDestroy))
+      .pipe(map(evt => evt.data))
+      .subscribe((componentId: string) => {
+        toolbar.removeIntersecting(componentId);
+      });
+
+    subs.sink = event.message
       .pipe(filter(evt => evt.topic === EventTopicEnum.componentStartDragging))
       .subscribe(() => {
+        dragging = true;
         toolbar.toggleStatus(false);
       });
 
     subs.sink = event.message
       .pipe(filter(evt => evt.topic === EventTopicEnum.componentEndDragging))
       // 需要延迟一下,因为toolbarIntersectingChange需要点时间
-      .pipe(delay(80))
+      // 另外,这个时间一定要设置得比拖拽配置的sortablejs animation时间大,否则会出现动画过程中计算位置有误
+      .pipe(delay(120))
       .subscribe(() => {
+        dragging = false;
         toolbar.toggleStatus(true);
       });
 
@@ -90,7 +108,9 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
 
     subs.sink = event.message
       .pipe(filter(evt => evt.topic === EventTopicEnum.componentContainerScrollStart))
-      .subscribe(() => toolbar.toggleStatus(false));
+      .subscribe(() => {
+        toolbar.toggleStatus(false);
+      });
 
     subs.sink = event.message
       .pipe(filter(evt => evt.topic === EventTopicEnum.componentContainerScrollEnd))
@@ -125,6 +145,7 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
       return {
         observe(componentId: string) {
           if (obs) {
+            isFirst = true;
             obs.disconnect();
           }
           obs = new ResizeObserver(() => resizeDetecting());

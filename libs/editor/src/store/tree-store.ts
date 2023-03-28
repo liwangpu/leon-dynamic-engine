@@ -49,6 +49,29 @@ export const TreeStore = types.model({
       const childrenIds = slots.get(slotProperty);
       if (!childrenIds) { return null; }
       return [...childrenIds];
+    },
+    checkIsDescendantComponent: (ancestorId: string, descendantId: string) => {
+      let isDescendant = false;
+      const check = (comId: string) => {
+        if (comId === ancestorId) {
+          isDescendant = true;
+          return;
+        }
+        const com = self.trees.get(comId);
+
+        if (com.parentId) {
+          if (com.parentId === ancestorId) {
+            isDescendant = true;
+            return;
+          } else {
+            check(com.parentId);
+          }
+        }
+      };
+
+      check(descendantId);
+
+      return isDescendant;
     }
   }))
   .actions(self => ({

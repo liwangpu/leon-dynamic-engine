@@ -1,3 +1,4 @@
+import { IComponentConfiguration } from '@lowcode-engine/core';
 import { Observable, Subject } from 'rxjs';
 import { EventTopicEnum } from '../enums';
 import { IEditorContext } from './editor-manager';
@@ -5,6 +6,13 @@ import { IEditorContext } from './editor-manager';
 export interface IEventMessage {
   topic: string | EventTopicEnum;
   data?: any;
+}
+
+export interface IDynamicContainerDragDropEventData {
+  conf: IComponentConfiguration;
+  dragItem: HTMLElement;
+  ownContainer: HTMLElement;
+  // dropContainer: HTMLElement;
 }
 
 export interface IEventManager {
@@ -15,7 +23,7 @@ export interface IEventManager {
 
 }
 
-export class EventManager implements IEventManager{
+export class EventManager implements IEventManager {
 
   private readonly _message = new Subject<IEventMessage>();
   public constructor(private context: IEditorContext) { }

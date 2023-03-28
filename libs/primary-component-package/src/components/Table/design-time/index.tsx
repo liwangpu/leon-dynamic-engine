@@ -124,7 +124,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
       <div className={styles['table__content']}>
         {SelectionColumn}
         {SerialNumberColumn}
-        <div className={styles['columns']} data-dynamic-component-container='columns' data-dynamic-container-direction='horizontal' data-dynamic-container-owner={conf.id}>
+        <div className={styles['columns']} data-dynamic-component-container='columns' data-dynamic-container-direction='horizontal' data-dynamic-container-drop-only="true" data-dynamic-container-owner={conf.id}>
           {Columns}
         </div>
         {OperatorColumn}

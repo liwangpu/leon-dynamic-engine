@@ -28,12 +28,14 @@
     &--active {
       &>.presentation-flag__activated-state {
         visibility: visible;
+        z-index: 100;
       }
     }
 
     &--hover {
       &>.presentation-flag__hovering-state {
         visibility: visible;
+        z-index: 100;
       }
     }
 
@@ -41,6 +43,7 @@
       border-style: solid;
       border-color: red;
     }
+
   }
 
   .toolbar-intersecting-flag {
@@ -64,6 +67,18 @@
     z-index: 999;
   }
 
+  .dragging-preview-flag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(188, 188, 188, .3);
+    z-index: -1;
+    // pointer-events: none;
+    visibility: hidden;
+  }
+
   .presentation-flag {
     position: absolute;
     top: 0;
@@ -72,7 +87,7 @@
     left: 0;
     pointer-events: none;
     visibility: hidden;
-    z-index: 99;
+    z-index: -1;
 
     &__activated-state {
       border: 2px solid var(--lce-primary-color);
@@ -117,8 +132,20 @@
     }
 
     &--dragging {
-      border-color: #52c41a !important;
-      background-color: #f6ffed !important;
+      border-color: #52c41a;
+      background-color: #f6ffed;
+    }
+
+    .editor-dynamic-component.dragging {
+      &>.dragging-preview-flag {
+        z-index: 100;
+        visibility: visible;
+      }
+
+      .editor-dynamic-component-container {
+        border-color: transparent !important;
+        background-color: #FFF !important;
+      }
     }
 
     &>.editor-dynamic-component--preview.dragging {

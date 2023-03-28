@@ -1,16 +1,17 @@
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useContext, useLayoutEffect, useMemo, useRef } from 'react';
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { _Renderer } from '@lowcode-engine/renderer';
+import { _Renderer as Renderer } from '@lowcode-engine/renderer';
 import { EditorContext, PagePresentationUtilContext, PagePresentationUtilContextProvider } from '../../contexts';
-import { DynamicComponentFactoryContext, IComponentConfiguration, IDynamicComponentFactory } from '@lowcode-engine/core';
+import { DynamicComponentFactoryContext, IDynamicComponentFactory } from '@lowcode-engine/core';
 import { DynamicComponentCustomRenderer, DynamicComponent } from '../DynamicComponent';
-import { filter, first, map } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { EventTopicEnum } from '../../enums';
 import { SubSink } from 'subsink';
 import Sortable from 'sortablejs';
 import * as _ from 'lodash';
 import { ComponentToolBarWrapper } from '../ComponentToolBar';
+import { IDynamicContainerDragDropEventData } from '../../models';
 
 const DISABLE_COMPONENT_UI_EFFECT = 'disable-component-ui-effect';
 const COMPONENT_CONTAINER_DRAGGING = 'editor-dynamic-component-container--dragging';
@@ -32,9 +33,10 @@ const PagePresentation: React.FC = observer(() => {
   const presentationUtil = useMemo(() => new PagePresentationUtilContextProvider(), []);
   const presentationRef = useRef<HTMLDivElement>();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const subs = new SubSink();
     const presentation = presentationRef.current;
+    let dragging = false;
 
     // 组件UI特效开关,用于开启关闭组件激活和鼠标悬浮效果
     const componentUIEffectToggler = (() => {
@@ -57,33 +59,54 @@ const PagePresentation: React.FC = observer(() => {
       let matchedSlotDoms: Array<HTMLElement>,
         notMatchedSlotDoms: Array<HTMLElement>;
 
-        const getComponentSlotDoms = (componentType: string) => {
-          const matchedSlotProperties = slot.getMatchedSlotProperties(componentType);
-          const matchedSD = dom.getComponentMatchedSlotHost(matchedSlotProperties);
-          const allSlotDoms = dom.getAllComponentSlotHosts();
-          const notMatchedSD = _.difference(allSlotDoms, matchedSD);
-          return { matchedSlotDoms: matchedSD, notMatchedSlotDoms: notMatchedSD };
-        };
+      const getComponentSlotDoms = (componentType: string) => {
+        const matchedSlotProperties = slot.getMatchedSlotProperties(componentType);
+        const matchedSD = dom.getComponentMatchedSlotHost(matchedSlotProperties);
+        const allSlotDoms = dom.getAllComponentSlotHosts();
+        const notMatchedSD = _.difference(allSlotDoms, matchedSD);
+        return { matchedSlotDoms: matchedSD, notMatchedSlotDoms: notMatchedSD };
+      };
 
       return {
-        startDraging(conf: IComponentConfiguration) {
-          const { matchedSlotDoms: matchedSD, notMatchedSlotDoms: notMatchSD } = getComponentSlotDoms(conf.type);
-          matchedSlotDoms = matchedSD;
+        startDraging(data: IDynamicContainerDragDropEventData) {
+          const { matchedSlotDoms: matchedSD, notMatchedSlotDoms: notMatchSD } = getComponentSlotDoms(data.conf.type);
+          matchedSlotDoms = [];
           notMatchedSlotDoms = notMatchSD;
 
+          // 适配插槽会有几个判断
+          // 第一是是否处于唯一拖拽插槽模式
+          // 第二是组件是否是仅仅能拖入,不能拖出模式
+
+          // 第一种模式
           if (uniqueSlotMode) {
-            matchedSlotDoms.forEach(el => {
+            matchedSD.forEach(el => {
               if (uniqueSlotDoms.some(ue => ue === el)) {
-                el.classList.add(COMPONENT_CONTAINER_DRAGGING);
+                matchedSlotDoms.push(el);
               } else {
                 notMatchedSlotDoms.push(el);
               }
             });
           } else {
-            matchedSlotDoms.forEach(el => {
-              el.classList.add(COMPONENT_CONTAINER_DRAGGING);
+            matchedSD.forEach(el => {
+              matchedSlotDoms.push(el);
             });
           }
+
+          // 第二种模式
+          const containerDropOnly = data.ownContainer.getAttribute('data-dynamic-container-drop-only') === 'true';
+          if (containerDropOnly) {
+            _.remove(matchedSlotDoms, it => {
+              const isContainer = it === data.ownContainer;
+              if (!isContainer) {
+                notMatchedSlotDoms.push(it);
+              }
+              return !isContainer;
+            });
+          }
+
+          matchedSlotDoms.forEach(el => {
+            el.classList.add(COMPONENT_CONTAINER_DRAGGING);
+          });
 
           notMatchedSlotDoms.forEach(el => {
             const sortableInstance: Sortable = el['sortableInstance'];
@@ -115,23 +138,36 @@ const PagePresentation: React.FC = observer(() => {
     // 组件悬浮特效控制器
     const componentHoverUIEffectHandler = (() => {
       let lastHoveringComponentId: string;
+      let componentHoverPath: Array<string> = [];
+
+      const hoverEffect = () => {
+        const hoverId = componentHoverPath[componentHoverPath.length - 1];
+        const lastDom = dom.getComponentHost(lastHoveringComponentId);
+        if (lastDom) {
+          lastDom.classList.remove(COMPONENT_HOVER);
+        }
+        const currentDom = dom.getComponentHost(hoverId);
+        if (currentDom) {
+          currentDom.classList.add(COMPONENT_HOVER);
+        }
+        lastHoveringComponentId = hoverId;
+      };
+
       return {
         hover(componentId: string) {
-          const lastDom = dom.getComponentHost(lastHoveringComponentId);
-          if (lastDom) {
-            lastDom.classList.remove(COMPONENT_HOVER);
+          if (!componentHoverPath.some(pid => pid === componentId)) {
+            componentHoverPath.push(componentId);
           }
-          const currentDom = dom.getComponentHost(componentId);
-          if (currentDom) {
-            currentDom.classList.add(COMPONENT_HOVER);
-          }
-          lastHoveringComponentId = componentId;
-        }
+          hoverEffect();
+        },
+        unHover() {
+          componentHoverPath.pop();
+          hoverEffect();
+        },
       };
     })();
 
     const activeDetector = (() => {
-      let lastActiveComponentId: string;
       const componentActiveListener = (e: MouseEvent) => {
         const elPath: Array<EventTarget> = e.composedPath();
         let presentationLocated = false;
@@ -154,11 +190,24 @@ const PagePresentation: React.FC = observer(() => {
           }
         }
 
-        if (activeComponentId && lastActiveComponentId !== activeComponentId) {
+        if (activeComponentId) {
           e.stopPropagation();
+          const lastActiveComponentId = store.interactionStore.activeComponentId;
+          if (activeComponentId === lastActiveComponentId) { return; }
+          const lastActiveComponentRootDom = dom.getComponentRootDom(lastActiveComponentId);
+          if (lastActiveComponentRootDom) {
+            const evt = new CustomEvent('editor-event:cancel-active-component', { bubbles: true });
+            lastActiveComponentRootDom.dispatchEvent(evt);
+          }
+
           store.interactionStore.activeComponent(activeComponentId);
-          event.emit(EventTopicEnum.componentActiving, activeComponentId);
-          lastActiveComponentId = activeComponentId;
+
+          const componentRootDom = dom.getComponentRootDom(activeComponentId);
+
+          if (componentRootDom) {
+            const evt = new CustomEvent('editor-event:active-component', { bubbles: true });
+            componentRootDom.dispatchEvent(evt);
+          }
         }
       };
 
@@ -168,43 +217,6 @@ const PagePresentation: React.FC = observer(() => {
         },
         disconnect() {
           document.body.removeEventListener('click', componentActiveListener);
-        }
-      };
-    })();
-
-    const componentActiveUIEffectHandler = (() => {
-      let lastActiveComponentId: string;
-      let lastActiveComponentRootDom: HTMLElement;
-      let lastActiveComponentHost: HTMLElement;
-      return {
-        activeComponent(id: string) {
-          if (lastActiveComponentId === id) { return; }
-          const componentHost = dom.getComponentHost(id);
-          const componentRootDom = dom.getComponentRootDom(id);
-
-          if (lastActiveComponentRootDom) {
-            const evt = new CustomEvent('editor-event:cancel-active-component', { bubbles: true });
-            lastActiveComponentRootDom.dispatchEvent(evt);
-          }
-
-          if (componentRootDom) {
-            const evt = new CustomEvent('editor-event:active-component', { bubbles: true });
-            componentRootDom.dispatchEvent(evt);
-          }
-
-          if (!componentHost) {
-            console.error(`没有找到${id}组件host dom,请检查事件周期是否合理`);
-            return;
-          }
-
-          componentHost.classList.add(COMPONENT_ACTIVE);
-          if (lastActiveComponentHost) {
-            lastActiveComponentHost.classList.remove(COMPONENT_ACTIVE);
-          }
-
-          lastActiveComponentId = id;
-          lastActiveComponentRootDom = componentRootDom;
-          lastActiveComponentHost = componentHost;
         }
       };
     })();
@@ -243,38 +255,29 @@ const PagePresentation: React.FC = observer(() => {
     subs.sink = event.message
       .pipe(filter(e => e.topic === EventTopicEnum.componentStartDragging || e.topic === EventTopicEnum.componentEndDragging))
       .pipe(filter(e => e.data))
-      .subscribe(({ topic, data }) => {
+      .subscribe(({ topic, data }: { topic: EventTopicEnum, data: IDynamicContainerDragDropEventData }) => {
         if (topic === EventTopicEnum.componentStartDragging) {
+          dragging = true;
           // 关闭组件激活和悬浮特效
           componentUIEffectToggler.disable();
           // 高亮组件适配插槽
           componentSlotUIEffectHandler.startDraging(data);
         } else {
+          dragging = false;
           componentUIEffectToggler.enable();
-          // componentSlotUIEffectHandler.disable(data);
           componentSlotUIEffectHandler.endDraging();
         }
       });
 
     // 订阅组件hover事件,添加组件class特效
     subs.sink = event.message
-      .pipe(filter(e => e.topic === EventTopicEnum.componentHovering))
-      .pipe(map(evt => evt.data))
-      .subscribe((componentId: string) => {
-        componentHoverUIEffectHandler.hover(componentId);
-      });
-
-    subs.sink = event.message
-      .pipe(filter(e => e.topic === EventTopicEnum.componentDomInit && e.data === store.interactionStore.pageComponentId))
-      .pipe(first(), map(e => e.data))
-      .subscribe(pageId => {
-        event.emit(EventTopicEnum.componentActiving, pageId);
-      });
-
-    subs.sink = event.message
-      .pipe(filter(e => e.topic === EventTopicEnum.componentActiving), map(e => e.data))
-      .subscribe(id => {
-        componentActiveUIEffectHandler.activeComponent(id);
+      .pipe(filter(e => e.topic === EventTopicEnum.componentHovering || e.topic === EventTopicEnum.componentUnHovering), filter(() => !dragging))
+      .subscribe(({ topic, data }) => {
+        if (topic === EventTopicEnum.componentHovering) {
+          componentHoverUIEffectHandler.hover(data);
+        } else {
+          componentHoverUIEffectHandler.unHover();
+        }
       });
 
     return () => {
@@ -306,7 +309,7 @@ const RendererImplement: React.FC = observer(() => {
   const schema = store.configurationStore.selectComponentConfigurationWithoutChildren(store.interactionStore.pageComponentId);
 
   return (
-    <_Renderer schema={schema} />
+    <Renderer schema={schema} />
   );
 });
 
