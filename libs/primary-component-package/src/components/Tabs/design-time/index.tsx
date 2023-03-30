@@ -73,7 +73,7 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
                   [styles['nav--active']]: id === activeKey
                 }
               )}
-                onClick={() => activeTab(tabCfg, index)}
+                onClick={() => activeTab(tabCfg)}
                 title={title}
               >
                 <p className={styles['nav__title']}>{title}</p>
