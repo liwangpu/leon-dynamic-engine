@@ -9,6 +9,7 @@ import PluginPanel from '../PluginPanel';
 import PagePresentation from '../PagePresentation';
 import { ComponentDiscoveryContext, IComponentPackage } from '@lowcode-engine/core';
 import ComponentSettingPanel from '../ComponentSettingPanel';
+import { PagePresentationFooterAreaPanel } from '../PagePresentationFooterAreaPanel';
 
 export interface IEditorProps {
   packages: Array<IComponentPackage>;
@@ -64,8 +65,13 @@ export const Editor: React.FC<IEditorProps> = observer(props => {
                 <PluginPanel />
               </div>
               <div className={styles['renderer-container']}>
-                <div className={styles['renderer-container__wrapper']}>
-                  <PagePresentation />
+                <div className={styles['renderer-container__content']}>
+                  <div className={styles['content-wrapper']}>
+                    <PagePresentation />
+                  </div>
+                </div>
+                <div className={styles['renderer-container__footer']}>
+                  <PagePresentationFooterAreaPanel />
                 </div>
               </div>
               <div className={styles['setter-container']}>

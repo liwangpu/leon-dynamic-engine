@@ -46,7 +46,7 @@ const PagePresentation: React.FC = observer(() => {
         disable() {
           // 隐藏组件激活边框
           presentation.classList.add(DISABLE_COMPONENT_UI_EFFECT);
-        }
+        },
       };
     })();
 
@@ -55,8 +55,8 @@ const PagePresentation: React.FC = observer(() => {
       let uniqueSlotMode: boolean;
       let uniqueSlotDoms: Array<HTMLElement>;
 
-      let matchedSlotDoms: Array<HTMLElement>,
-        notMatchedSlotDoms: Array<HTMLElement>;
+      let matchedSlotDoms: Array<HTMLElement>;
+      let notMatchedSlotDoms: Array<HTMLElement>;
 
       const getComponentSlotDoms = (componentType: string) => {
         const matchedSlotProperties = slot.getMatchedSlotProperties(componentType);
@@ -108,6 +108,7 @@ const PagePresentation: React.FC = observer(() => {
           });
 
           notMatchedSlotDoms.forEach(el => {
+            // eslint-disable-next-line prefer-destructuring
             const sortableInstance: Sortable = el['sortableInstance'];
             sortableInstance.option('disabled', true);
           });
@@ -117,6 +118,7 @@ const PagePresentation: React.FC = observer(() => {
             el.classList.remove(COMPONENT_CONTAINER_DRAGGING);
           });
           notMatchedSlotDoms.forEach(el => {
+            // eslint-disable-next-line prefer-destructuring
             const sortableInstance: Sortable = el['sortableInstance'];
             sortableInstance.option('disabled', false);
           });
@@ -130,14 +132,14 @@ const PagePresentation: React.FC = observer(() => {
         cancelUniqueDragingSlot() {
           uniqueSlotMode = false;
           uniqueSlotDoms = null;
-        }
+        },
       };
     })();
 
     // 组件悬浮特效控制器
     const componentHoverUIEffectHandler = (() => {
       let lastHoveringComponentId: string;
-      let componentHoverPath: Array<string> = [];
+      const componentHoverPath: Array<string> = [];
 
       const hoverEffect = () => {
         const hoverId = componentHoverPath[componentHoverPath.length - 1];
@@ -204,7 +206,7 @@ const PagePresentation: React.FC = observer(() => {
         },
         disconnect() {
           document.body.removeEventListener('click', componentActiveListener);
-        }
+        },
       };
     })();
 
@@ -225,13 +227,13 @@ const PagePresentation: React.FC = observer(() => {
 
       return {
         observe() {
-          presentationRef.current.addEventListener('editor-event:component-container-unique', uniqueContainer);
-          presentationRef.current.addEventListener('editor-event:cancel-component-container-unique', cancelUniqueContainer);
+          presentationRef.current.addEventListener('editor-event:component-container-unique', uniqueContainer as any);
+          presentationRef.current.addEventListener('editor-event:cancel-component-container-unique', cancelUniqueContainer as any);
         },
         disconnect() {
-          presentationRef.current.removeEventListener('editor-event:component-container-unique', uniqueContainer);
-          presentationRef.current.removeEventListener('editor-event:cancel-component-container-unique', cancelUniqueContainer);
-        }
+          presentationRef.current.removeEventListener('editor-event:component-container-unique', uniqueContainer as any);
+          presentationRef.current.removeEventListener('editor-event:cancel-component-container-unique', cancelUniqueContainer as any);
+        },
       };
     })();
 

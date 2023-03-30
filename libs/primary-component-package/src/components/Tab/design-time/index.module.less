@@ -1,0 +1,17 @@
+.tab {
+  display: flex;
+  height: 100%;
+  flex-flow: column nowrap;
+  flex: 1;
+  padding: 10px;
+  overflow: auto;
+
+  &>* {
+    flex-shrink: 0;
+  }
+
+  &>:not(:first-child) {
+    flex-shrink: 0;
+    margin-top: 12px;
+  }
+}

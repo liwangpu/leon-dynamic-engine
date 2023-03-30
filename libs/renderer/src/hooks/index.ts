@@ -8,8 +8,14 @@ export function useComponentStyle(conf: IComponentConfiguration) {
     if (conf.width) {
       _style['width'] = conf.width;
     }
-    if (conf.height) {
-      _style['height'] = conf.height;
+
+    if (conf.fullHeight) {
+      _style['flex'] = '1 0 auto';
+      _style['height'] = '0';
+    } else {
+      if (conf.height) {
+        _style['height'] = conf.height;
+      }
     }
 
     if (conf.gridColumnSpan) {

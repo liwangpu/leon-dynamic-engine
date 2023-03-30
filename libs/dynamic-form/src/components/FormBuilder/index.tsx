@@ -61,9 +61,10 @@ export const FormBuilder: React.FC<IFormBuilderProps> = memo(({ metadata, value,
     };
   }, [metadata]);
 
-  // useEffect(() => {
-  //   form.setFieldsValue(value);
-  // }, [value]);
+  useEffect(() => {
+    form.setFieldsValue(value);
+    valueChangeObs.next(value);
+  }, [value]);
 
   return (
     <div className='dynamic-form-builder'>

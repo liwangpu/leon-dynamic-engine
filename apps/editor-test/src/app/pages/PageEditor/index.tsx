@@ -1,16 +1,16 @@
 import React, { memo, useCallback, useContext, useMemo } from 'react';
 import styles from './index.module.less';
-import { useLoaderData, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
-import { ComponentGalleryPluginRegister, ComponentToolBarRegister, IBusinessModel, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
+import { ComponentGalleryPluginRegister, ComponentToolBarRegister, HierarchyIndicatorRegister, IBusinessModel, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
 import PageEditorOperation from '../../components/PageEditorOperation';
 import { ComponentPackageContext } from '../../contexts';
-import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode, RegisterSetter as RegisterPrimarySetter, GridSystemSection } from '@lowcode-engine/primary-component-package';
+import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode, RegisterSetter as RegisterPrimarySetter, GridSystemSection, ITabsComponentConfiguration } from '@lowcode-engine/primary-component-package';
 import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/component-configuration-shared';
 import { Button } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { EventCenterEngineContext, GenerateNestedComponentId, GenerateShortId, IComponentConfiguration, IEventCenterEngineContext } from '@lowcode-engine/core';
+import { EventCenterEngineContext, GenerateComponentId, GenerateNestedComponentId, GenerateShortId, IComponentConfiguration, IEventCenterEngineContext } from '@lowcode-engine/core';
 import { ModelRepository } from '../../models';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
 import { IVideoPlayerComponentConfiguration } from '../../video-player';
@@ -86,6 +86,16 @@ const PageEditor: React.FC = memo(() => {
                   accepts: [ComponentTypes.button]
                 }
               },
+              [ComponentTypes.tabs]: {
+                children: {
+                  accepts: [ComponentTypes.tab]
+                }
+              },
+              [ComponentTypes.tab]: {
+                children: {
+                  // accepts: []
+                }
+              },
               [ComponentTypes.table]: {
                 operators: {
                   accepts: [...buttonTypes]
@@ -134,6 +144,32 @@ const PageEditor: React.FC = memo(() => {
                 selectionMode: TableSelectionMode.multiple,
                 title: '选择列',
               };
+              return conf;
+            });
+
+            configurationAddingHandler.registerHandler({ typeSelector: ComponentTypes.tabs }, async (conf: ITabsComponentConfiguration) => {
+              conf.children = [
+                {
+                  id: GenerateComponentId(ComponentTypes.tab),
+                  type: ComponentTypes.tab,
+                  title: '页签 1',
+                  isDefault: true
+                },
+                {
+                  id: GenerateComponentId(ComponentTypes.tab),
+                  type: ComponentTypes.tab,
+                  title: '页签 2',
+                },
+                {
+                  id: GenerateComponentId(ComponentTypes.tab),
+                  type: ComponentTypes.tab,
+                  title: '页签 3',
+                },
+              ];
+
+              conf.activeKey = conf.children[0].id;
+              conf.direction = 'horizontal';
+              conf.fullHeight = true;
               return conf;
             });
 
@@ -191,7 +227,8 @@ const PageEditor: React.FC = memo(() => {
         {
           title: '容器',
           components: [
-            ComponentTypes.block
+            ComponentTypes.block,
+            ComponentTypes.tabs,
           ]
         },
         {
@@ -229,6 +266,11 @@ const PageEditor: React.FC = memo(() => {
 
         return { type: 'text', title: data.name };
       }),
+      // schema源码插件
+      SchemaViewerPluginRegister(),
+      // 路径组件注册插件
+      HierarchyIndicatorRegister(),
+      // 工具栏插件
       ComponentToolBarRegister({
         [ComponentTypes.listPage]: [],
         [ComponentTypes.detailPage]: [],
@@ -237,8 +279,6 @@ const PageEditor: React.FC = memo(() => {
         [ComponentTypes.tableOperatorColumn]: [],
         [ComponentTypes.pagination]: [],
       }),
-      // schema源码插件
-      SchemaViewerPluginRegister(),
       // 页面返回按钮注册插件
       function pageReturnPluginRegistry({ skeleton }) {
         const skeletonKey = 'EDITOR_RETURN_ST';

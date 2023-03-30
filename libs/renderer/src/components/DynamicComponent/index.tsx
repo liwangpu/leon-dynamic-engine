@@ -47,10 +47,12 @@ const DataCenterDetectorWrapper = (Component: ComponentType<IDynamicComponentPro
     const value = store.data.get(field);
     const visible = store.getFieldVisible(field);
     const disabled = store.getFieldDisabled(field);
+
     const onChange = (val: any) => {
       if (!field) { return; }
       setData(field, val);
     };
+
     return (
       <>
         {visible && (
@@ -61,6 +63,8 @@ const DataCenterDetectorWrapper = (Component: ComponentType<IDynamicComponentPro
       </>
     );
   });
+
+  wrapper.displayName = 'DataCenterDetectorWrapper';
 
   return wrapper;
 };

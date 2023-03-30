@@ -14,6 +14,7 @@ const PluginPanel: React.FC = observer(() => {
   const firstPanelName = skeletonNames[0];
   const [activePanel, setActivePanel] = useState<string>(firstPanelName);
   const panelRefMap = useMemo<Map<string, HTMLElement>>(() => new Map(), [skeletonGroupOfLeftArea]);
+
   const visiblePanels = useMemo<string[]>(() => {
     const panels: string[] = [];
     if (firstPanelName) {
@@ -21,6 +22,7 @@ const PluginPanel: React.FC = observer(() => {
     }
     return panels;
   }, [skeletonGroupOfLeftArea]);
+
   const [Icons, Panels] = useMemo(() => {
     if (!skeletonGroupOfLeftArea?.size) { return []; }
     const _Icons = skeletonNames.map(n => {
@@ -59,6 +61,7 @@ const PluginPanel: React.FC = observer(() => {
     ));
     return [_Icons, _Panels];
   }, [skeletonGroupOfLeftArea, activePanel]);
+
   const leftAreaPluginCtx = useMemo<ILeftAreaPluginContext>(() => {
     return {
       close() {
@@ -66,6 +69,7 @@ const PluginPanel: React.FC = observer(() => {
       }
     };
   }, [skeletonGroupOfLeftArea]);
+
   const handleActivePanel = (name?: string) => {
     if (activePanel === name) {
       name = null;
@@ -97,21 +101,27 @@ const PluginPanel: React.FC = observer(() => {
   };
 
   return (
-    <div className={styles['plugin-panel']}>
-      <div className={styles['plugin-panel__sidebar']}>
-        {Icons}
-      </div>
-      <div className={classnames(
-        styles['plugin-panel__content'],
-        {
-          [styles['plugin-panel__content--active']]: !!activePanel
-        }
-      )}>
-        <LeftAreaPluginContext.Provider value={leftAreaPluginCtx}>
-          {Panels}
-        </LeftAreaPluginContext.Provider>
-      </div>
-    </div>
+    <>
+      {
+        skeletonGroupOfLeftArea?.size && (
+          <div className={styles['plugin-panel']}>
+            <div className={styles['plugin-panel__sidebar']}>
+              {Icons}
+            </div>
+            <div className={classnames(
+              styles['plugin-panel__content'],
+              {
+                [styles['plugin-panel__content--active']]: !!activePanel
+              }
+            )}>
+              <LeftAreaPluginContext.Provider value={leftAreaPluginCtx}>
+                {Panels}
+              </LeftAreaPluginContext.Provider>
+            </div>
+          </div>
+        )
+      }
+    </>
   );
 });
 

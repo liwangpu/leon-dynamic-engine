@@ -11,15 +11,23 @@ export class ComponentDiscoveryProvider implements IComponentDiscovery {
   protected readonly componentMetadataMap = new Map<string, IComponentMetadata>();
   protected loadedAllPakageDescriptions = false;
   protected loadedAllPakageMetadatas = false;
+  protected descriptionQueryPromise: Promise<IComponentDescription[]>;
   constructor(protected packages: Array<IComponentPackage>) { }
 
   public async queryComponentDescriptions(): Promise<IComponentDescription[]> {
     if (this.loadedAllPakageDescriptions) {
       return [...this.componentDescriptionMap.values()];
     }
-    this.loadedAllPakageDescriptions = true;
+
+    // if(this.descriptionQueryPromise&&this.descriptionQueryPromise.){
+
+    // }
+
     const descriptions: IComponentDescription[] = [];
-    if (!this.packages || !this.packages.length) { return descriptions; }
+    if (!this.packages || !this.packages.length) {
+      // console.log(`use cache:`,);
+      return descriptions;
+    }
     for (let mk of this.packages) {
       const des = await mk.queryComponentDescriptions();
       des.forEach(d => {
@@ -28,6 +36,8 @@ export class ComponentDiscoveryProvider implements IComponentDiscovery {
         this.componentTypePackageMap.set(d.type, mk);
       });
     }
+    this.loadedAllPakageDescriptions = true;
+    // console.log(`query descriptions:`, descriptions);
     return descriptions;
   }
 
@@ -54,7 +64,6 @@ export class ComponentDiscoveryProvider implements IComponentDiscovery {
     if (!this.loadedAllPakageDescriptions) {
       await this.queryComponentDescriptions();
     }
-
     return this.componentTypePackageMap.get(type);
   }
 

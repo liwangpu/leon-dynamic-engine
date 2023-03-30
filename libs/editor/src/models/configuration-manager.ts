@@ -11,15 +11,18 @@ interface IConfigurationSelector {
 export interface IConfigurationManager {
   registerConfigurationSelector(filter: ISetterPanelContext, selector: IConfigurationSelector): void;
   getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector;
-  addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): void;
+  addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): Promise<void>;
   deleteComponent(id: string): void;
   updateComponent(conf: Partial<IComponentConfiguration>): void;
   updateComponents(confs: Array<Partial<IComponentConfiguration>>): void;
+  activeComponent(id: string): void;
 }
 
 export class ConfigurationManager implements IConfigurationManager {
 
   private readonly selectors = new Map<string, IConfigurationSelector>();
+
+  // eslint-disable-next-line no-useless-constructor
   public constructor(private context: IEditorContext) { }
 
   public getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector {
@@ -44,7 +47,7 @@ export class ConfigurationManager implements IConfigurationManager {
     this.selectors.set(key, selector);
   }
 
-  public addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): void {
+  public async addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): Promise<void> {
     if (!conf.id) {
       conf.id = GenerateComponentId(conf.type);
     }
@@ -53,9 +56,9 @@ export class ConfigurationManager implements IConfigurationManager {
       const slotProperties = this.context.slot.getSlotProperties(subConf.type);
       const parentConf = this.context.store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
       subConf = await this.context.configurationAddingHandler.handle(subConf, parentConf, slotProperty);
-      let pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
+      const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
       this.context.store.addComponent(pureConf, parentId, index, slotProperty);
-      for (let sp of slotProperties) {
+      for (const sp of slotProperties) {
         const singleton = this.context.slot.checkSlotSingleton(subConf.type, sp);
         let components: Array<IComponentConfiguration> = [];
         if (subConf[sp]) {
@@ -66,12 +69,12 @@ export class ConfigurationManager implements IConfigurationManager {
           }
         }
         if (!components.length) { continue; }
-        components.forEach((sc, idx) => {
-          addComponent(sc, subConf.id, idx, sp);
-        });
+        for (let idx = 0; idx < components.length; idx++) {
+          await addComponent(components[idx], subConf.id, idx, sp);
+        }
       }
     };
-    addComponent(conf, parentId, index, slotProperty);
+    await addComponent(conf, parentId, index, slotProperty);
   }
 
   public deleteComponent(id: string): void {
@@ -89,7 +92,7 @@ export class ConfigurationManager implements IConfigurationManager {
         return;
       }
       if (!subConf.id) {
-        subConf.id = GenerateComponentId(conf.type);
+        subConf.id = GenerateComponentId(subConf.type);
       }
       const slotProperties = this.context.slot.getSlotProperties(subConf.type);
       for (const slotProperty of slotProperties) {
@@ -133,6 +136,10 @@ export class ConfigurationManager implements IConfigurationManager {
     }
   }
 
+  public activeComponent(id: string): void {
+    this.context.store.interactionStore.activeComponent(id);
+  }
+
   private static generateFilterKey(filter: ISetterPanelContext) {
     let key = `type:${filter.type}`;
     if (filter.parentType) {
@@ -142,6 +149,6 @@ export class ConfigurationManager implements IConfigurationManager {
       key += `/slot:${filter.slot}`;
     }
     return key;
-  };
+  }
 
 }

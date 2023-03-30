@@ -4,6 +4,7 @@ export interface IComponentConfiguration {
   code?: string;
   title?: string;
   height?: string;
+  fullHeight?: boolean;
   width?: string;
   // validators?: ComponentValidatorRule[];
   // eventBindings?: IComponentEventBinding[];

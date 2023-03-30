@@ -1,6 +1,6 @@
-import { ComponentDiscoveryContext, GenerateComponentId, IComponentConfiguration } from '@lowcode-engine/core';
+import { ComponentDiscoveryContext, GenerateComponentId, IComponentConfiguration, IDynamicComponentProps as CoreDynamicComponentProps } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
-import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo, useLayoutEffect } from 'react';
+import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo, useLayoutEffect, ReactNode } from 'react';
 import Sortable from 'sortablejs';
 import { EditorContext, PagePresentationUtilContext } from '../../contexts';
 import { EventTopicEnum } from '../../enums';
@@ -9,8 +9,9 @@ import { useComponentStyle } from '@lowcode-engine/renderer';
 import classnames from 'classnames';
 import { IDynamicContainerDragDropEventData } from '../../models';
 
-export interface IDynamicComponentProps {
-  configuration: IComponentConfiguration;
+export interface IDynamicComponentProps extends CoreDynamicComponentProps {
+  children?: ReactNode;
+  options?: { disableUIInteraction?: boolean; };
 }
 
 export const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props => {
@@ -46,7 +47,7 @@ export const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props
 
   return (
     <>
-      {componentLoaded && <Component.current configuration={conf} />}
+      {componentLoaded && <Component.current configuration={conf} options={props.options} />}
     </>
   );
 });
@@ -101,7 +102,7 @@ const ComponentRenderWrapper = (Component: ComponentType<any>) => {
     }
 
     return (
-      <Component configuration={conf} children={props['children']} />
+      <Component configuration={conf} children={props['children']} options={props.options} />
     );
   });
 
@@ -112,304 +113,537 @@ const EditorUIEffectWrapper = (Component: ComponentType<any>) => {
 
   const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
 
-    const { store, dom, event, slot, configurationAddingHandler } = useContext(EditorContext);
-    const pagePresentationUtil = useContext(PagePresentationUtilContext);
-    const conf = props.configuration;
-    const activeComponentId = store.interactionStore.activeComponentId;
-    const style = useComponentStyle(props.configuration);
-    const componentHostRef = useRef<HTMLDivElement>(null);
-    const componentRootRef = useRef<HTMLElement>(null);
-    const activeEventFlag = useRef<boolean>();
-    const toolbarIntersectingFlagRef = useRef<HTMLDivElement>(null);
-    const componentContainerRefs = useRef<HTMLElement[]>();
-    const componentId = conf.id;
-
-    useLayoutEffect(() => {
-      const componentHost = componentHostRef.current;
-      if (componentHost.children.length) {
-        componentRootRef.current = componentHost.children[componentHost.children.length - 1] as any;
-        dom.registryComponentRoot(componentId, componentRootRef.current);
-      }
-
-      const hoverDetector = (() => {
-        const componentMouseenterHandler = (e: MouseEvent) => {
-          e.stopPropagation();
-          event.emit(EventTopicEnum.componentHovering, componentId);
-        };
-
-        const componentMouseleaveHandler = (e: MouseEvent) => {
-          e.stopPropagation();
-          event.emit(EventTopicEnum.componentUnHovering, componentId);
-        };
-
-        return {
-          observe() {
-            componentHost.addEventListener('mouseenter', componentMouseenterHandler);
-            componentHost.addEventListener('mouseleave', componentMouseleaveHandler);
-          },
-          disconnect() {
-            componentHost.removeEventListener('mouseenter', componentMouseenterHandler);
-            componentHost.removeEventListener('mouseleave', componentMouseleaveHandler);
-          }
-        };
-      })();
-
-      hoverDetector.observe();
-
-      // 监听组件工具栏指示标记显隐性
-      const intersectingDetector = (() => {
-        const intersectingObs = new IntersectionObserver(entries => {
-          event.emit(EventTopicEnum.toolbarIntersectingChange, { componentId, intersecting: entries[0].isIntersecting === true });
-        }, {});
-
-        return {
-          observe() {
-            intersectingObs.observe(toolbarIntersectingFlagRef.current);
-          },
-          disconnect() {
-            intersectingObs.disconnect();
-          }
-        };
-      })();
-
-      intersectingDetector.observe();
-
-      dom.registryComponentHost(componentId, componentHostRef.current);
-      return () => {
-        intersectingDetector.disconnect();
-        hoverDetector.disconnect();
-        dom.unregisterComponentHost(componentId);
-        dom.unregisterComponentRoot(componentId);
-      };
-    }, []);
-
-    // 为组件的动态组件容器添加拖拽响应
-    useEffect(() => {
-      const componentHost = componentHostRef.current;
-      const containerSelector = `[data-dynamic-component-container][data-dynamic-container-owner="${componentId}"]`;
-      componentContainerRefs.current = Array.from(componentHost.querySelectorAll(containerSelector));
-      // 如果子节点没有发现,试试在父节点找,因为父节点可能本身也是容器
-      let isContainer = componentContainerRefs.current.length > 0;
-      if (!isContainer) {
-        if (componentHost.getAttribute('data-dynamic-component-container')) {
-          componentContainerRefs.current = [componentHostRef.current];
-          isContainer = true;
-        }
-      }
-      const sortableInstances: Sortable[] = [];
-      const slotPropertyDoms: Array<HTMLElement> = [];
-
-      if (isContainer) {
-        // 添加拖拽支持以及滚动监听
-        componentContainerRefs.current.forEach(el => {
-          // 拖拽支持
-          const slotProperty: string = el.getAttribute('data-dynamic-component-container');
-          const horizontal = el.getAttribute('data-dynamic-container-direction') === 'horizontal';
-          const dropOnly = el.getAttribute('data-dynamic-container-drop-only') === 'true';
-          dom.registryComponentSlotHost(conf.type, slotProperty, el);
-          slotPropertyDoms.push(el);
-          el.classList.add('editor-dynamic-component-container');
-          if (horizontal) {
-            el.classList.add('editor-dynamic-component-container--horizontal');
-          }
-          // 在onStart的时候无法通过dataTransfer获取当前操作的配置信息,所有暂时先用这个方法
-          let currentConf: IComponentConfiguration | null;
-          // 为可视化拖拽设置专有背景色
-          const instance = Sortable.create(el, {
-            group: {
-              name: 'dynamic-component',
-              pull: !dropOnly,
-            },
-            ghostClass: "editor-sortable-ghost",
-            easing: "cubic-bezier(1, 0, 0, 1)",
-            scroll: true,
-            bubbleScroll: false,
-            animation: 100,
-            swapThreshold: 0.65,
-            setData: (dataTransfer, dragEl: HTMLElement) => {
-              const id = dragEl.getAttribute('data-dynamic-component');
-              const conf = store.configurationStore.selectComponentConfigurationWithoutChildren(id);
-              const componentTitle = store.configurationStore.selectComponentTitle(id)
-              pagePresentationUtil.dragPreviewNode.innerHTML = componentTitle;
-              pagePresentationUtil.dragPreviewNode.classList.remove('hidden');
-              dataTransfer.setDragImage(pagePresentationUtil.dragPreviewNode, 0, 0);
-              if (conf) {
-                dataTransfer.setData('Text', JSON.stringify(conf));
-              }
-              currentConf = _.cloneDeep(conf);
-            },
-            onAdd: async (evt: Sortable.SortableEvent) => {
-              const dragEvt: DragEvent = (evt as any).originalEvent;
-              const containerSlotProperty: string = evt.to.getAttribute('data-dynamic-component-container');
-              const confStr = dragEvt.dataTransfer.getData('Text');
-              if (!confStr) { return; }
-              const conf: IComponentConfiguration = JSON.parse(confStr);
-              if (conf.id) { return; }
-              const matchedSlotProperties = slot.getMatchedSlotProperties(conf.type);
-              const container2SlotProperty = dom.getSlotDomProperty(evt.to);
-              if (!matchedSlotProperties.some(p => p === container2SlotProperty)) { return; }
-              conf.id = GenerateComponentId(conf.type);
-              // 新增的组件可能会有插槽组件数据,这里需要解析一下插槽配置
-              const addComponent = async (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {
-                const slotProperties = slot.getSlotProperties(subConf.type);
-                const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
-                subConf = await configurationAddingHandler.handle(subConf, parentConf, slotProperty);
-                const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
-                store.addComponent(pureConf, parentId, index, slotProperty);
-                for (const sp of slotProperties) {
-                  const singleton = slot.checkSlotSingleton(subConf.type, sp);
-                  let components: Array<IComponentConfiguration> = [];
-                  if (subConf[sp]) {
-                    if (singleton) {
-                      components.push(subConf[sp]);
-                    } else {
-                      components = subConf[sp];
-                    }
-                  }
-                  if (!components.length) { continue; }
-                  components.forEach((sc, idx) => {
-                    addComponent(sc, subConf.id, idx, sp);
-                  });
-                }
-              };
-              addComponent(conf, componentId, evt.newIndex, containerSlotProperty);
-            },
-            onStart: (evt: Sortable.SortableEvent) => {
-              const eventData: IDynamicContainerDragDropEventData = {
-                conf: currentConf,
-                dragItem: evt.item,
-                ownContainer: evt.item.parentNode,
-              };
-              event.emit(EventTopicEnum.componentStartDragging, eventData);
-              const itemEl = evt.item;
-              itemEl.classList.add('dragging');
-            },
-            onEnd: (evt: Sortable.SortableEvent) => {
-              const eventData: IDynamicContainerDragDropEventData = {
-                conf: currentConf,
-                dragItem: evt.item,
-                ownContainer: evt.item.parentNode,
-              };
-
-              event.emit(EventTopicEnum.componentEndDragging, eventData);
-              currentConf = null;
-              const itemEl = evt.item;
-              itemEl.classList.remove('dragging');
-
-              const parentId = evt.to.getAttribute('data-dynamic-container-owner');
-              if (!parentId) { return; }
-              const containerDom: HTMLElement = evt.to as any;
-              const slotProperty: string = containerDom.getAttribute('data-dynamic-component-container');
-              const dragEvt: DragEvent = (evt as any).originalEvent;
-              const confStr = dragEvt.dataTransfer.getData('Text');
-              if (!confStr) { return; }
-              const conf: IComponentConfiguration = JSON.parse(confStr);
-              if (!conf.id) { return; }
-              const getMatchedSlotProperties = slot.getMatchedSlotProperties(conf.type);
-              const container2SlotProperty = dom.getSlotDomProperty(evt.to);
-              const cancelRemove = () => {
-                itemEl.parentElement.removeChild(itemEl);
-                evt.from.appendChild(itemEl);
-              };
-
-              if (!getMatchedSlotProperties.some(p => p === container2SlotProperty)) {
-                cancelRemove();
-                return;
-              }
-              if (evt.from !== evt.to) {
-                cancelRemove();
-                itemEl.style.display = 'none';
-              }
-              store.treeStore.moveComponent(conf.id, parentId, evt.newIndex, slotProperty);
-            }
-          });
-
-          el['sortableInstance'] = instance;
-          sortableInstances.push(instance);
-
-          const scrollDetector = (() => {
-            let lastScrollAt = Date.now();
-            let scrollTimeout = null;
-
-            const scrollDetecting = () => {
-
-              if (Date.now() - lastScrollAt > 100) {
-                event.emit(EventTopicEnum.componentContainerScrollStart);
-              }
-
-              lastScrollAt = Date.now()
-
-              if (scrollTimeout) {
-                clearTimeout(scrollTimeout);
-              }
-
-              scrollTimeout = setTimeout(function () {
-                if (Date.now() - lastScrollAt > 99) {
-                  event.emit(EventTopicEnum.componentContainerScrollEnd);
-                }
-              }, 100);
-            }
-
-            return {
-              observe() {
-                el.addEventListener('scroll', scrollDetecting);
-              },
-              disconnect() {
-                el.removeEventListener('scroll', scrollDetecting);
-              }
-            };
-          })();
-
-          // 滚动监听
-          scrollDetector.observe();
-        });
-      }
-      return () => {
-        sortableInstances.forEach(ins => ins.destroy());
-        slotPropertyDoms.forEach(el => dom.unregisterComponentSlotHost(el));
-      };
-    }, []);
-
-    useEffect(() => {
-      if (activeComponentId === componentId) {
-        event.emit(EventTopicEnum.componentActiving, componentId);
-        activeEventFlag.current = true;
-        setTimeout(() => {
-          const evt = new CustomEvent('editor-event:active-component', { bubbles: true });
-          componentRootRef.current.dispatchEvent(evt);
-        }, 80);
-      } else {
-        if (activeEventFlag.current) {
-          const evt = new CustomEvent('editor-event:cancel-active-component', { bubbles: true });
-          componentRootRef.current.dispatchEvent(evt);
-          activeEventFlag.current = false;
-        }
-      }
-    }, [activeComponentId]);
+    const { disableUIInteraction } = props.options || {};
 
     return (
-      <div className={classnames(
-        'dynamic-component',
-        'editor-dynamic-component',
-        {
-          ['editor-dynamic-component--active']: activeComponentId === componentId
-        }
-      )}
-        data-dynamic-component={componentId}
-        data-dynamic-component-type={conf.type}
-        style={style}
-        ref={componentHostRef}
-      >
-        <div className='toolbar-intersecting-flag' ref={toolbarIntersectingFlagRef}></div>
-        <div className='dragdrop-placeholder-flag'></div>
-        <div className='presentation-flag presentation-flag__activated-state'></div>
-        <div className='presentation-flag presentation-flag__hovering-state'></div>
-        <div className='dragging-preview-flag'></div>
-        {/* 别在把其他辅助节点加在Component后面,因为设计器会根据最后一个节点获取动态组件根节点dom */}
-        <Component configuration={props.configuration} children={props['children']} />
-      </div>
+      <>
+        {disableUIInteraction ? <NoInteractionComponentImplement {...props} Component={Component} /> : <InteractionComponentImplement {...props} Component={Component} />}
+      </>
     );
   });
 
+  wrapper.displayName = 'EditorUIEffectWrapper';
+
   return wrapper;
 };
+
+interface InteractionImplementProps extends IDynamicComponentProps {
+  Component: ComponentType<any>;
+}
+
+const NoInteractionComponentImplement: React.FC<InteractionImplementProps> = observer(props => {
+
+  const { store, dom, event, slot, configurationAddingHandler } = useContext(EditorContext);
+  const pagePresentationUtil = useContext(PagePresentationUtilContext);
+  const conf = props.configuration;
+  const style = useComponentStyle(props.configuration);
+  const componentHostRef = useRef<HTMLDivElement>(null);
+  const componentContainerRefs = useRef<HTMLElement[]>();
+  const componentId = conf.id;
+  const Component = props.Component;
+
+  // 为组件的动态组件容器添加拖拽响应
+  useEffect(() => {
+    const componentHost = componentHostRef.current;
+    const containerSelector = `[data-dynamic-component-container][data-dynamic-container-owner="${componentId}"]`;
+    componentContainerRefs.current = Array.from(componentHost.querySelectorAll(containerSelector));
+    // 如果子节点没有发现,试试在父节点找,因为父节点可能本身也是容器
+    let isContainer = componentContainerRefs.current.length > 0;
+    if (!isContainer) {
+      if (componentHost.getAttribute('data-dynamic-component-container')) {
+        componentContainerRefs.current = [componentHostRef.current];
+        isContainer = true;
+      }
+    }
+    const sortableInstances: Sortable[] = [];
+    const slotPropertyDoms: Array<HTMLElement> = [];
+
+    if (isContainer) {
+      // 添加拖拽支持以及滚动监听
+      componentContainerRefs.current.forEach(el => {
+        // 拖拽支持
+        const slotProperty: string = el.getAttribute('data-dynamic-component-container');
+        const horizontal = el.getAttribute('data-dynamic-container-direction') === 'horizontal';
+        const dropOnly = el.getAttribute('data-dynamic-container-drop-only') === 'true';
+        dom.registryComponentSlotHost(conf.type, slotProperty, el);
+        slotPropertyDoms.push(el);
+        el.classList.add('editor-dynamic-component-container');
+        if (horizontal) {
+          el.classList.add('editor-dynamic-component-container--horizontal');
+        }
+        // 在onStart的时候无法通过dataTransfer获取当前操作的配置信息,所有暂时先用这个方法
+        let currentConf: IComponentConfiguration | null;
+        // 为可视化拖拽设置专有背景色
+        const instance = Sortable.create(el, {
+          group: {
+            name: 'dynamic-component',
+            pull: !dropOnly,
+          },
+          ghostClass: "editor-sortable-ghost",
+          easing: "cubic-bezier(1, 0, 0, 1)",
+          scroll: true,
+          bubbleScroll: false,
+          animation: 100,
+          swapThreshold: 0.65,
+          setData: (dataTransfer, dragEl: HTMLElement) => {
+            const id = dragEl.getAttribute('data-dynamic-component');
+            const conf = store.configurationStore.selectComponentConfigurationWithoutChildren(id);
+            const componentTitle = store.configurationStore.selectComponentTitle(id);
+            pagePresentationUtil.dragPreviewNode.innerHTML = componentTitle;
+            pagePresentationUtil.dragPreviewNode.classList.remove('hidden');
+            dataTransfer.setDragImage(pagePresentationUtil.dragPreviewNode, 0, 0);
+            if (conf) {
+              dataTransfer.setData('Text', JSON.stringify(conf));
+            }
+            currentConf = _.cloneDeep(conf);
+          },
+          onAdd: async (evt: Sortable.SortableEvent) => {
+            const dragEvt: DragEvent = (evt as any).originalEvent;
+            const containerSlotProperty: string = evt.to.getAttribute('data-dynamic-component-container');
+            const confStr = dragEvt.dataTransfer.getData('Text');
+            if (!confStr) { return; }
+            const conf: IComponentConfiguration = JSON.parse(confStr);
+            if (conf.id) { return; }
+            const matchedSlotProperties = slot.getMatchedSlotProperties(conf.type);
+            const container2SlotProperty = dom.getSlotDomProperty(evt.to);
+            if (!matchedSlotProperties.some(p => p === container2SlotProperty)) { return; }
+            conf.id = GenerateComponentId(conf.type);
+            // 新增的组件可能会有插槽组件数据,这里需要解析一下插槽配置
+            const addComponent = async (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {
+              const slotProperties = slot.getSlotProperties(subConf.type);
+              const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
+              subConf = await configurationAddingHandler.handle(subConf, parentConf, slotProperty);
+              const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
+              store.addComponent(pureConf, parentId, index, slotProperty);
+              for (const sp of slotProperties) {
+                const singleton = slot.checkSlotSingleton(subConf.type, sp);
+                let components: Array<IComponentConfiguration> = [];
+                if (subConf[sp]) {
+                  if (singleton) {
+                    components.push(subConf[sp]);
+                  } else {
+                    components = subConf[sp];
+                  }
+                }
+                if (!components.length) { continue; }
+                components.forEach((sc, idx) => {
+                  addComponent(sc, subConf.id, idx, sp);
+                });
+              }
+            };
+            addComponent(conf, componentId, evt.newIndex, containerSlotProperty);
+          },
+          onStart: (evt: Sortable.SortableEvent) => {
+            const eventData: IDynamicContainerDragDropEventData = {
+              conf: currentConf,
+              dragItem: evt.item,
+              ownContainer: evt.item.parentNode as any,
+            };
+            event.emit(EventTopicEnum.componentStartDragging, eventData);
+            const itemEl = evt.item;
+            itemEl.classList.add('dragging');
+          },
+          onEnd: (evt: Sortable.SortableEvent) => {
+            const eventData: IDynamicContainerDragDropEventData = {
+              conf: currentConf,
+              dragItem: evt.item,
+              ownContainer: evt.item.parentNode as any,
+            };
+
+            event.emit(EventTopicEnum.componentEndDragging, eventData);
+            currentConf = null;
+            const itemEl = evt.item;
+            itemEl.classList.remove('dragging');
+
+            const parentId = evt.to.getAttribute('data-dynamic-container-owner');
+            if (!parentId) { return; }
+            const containerDom: HTMLElement = evt.to as any;
+            const slotProperty: string = containerDom.getAttribute('data-dynamic-component-container');
+            const dragEvt: DragEvent = (evt as any).originalEvent;
+            const confStr = dragEvt.dataTransfer.getData('Text');
+            if (!confStr) { return; }
+            const conf: IComponentConfiguration = JSON.parse(confStr);
+            if (!conf.id) { return; }
+            const getMatchedSlotProperties = slot.getMatchedSlotProperties(conf.type);
+            const container2SlotProperty = dom.getSlotDomProperty(evt.to);
+            const cancelRemove = () => {
+              itemEl.parentElement.removeChild(itemEl);
+              evt.from.appendChild(itemEl);
+            };
+
+            if (!getMatchedSlotProperties.some(p => p === container2SlotProperty)) {
+              cancelRemove();
+              return;
+            }
+            if (evt.from !== evt.to) {
+              cancelRemove();
+              itemEl.style.display = 'none';
+            }
+            store.treeStore.moveComponent(conf.id, parentId, evt.newIndex, slotProperty);
+          },
+        });
+
+        el['sortableInstance'] = instance;
+        sortableInstances.push(instance);
+
+        const scrollDetector = (() => {
+          let lastScrollAt = Date.now();
+          let scrollTimeout = null;
+
+          const scrollDetecting = () => {
+
+            if (Date.now() - lastScrollAt > 100) {
+              event.emit(EventTopicEnum.componentContainerScrollStart);
+            }
+
+            lastScrollAt = Date.now();
+
+            if (scrollTimeout) {
+              clearTimeout(scrollTimeout);
+            }
+
+            scrollTimeout = setTimeout(function () {
+              if (Date.now() - lastScrollAt > 99) {
+                event.emit(EventTopicEnum.componentContainerScrollEnd);
+              }
+            }, 100);
+          };
+
+          return {
+            observe() {
+              el.addEventListener('scroll', scrollDetecting);
+            },
+            disconnect() {
+              el.removeEventListener('scroll', scrollDetecting);
+            },
+          };
+        })();
+
+        // 滚动监听
+        scrollDetector.observe();
+      });
+    }
+    return () => {
+      sortableInstances.forEach(ins => ins.destroy());
+      slotPropertyDoms.forEach(el => dom.unregisterComponentSlotHost(el));
+    };
+  }, []);
+
+  return (
+    <div
+      className={classnames(
+        'dynamic-component',
+      )}
+      style={style}
+      ref={componentHostRef}
+    >
+      <Component configuration={props.configuration} children={props['children']} />
+    </div>
+  );
+});
+
+NoInteractionComponentImplement.displayName = 'NoInteractionComponentImplement';
+
+const InteractionComponentImplement: React.FC<InteractionImplementProps> = observer(props => {
+
+  const { store, dom, event, slot, configurationAddingHandler } = useContext(EditorContext);
+  const pagePresentationUtil = useContext(PagePresentationUtilContext);
+  const conf = props.configuration;
+  const { activeComponentId } = store.interactionStore;
+  const style = useComponentStyle(props.configuration);
+  const componentHostRef = useRef<HTMLDivElement>(null);
+  const componentRootRef = useRef<HTMLElement>(null);
+  const activeEventFlag = useRef<boolean>();
+  const toolbarIntersectingFlagRef = useRef<HTMLDivElement>(null);
+  const componentContainerRefs = useRef<HTMLElement[]>();
+  const componentId = conf.id;
+  const Component = props.Component;
+
+  useLayoutEffect(() => {
+    const componentHost = componentHostRef.current;
+    if (componentHost.children.length) {
+      componentRootRef.current = componentHost.children[componentHost.children.length - 1] as any;
+      dom.registryComponentRoot(componentId, componentRootRef.current);
+    }
+
+    const hoverDetector = (() => {
+      const componentMouseenterHandler = (e: MouseEvent) => {
+        e.stopPropagation();
+        event.emit(EventTopicEnum.componentHovering, componentId);
+      };
+
+      const componentMouseleaveHandler = (e: MouseEvent) => {
+        e.stopPropagation();
+        event.emit(EventTopicEnum.componentUnHovering, componentId);
+      };
+
+      return {
+        observe() {
+          componentHost.addEventListener('mouseenter', componentMouseenterHandler);
+          componentHost.addEventListener('mouseleave', componentMouseleaveHandler);
+        },
+        disconnect() {
+          componentHost.removeEventListener('mouseenter', componentMouseenterHandler);
+          componentHost.removeEventListener('mouseleave', componentMouseleaveHandler);
+        },
+      };
+    })();
+
+    hoverDetector.observe();
+
+    // 监听组件工具栏指示标记显隐性
+    const intersectingDetector = (() => {
+      const intersectingObs = new IntersectionObserver(entries => {
+        event.emit(EventTopicEnum.toolbarIntersectingChange, { componentId, intersecting: entries[0].isIntersecting === true });
+      }, {});
+
+      return {
+        observe() {
+          intersectingObs.observe(toolbarIntersectingFlagRef.current);
+        },
+        disconnect() {
+          intersectingObs.disconnect();
+        },
+      };
+    })();
+
+    intersectingDetector.observe();
+
+    dom.registryComponentHost(componentId, componentHostRef.current);
+    return () => {
+      intersectingDetector.disconnect();
+      hoverDetector.disconnect();
+      dom.unregisterComponentHost(componentId);
+      dom.unregisterComponentRoot(componentId);
+    };
+  }, []);
+
+  // 为组件的动态组件容器添加拖拽响应
+  useEffect(() => {
+    const componentHost = componentHostRef.current;
+    const containerSelector = `[data-dynamic-component-container][data-dynamic-container-owner="${componentId}"]`;
+    componentContainerRefs.current = Array.from(componentHost.querySelectorAll(containerSelector));
+    // 如果子节点没有发现,试试在父节点找,因为父节点可能本身也是容器
+    let isContainer = componentContainerRefs.current.length > 0;
+    if (!isContainer) {
+      if (componentHost.getAttribute('data-dynamic-component-container')) {
+        componentContainerRefs.current = [componentHostRef.current];
+        isContainer = true;
+      }
+    }
+    const sortableInstances: Sortable[] = [];
+    const slotPropertyDoms: Array<HTMLElement> = [];
+
+    if (isContainer) {
+      // 添加拖拽支持以及滚动监听
+      componentContainerRefs.current.forEach(el => {
+        // 拖拽支持
+        const slotProperty: string = el.getAttribute('data-dynamic-component-container');
+        const horizontal = el.getAttribute('data-dynamic-container-direction') === 'horizontal';
+        const dropOnly = el.getAttribute('data-dynamic-container-drop-only') === 'true';
+        dom.registryComponentSlotHost(conf.type, slotProperty, el);
+        slotPropertyDoms.push(el);
+        el.classList.add('editor-dynamic-component-container');
+        if (horizontal) {
+          el.classList.add('editor-dynamic-component-container--horizontal');
+        }
+        // 在onStart的时候无法通过dataTransfer获取当前操作的配置信息,所有暂时先用这个方法
+        let currentConf: IComponentConfiguration | null;
+        // 为可视化拖拽设置专有背景色
+        const instance = Sortable.create(el, {
+          group: {
+            name: 'dynamic-component',
+            pull: !dropOnly,
+          },
+          ghostClass: "editor-sortable-ghost",
+          easing: "cubic-bezier(1, 0, 0, 1)",
+          scroll: true,
+          bubbleScroll: false,
+          animation: 100,
+          swapThreshold: 0.65,
+          setData: (dataTransfer, dragEl: HTMLElement) => {
+            const id = dragEl.getAttribute('data-dynamic-component');
+            const conf = store.configurationStore.selectComponentConfigurationWithoutChildren(id);
+            const componentTitle = store.configurationStore.selectComponentTitle(id);
+            pagePresentationUtil.dragPreviewNode.innerHTML = componentTitle;
+            pagePresentationUtil.dragPreviewNode.classList.remove('hidden');
+            dataTransfer.setDragImage(pagePresentationUtil.dragPreviewNode, 0, 0);
+            if (conf) {
+              dataTransfer.setData('Text', JSON.stringify(conf));
+            }
+            currentConf = _.cloneDeep(conf);
+          },
+          onAdd: async (evt: Sortable.SortableEvent) => {
+            const dragEvt: DragEvent = (evt as any).originalEvent;
+            const containerSlotProperty: string = evt.to.getAttribute('data-dynamic-component-container');
+            const confStr = dragEvt.dataTransfer.getData('Text');
+            if (!confStr) { return; }
+            const conf: IComponentConfiguration = JSON.parse(confStr);
+            if (conf.id) { return; }
+            const matchedSlotProperties = slot.getMatchedSlotProperties(conf.type);
+            const container2SlotProperty = dom.getSlotDomProperty(evt.to);
+            if (!matchedSlotProperties.some(p => p === container2SlotProperty)) { return; }
+            conf.id = GenerateComponentId(conf.type);
+            // 新增的组件可能会有插槽组件数据,这里需要解析一下插槽配置
+            const addComponent = async (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {
+              const slotProperties = slot.getSlotProperties(subConf.type);
+              const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
+              subConf = await configurationAddingHandler.handle(subConf, parentConf, slotProperty);
+              const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
+              store.addComponent(pureConf, parentId, index, slotProperty);
+              for (const sp of slotProperties) {
+                const singleton = slot.checkSlotSingleton(subConf.type, sp);
+                let components: Array<IComponentConfiguration> = [];
+                if (subConf[sp]) {
+                  if (singleton) {
+                    components.push(subConf[sp]);
+                  } else {
+                    components = subConf[sp];
+                  }
+                }
+                if (!components.length) { continue; }
+                components.forEach((sc, idx) => {
+                  addComponent(sc, subConf.id, idx, sp);
+                });
+              }
+            };
+            addComponent(conf, componentId, evt.newIndex, containerSlotProperty);
+          },
+          onStart: (evt: Sortable.SortableEvent) => {
+            const eventData: IDynamicContainerDragDropEventData = {
+              conf: currentConf,
+              dragItem: evt.item,
+              ownContainer: evt.item.parentNode as any,
+            };
+            event.emit(EventTopicEnum.componentStartDragging, eventData);
+            const itemEl = evt.item;
+            itemEl.classList.add('dragging');
+          },
+          onEnd: (evt: Sortable.SortableEvent) => {
+            const eventData: IDynamicContainerDragDropEventData = {
+              conf: currentConf,
+              dragItem: evt.item,
+              ownContainer: evt.item.parentNode as any,
+            };
+
+            event.emit(EventTopicEnum.componentEndDragging, eventData);
+            currentConf = null;
+            const itemEl = evt.item;
+            itemEl.classList.remove('dragging');
+
+            const parentId = evt.to.getAttribute('data-dynamic-container-owner');
+            if (!parentId) { return; }
+            const containerDom: HTMLElement = evt.to as any;
+            const slotProperty: string = containerDom.getAttribute('data-dynamic-component-container');
+            const dragEvt: DragEvent = (evt as any).originalEvent;
+            const confStr = dragEvt.dataTransfer.getData('Text');
+            if (!confStr) { return; }
+            const conf: IComponentConfiguration = JSON.parse(confStr);
+            if (!conf.id) { return; }
+            const getMatchedSlotProperties = slot.getMatchedSlotProperties(conf.type);
+            const container2SlotProperty = dom.getSlotDomProperty(evt.to);
+            const cancelRemove = () => {
+              itemEl.parentElement.removeChild(itemEl);
+              evt.from.appendChild(itemEl);
+            };
+
+            if (!getMatchedSlotProperties.some(p => p === container2SlotProperty)) {
+              cancelRemove();
+              return;
+            }
+            if (evt.from !== evt.to) {
+              cancelRemove();
+              itemEl.style.display = 'none';
+            }
+            store.treeStore.moveComponent(conf.id, parentId, evt.newIndex, slotProperty);
+          },
+        });
+
+        el['sortableInstance'] = instance;
+        sortableInstances.push(instance);
+
+        const scrollDetector = (() => {
+          let lastScrollAt = Date.now();
+          let scrollTimeout = null;
+
+          const scrollDetecting = () => {
+
+            if (Date.now() - lastScrollAt > 100) {
+              event.emit(EventTopicEnum.componentContainerScrollStart);
+            }
+
+            lastScrollAt = Date.now();
+
+            if (scrollTimeout) {
+              clearTimeout(scrollTimeout);
+            }
+
+            scrollTimeout = setTimeout(function () {
+              if (Date.now() - lastScrollAt > 99) {
+                event.emit(EventTopicEnum.componentContainerScrollEnd);
+              }
+            }, 100);
+          };
+
+          return {
+            observe() {
+              el.addEventListener('scroll', scrollDetecting);
+            },
+            disconnect() {
+              el.removeEventListener('scroll', scrollDetecting);
+            },
+          };
+        })();
+
+        // 滚动监听
+        scrollDetector.observe();
+      });
+    }
+    return () => {
+      sortableInstances.forEach(ins => ins.destroy());
+      slotPropertyDoms.forEach(el => dom.unregisterComponentSlotHost(el));
+    };
+  }, []);
+
+  useEffect(() => {
+    if (activeComponentId === componentId) {
+      event.emit(EventTopicEnum.componentActiving, componentId);
+      activeEventFlag.current = true;
+      // 激活事件延后一些,为了让取消激活事件先发出
+      setTimeout(() => {
+        const evt = new CustomEvent('editor-event:active-component', { bubbles: true });
+        componentRootRef.current.dispatchEvent(evt);
+      }, 80);
+    } else if (activeEventFlag.current) {
+      const evt = new CustomEvent('editor-event:cancel-active-component', { bubbles: true });
+      componentRootRef.current.dispatchEvent(evt);
+      activeEventFlag.current = false;
+    }
+  }, [activeComponentId]);
+
+  return (
+    <div
+      className={classnames(
+        'dynamic-component',
+        'editor-dynamic-component',
+        {
+          'editor-dynamic-component--active': activeComponentId === componentId,
+        }
+      )}
+      data-dynamic-component={componentId}
+      data-dynamic-component-type={conf.type}
+      style={style}
+      ref={componentHostRef}
+    >
+      <div className='toolbar-intersecting-flag' ref={toolbarIntersectingFlagRef} />
+      <div className='dragdrop-placeholder-flag' />
+      <div className='presentation-flag presentation-flag__activated-state' />
+      <div className='presentation-flag presentation-flag__hovering-state' />
+      <div className='dragging-preview-flag' />
+      {/* 别在把其他辅助节点加在Component后面,因为设计器会根据最后一个节点获取动态组件根节点dom */}
+      <Component configuration={props.configuration} children={props['children']} />
+    </div>
+  );
+});
+
+InteractionComponentImplement.displayName = 'InteractionComponentImplement';

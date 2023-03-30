@@ -6,6 +6,7 @@ import SchemaViewer from './components/SchemaViewer';
 import ComponentToolBar, { IComponentToolBarMap } from './components/ComponentToolBar';
 import { INotification } from './models';
 import * as _ from 'lodash';
+import HierarchyIndicator from './components/HierarchyIndicator';
 
 export function ModelGalleryPluginRegister(mainModelId: string, modelLoader: IModelLoader, configurationTransfer: IConfigurationTransfer): IPluginRegister {
   return (function _ModelGalleryPluginRegister({ skeleton, event }) {
@@ -96,6 +97,24 @@ export function ComponentToolBarRegister(toolBarMap?: IComponentToolBarMap): IPl
       }
     };
   }
+}
+
+export function HierarchyIndicatorRegister(): IPluginRegister {
+  const skeletonKey = 'HIERARCHY_INDICATOR_PLUGIN';
+  return function _HierarchyIndicatorRegister({ skeleton}) {
+    return {
+      init: async () => {
+        skeleton.add({
+          key: skeletonKey,
+          area: SkeletonAreaEnum.pagePresentationFooterArea,
+          content: <HierarchyIndicator />,
+        });
+      },
+      destroy: async () => {
+        skeleton.remove(skeletonKey);
+      },
+    };
+  };
 }
 
 export * from './components/ComponentGallery';

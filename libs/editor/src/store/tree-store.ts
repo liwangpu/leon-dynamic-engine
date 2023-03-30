@@ -31,6 +31,10 @@ export const TreeStore = types.model({
       if (!self.trees.has(id)) { return null; }
       return self.trees.get(id).type;
     },
+    selectComponentParentId: (id: string): string => {
+      if (!self.trees.has(id)) { return null; }
+      return self.trees.get(id).parentId;
+    },
     selectParentComponentType: (id: string): string => {
       if (!self.trees.has(id)) { return null; }
       const com = self.trees.get(id);

@@ -24,6 +24,8 @@
   .editor-dynamic-component {
     position: relative !important;
     overflow: hidden;
+    display: flex;
+    flex-flow: column nowrap;
 
     &--active {
       &>.presentation-flag__activated-state {
@@ -47,6 +49,10 @@
     &--error {
       border-style: solid;
       border-color: red;
+    }
+
+    &>:last-child {
+      flex: 1 0 auto;
     }
 
   }

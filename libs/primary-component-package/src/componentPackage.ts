@@ -50,7 +50,15 @@ export const ComponentDescriptions: IComponentDescription[] = [
   {
     type: ComponentTypes.pagination,
     title: '分页器'
-  }
+  },
+  {
+    type: ComponentTypes.tabs,
+    title: '多页签'
+  },
+  {
+    type: ComponentTypes.tab,
+    title: '页签'
+  },
 ];
 
 const noDesignTimeComponents = new Set<ComponentTypes>([ComponentTypes.listPage, ComponentTypes.detailPage, ComponentTypes.block]);

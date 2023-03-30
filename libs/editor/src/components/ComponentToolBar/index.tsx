@@ -47,7 +47,7 @@ class ToolBar {
   private reposition(): void {
     const componentHost = this.dom.getComponentHost(this.activeComponentId);
     if (!componentHost || !this.host) { return; }
-    let rect = componentHost.getBoundingClientRect();
+    const rect = componentHost.getBoundingClientRect();
     this.host.style.top = `${rect.top}px`;
     this.host.style.left = `${rect.left + rect.width}px`;
   }
@@ -129,17 +129,17 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
           toolbar.toggleStatus(false);
         }
 
-        lastResizeAt = Date.now()
+        lastResizeAt = Date.now();
         if (resizeTimeout) {
           clearTimeout(resizeTimeout);
         }
 
-        resizeTimeout = setTimeout(function () {
+        resizeTimeout = setTimeout(() => {
           if (Date.now() - lastResizeAt > 99) {
             toolbar.toggleStatus(true);
           }
         }, 100);
-      }
+      };
 
       let obs: ResizeObserver;
       return {
@@ -149,7 +149,7 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
             obs.disconnect();
           }
           obs = new ResizeObserver(() => resizeDetecting());
-          let host = dom.getComponentHost(componentId);
+          const host = dom.getComponentHost(componentId);
           obs.observe(host);
         },
         disconnect() {
@@ -157,7 +157,7 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
             obs.disconnect();
             obs = null;
           }
-        }
+        },
       };
     })();
 

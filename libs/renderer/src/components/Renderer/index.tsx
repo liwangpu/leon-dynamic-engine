@@ -4,6 +4,7 @@ import { DynamicComponentFactoryProvider } from '../../models';
 import { createStore } from '../../store';
 import { DataStoreCollocationContext, DataStoreContext } from '../../contexts';
 import * as _ from 'lodash';
+import './index.less';
 
 export interface _RendererProps {
   schema: IProjectSchema;
