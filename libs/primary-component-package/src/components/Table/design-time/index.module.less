@@ -32,7 +32,7 @@
     }
   }
 
-  &__footer{
+  &__footer {
     padding: 4px 0 0;
   }
 
@@ -62,11 +62,8 @@
   overflow-y: hidden;
   overflow-x: auto;
 
-  :global {
-    .editor-dynamic-component {
-      position: static;
-      flex: 1;
-    }
+  &>:global(.editor-dynamic-component) {
+    flex: 1;
   }
 
   &:global(.editor-dynamic-component-container--dragging) {

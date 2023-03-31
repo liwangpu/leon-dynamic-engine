@@ -8,6 +8,7 @@ import { IComponentConfiguration } from '@lowcode-engine/core';
 export interface IComponentHierarchy {
   id: string;
   title: string;
+  type: string;
 }
 
 export const INITIAL_STATE = Object.freeze({
@@ -35,7 +36,7 @@ const EditorStore = types.model({
       while (treeStore.trees.has(currentId)) {
         const treeNode = treeStore.trees.get(currentId);
         const title = configurationStore.selectComponentTitle(treeNode.id);
-        currentNode = { id: treeNode.id, title };
+        currentNode = { id: treeNode.id, title, type: treeNode.type };
         hierarchyList.unshift(currentNode);
         currentId = treeNode.parentId;
       }

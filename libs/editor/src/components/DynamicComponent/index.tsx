@@ -28,15 +28,9 @@ export const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props
           module = await compDiscovery.loadComponentRunTimeModule(props.configuration.type, 'pc');
         }
         if (module && module.default) {
-          Component.current = EditorUIEffectWrapper(ComponentRenderWrapper(module.default));
+          Component.current = EditorUIEffectWrapper(ChildSlotProperyPatchWrapper(module.default));
           setComponentLoaded(true);
         }
-
-        // let metadataModule: { default: IComponentMetadata } = await compDiscovery.loadComponentMetadataModule(props.configuration.type);
-        // if (metadataModule && metadataModule.default) {
-        //   console.log(`metadata:`, metadataModule.default);
-
-        // }
       })();
     }
 
@@ -56,12 +50,12 @@ DynamicComponent.displayName = 'DynamicComponent';
 
 export interface ICustomRenderDynamicComponentProps {
   configuration: IComponentConfiguration;
-  children: React.ReactNode;
+  children: React.ReactNode | ((conf: IComponentConfiguration) => React.ReactNode);
 }
 
 export const DynamicComponentCustomRenderer: React.FC<ICustomRenderDynamicComponentProps> = observer(props => {
 
-  const Wrapper: React.FC<ICustomRenderDynamicComponentProps> = useMemo(() => EditorUIEffectWrapper(ComponentRenderWrapper(ChildrenContentWrapper)), []);
+  const Wrapper: React.FC<ICustomRenderDynamicComponentProps> = useMemo(() => EditorUIEffectWrapper(ChildSlotProperyPatchWrapper(ChildrenContentWrapper)) as any, []);
   return (
     <Wrapper configuration={props.configuration} children={props.children} />
   );
@@ -73,14 +67,14 @@ const ChildrenContentWrapper: React.FC<ICustomRenderDynamicComponentProps> = obs
 
   return (
     <>
-      {props.children}
+      {_.isFunction(props.children) ? props.children(props.configuration) : props.children}
     </>
   );
 });
 
 ChildrenContentWrapper.displayName = 'ChildrenContentWrapper';
 
-const ComponentRenderWrapper = (Component: ComponentType<any>) => {
+const ChildSlotProperyPatchWrapper = (Component: ComponentType<any>) => {
 
   const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
     const conf = { ...props.configuration };
@@ -102,9 +96,11 @@ const ComponentRenderWrapper = (Component: ComponentType<any>) => {
     }
 
     return (
-      <Component configuration={conf} children={props['children']} options={props.options} />
+      <Component {...props} configuration={conf} />
     );
   });
+
+  wrapper.displayName = 'ChildSlotProperyPatchWrapper';
 
   return wrapper;
 };

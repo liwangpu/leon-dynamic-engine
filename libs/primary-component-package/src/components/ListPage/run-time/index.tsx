@@ -10,6 +10,7 @@ const ListPage: React.FC<IDynamicComponentProps<IPageComponentConfiguration>> = 
   const dynamicEngine = useDynamicComponentEngine();
   const navigationBack = useNavigationBack();
   const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
+  // const CustomDynamicComponent = dynamicEngine.getCustomComponentRenderFactory();
   const NavigationBack = navigationBack.getGoBackContent();
   const OperatorComponents = useMemo(() => {
     if (!conf.operators || !conf.operators.length) { return null; }

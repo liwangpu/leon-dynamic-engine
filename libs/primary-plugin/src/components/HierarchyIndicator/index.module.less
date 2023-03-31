@@ -15,12 +15,76 @@
     align-items: center;
     width: 22px;
     height: 100%;
-    // background-color: pink;
     cursor: pointer;
     font-size: 12px;
   }
 
   &__track {
     flex: 1;
+    display: flex;
+    flex-flow: row nowrap;
+    padding: 0 5px;
+    overflow-y: hidden;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
+}
+
+.hierachy-node {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 100%;
+  font-size: 12px;
+  color: var(--lce-description-color);
+  overflow: hidden;
+
+  &::after {
+    content: '/';
+    padding: 0 8px;
+  }
+
+  &--last {
+    &::after {
+      display: none;
+      content: '';
+    }
+
+    .hierachy-node__title {
+      color: black;
+    }
+  }
+
+  &__title {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    height: 24px;
+    line-height: 24px;
+    white-space: nowrap;
+    word-break: break-all;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    cursor: pointer;
+
+    &:hover {
+      color: black;
+    }
+  }
+
+}
+
+.visible-indicator {
+  width: 1px;
+  height: 22px;
+}
+
+.button-disabled {
+  color: var(--lce-placeholder-color);
+  pointer-events: none;
 }
