@@ -1,10 +1,10 @@
 import React, { memo, useContext, useEffect, useMemo } from 'react';
-import { ComponentDiscoveryContext, ComponentDiscoveryProvider, DataCenterEngineContext, DynamicComponentFactoryContext, IComponentPackage, IDataCenterEngine, IProjectSchema, useDynamicComponentEngine } from '@lowcode-engine/core';
-import { DynamicComponentFactoryProvider } from '../../models';
+import { ComponentDiscoveryContext, ComponentDiscoveryProvider, DataCenterEngineContext, DynamicComponentFactoryContext, IComponentPackage, IDataCenterEngine, IDynamicComponentFactory, IProjectSchema, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { createStore } from '../../store';
 import { DataStoreCollocationContext, DataStoreContext } from '../../contexts';
 import * as _ from 'lodash';
 import './index.less';
+import { DynamicComponent, DynamicComponentContainer } from '../DynamicComponent';
 
 export interface _RendererProps {
   schema: IProjectSchema;
@@ -14,7 +14,14 @@ export interface DynamicPageProps extends _RendererProps {
   packages: IComponentPackage[];
 }
 
-const componentFactory = DynamicComponentFactoryProvider.getInstance();
+const componentFactory: IDynamicComponentFactory = {
+  getDynamicComponentRenderFactory: () => {
+    return DynamicComponent;
+  },
+  getDynamicComponentContainerRenderFactory: () => {
+    return DynamicComponentContainer;
+  },
+};
 
 export const _Renderer: React.FC<_RendererProps> = memo(props => {
   const engine = useDynamicComponentEngine();

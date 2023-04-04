@@ -1,5 +1,6 @@
 export enum CommonSlot {
   children = 'children',
+  operators = 'operators',
 }
 
 export enum TableSlot {

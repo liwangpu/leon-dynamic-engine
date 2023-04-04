@@ -1,45 +1,41 @@
 import styles from './index.module.less';
 import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import { useNavigationBack } from '../../../hooks';
 import { IPageComponentConfiguration } from '../../../models';
+import { CommonSlot } from '../../../enums';
 
-const ListPage: React.FC<IDynamicComponentProps<IPageComponentConfiguration>> = memo(props => {
+const Page: React.FC<IDynamicComponentProps<IPageComponentConfiguration>> = memo(props => {
 
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
   const navigationBack = useNavigationBack();
-  const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
-  // const CustomDynamicComponent = dynamicEngine.getCustomComponentRenderFactory();
+  const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerRenderFactory();
   const NavigationBack = navigationBack.getGoBackContent();
-  const OperatorComponents = useMemo(() => {
-    if (!conf.operators || !conf.operators.length) { return null; }
-    return conf.operators.map(c => (<DynamicComponent key={c.id} configuration={c} />))
-  }, [conf.operators]);
-
-  const ChildrenComponents = useMemo(() => {
-    if (!conf.children || !conf.children.length) { return null; }
-    return conf.children?.map(c => (<DynamicComponent key={c.id} configuration={c} />))
-  }, [conf.children]);
 
   return (
     <div className={styles['page']}>
       <div className={styles['page__header']}>
         {NavigationBack}
         <p className={styles['page__title']}>{conf.title}</p>
-        <div className={styles['page-operators']} data-dynamic-component-container='operators' data-dynamic-container-direction='horizontal' data-dynamic-container-owner={conf.id} >
-          {OperatorComponents}
-        </div>
+        <DynamicComponentContainer
+          className={styles['page-operators']}
+          configuration={conf}
+          slot={CommonSlot.operators}
+          direction='horizontal'
+        />
       </div>
-      <div className={styles['page__content']}  >
-        <div className={styles['wrapper']} data-dynamic-component-container='children' data-dynamic-container-owner={conf.id}>
-          {ChildrenComponents}
-        </div>
+      <div className={styles['page__content']}>
+        <DynamicComponentContainer
+          className={styles['page-content-wrapper']}
+          configuration={conf}
+          slot={CommonSlot.children}
+        />
       </div>
     </div>
   );
 });
 
-ListPage.displayName = 'ListPage';
+Page.displayName = 'ListPage';
 
-export default ListPage;
+export default Page;

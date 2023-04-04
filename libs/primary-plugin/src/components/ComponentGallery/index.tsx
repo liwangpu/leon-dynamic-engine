@@ -39,7 +39,7 @@ export const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(prop
     const sortableInstances: Sortable[] = [];
     componentEls.forEach(ce => {
       // 在onStart的时候无法通过dataTransfer获取当前操作的配置信息,所有暂时先用这个方法
-      let currentConf: IComponentConfiguration | null;
+      let currentConf: Partial<IComponentConfiguration> | null;
       const instance = Sortable.create(ce.parentElement as any, {
         group: {
           name: 'dynamic-component',
@@ -58,7 +58,7 @@ export const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(prop
           const itemEl: HTMLElement = evt.item;
           if (_.isFunction(props.notification)) {
             const eventData: IDynamicContainerDragDropEventData = {
-              conf: currentConf,
+              conf: currentConf as any,
               dragItem: itemEl,
               ownContainer: itemEl.parentNode as any,
             };
@@ -71,7 +71,7 @@ export const ComponentGallery: React.FC<OptionalComponentPanelProps> = memo(prop
           itemEl.classList.remove('dragging');
           if (_.isFunction(props.notification)) {
             const eventData: IDynamicContainerDragDropEventData = {
-              conf: currentConf,
+              conf: currentConf as any,
               dragItem: itemEl,
               ownContainer: itemEl.parentNode as any,
             };

@@ -8,12 +8,16 @@ import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 
 const BUTTON_DISABLED_CLASS = styles['button-disabled'];
 
-const HierarchyIndicator: React.FC = observer(() => {
+export interface IHierarchyIndicatorProps {
+  typeIgnores?: Array<string>;
+}
+
+const HierarchyIndicator: React.FC<IHierarchyIndicatorProps> = observer(({ typeIgnores }) => {
 
   const { store } = useContext(EditorContext);
   const { interactionStore } = store;
   const { activeComponentId } = interactionStore;
-  const hierarchyList = store.selectHierarchyList(activeComponentId);
+  const hierarchyList = store.selectHierarchyList(activeComponentId, typeIgnores);
 
   const onHierarchyActive = (id: string) => {
     interactionStore.activeComponent(id);
@@ -39,7 +43,7 @@ interface IHierarchyScrollbarProps {
   onHierarchyActive(id: string): void;
 }
 
-const HierarchyScrollbar: React.FC<IHierarchyScrollbarProps> = memo(({ hierachyList, onHierarchyActive }) => {
+const HierarchyScrollbar: React.FC<IHierarchyScrollbarProps> = memo(props => {
 
   const scrollTrackRef = useRef<HTMLDivElement>();
   const leftScrollButtonRef = useRef<HTMLDivElement>();
@@ -61,24 +65,30 @@ const HierarchyScrollbar: React.FC<IHierarchyScrollbarProps> = memo(({ hierachyL
 
   const scrollToEnd = () => {
     const scrollTrack = scrollTrackRef.current;
+    if (!scrollTrack) { return; }
     if (scrollTrack.scrollWidth > scrollTrack.clientWidth) {
       scrollTrack.scrollTo({ left: scrollTrack.scrollWidth, behavior: 'smooth' });
     }
   };
 
+  const onHierarchyActive = (id: string, e: MouseEvent) => {
+    e.stopPropagation();
+    props.onHierarchyActive(id);
+  };
+
   const RenderTrack = useMemo(() => {
-    if (!hierachyList && !hierachyList.length) { return null; }
-    return hierachyList.map((item, idx, arr) => (
+    if (!props.hierachyList && !props.hierachyList.length) { return null; }
+    return props.hierachyList.map((item, idx, arr) => (
       <div className={classnames(
         styles['hierachy-node'],
         {
           [styles['hierachy-node--last']]: arr.length - 1 === idx
         }
       )} key={item.id}>
-        <p className={styles['hierachy-node__title']} title={item.title} onClick={() => onHierarchyActive(item.id)}>{item.title}</p>
+        <p className={styles['hierachy-node__title']} title={item.title} onClick={(e) => onHierarchyActive(item.id, e)}>{item.title}</p>
       </div>
     ));
-  }, [hierachyList]);
+  }, [props.hierachyList]);
 
   useLayoutEffect(() => {
 
@@ -156,16 +166,16 @@ const HierarchyScrollbar: React.FC<IHierarchyScrollbarProps> = memo(({ hierachyL
 
     scrollbarIntersectingDetector.observe();
     bodyResizeDetector.observe();
-    
+
     return () => {
       scrollbarIntersectingDetector.disconnect();
       bodyResizeDetector.disconnect();
     };
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     scrollToEnd();
-  }, [hierachyList]);
+  }, [props.hierachyList]);
 
   return (
     <div className={styles['scrollbar']}>

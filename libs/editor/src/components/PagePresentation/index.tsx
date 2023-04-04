@@ -5,6 +5,7 @@ import { _Renderer as Renderer } from '@lowcode-engine/renderer';
 import { EditorContext, PagePresentationUtilContext, PagePresentationUtilContextProvider } from '../../contexts';
 import { DynamicComponentFactoryContext, IDynamicComponentFactory } from '@lowcode-engine/core';
 import { DynamicComponentCustomRenderer, DynamicComponent } from '../DynamicComponent';
+import { DynamicComponent as DynamicComponent2, DynamicComponentContainer } from '../DynamicComponent2';
 import { filter } from 'rxjs/operators';
 import { EventTopicEnum } from '../../enums';
 import { SubSink } from 'subsink';
@@ -19,11 +20,11 @@ const COMPONENT_HOVER = 'editor-dynamic-component--hover';
 
 const componentFactory: IDynamicComponentFactory = {
   getDynamicComponentRenderFactory: () => {
-    return DynamicComponent;
+    return DynamicComponent2;
   },
-  getDynamicComponentCustomRenderFactory: () => {
-    return DynamicComponentCustomRenderer;
-  }
+  getDynamicComponentContainerRenderFactory: () => {
+    return DynamicComponentContainer;
+  },
 };
 
 const PagePresentation: React.FC = observer(() => {

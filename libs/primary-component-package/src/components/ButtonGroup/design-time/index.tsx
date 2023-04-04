@@ -1,33 +1,24 @@
 import styles from './index.module.less';
-import React, { memo, useEffect, useMemo, useRef } from 'react';
-import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
+import React, { memo, useLayoutEffect, useRef } from 'react';
+import { IDynamicComponentContainerRef, IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { Dropdown } from 'antd';
+import { CommonSlot } from '../../../enums';
+import { IButtonComponentConfiguration } from 'libs/primary-component-package/src/models';
 
 const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
-  const CustomRenderDynamicComponent = dynamicEngine.getCustomComponentRenderFactory();
+  const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
+  const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerRenderFactory();
   const hostRef = useRef<HTMLDivElement>();
   const contentRef = useRef<HTMLDivElement>();
-  const groupChildrenContainerRef = useRef<HTMLDivElement>();
-  const ChildrenComponents = useMemo(() => {
-    if (!conf.children || !conf.children.length) { return null; }
+  const groupChildrenContainerRef = useRef<IDynamicComponentContainerRef>();
 
-    return conf.children.map(c => (
-      <CustomRenderDynamicComponent configuration={c} key={c.id}>
-        <div className={styles['sub-button']}>
-          <p className={styles['sub-button__title']}>{c.title}</p>
-        </div>
-      </CustomRenderDynamicComponent>
-    ));
-  }, [conf.children]);
-
-  useEffect(() => {
-
+  useLayoutEffect(() => {
     const editorActiveDetector = (() => {
       const host = hostRef.current;
       const content = contentRef.current;
-      const groupChildrenContainer = groupChildrenContainerRef.current;
+      const groupChildrenContainer = groupChildrenContainerRef.current.getContainerRef();
 
       let cancelActiveHandler: NodeJS.Timeout;
 
@@ -42,12 +33,11 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
         content.style.top = `${rect.bottom}px`;
         content.style.left = `${rect.left - (120 - rect.width)}px`;
 
-        const evt = new CustomEvent('editor-event:component-container-unique', { bubbles: true, detail: { slots: [groupChildrenContainerRef.current] } });
+        const evt = new CustomEvent('editor-event:component-container-unique', { bubbles: true, detail: { slots: [groupChildrenContainerRef.current.getContainerRef()] } });
         groupChildrenContainer.dispatchEvent(evt);
       };
 
       const cancelActiveComponent = () => {
-        console.log(`cancel active trigger:`,);
         const evt = new CustomEvent('editor-event:cancel-component-container-unique', { bubbles: true });
         groupChildrenContainer.dispatchEvent(evt);
         cancelActiveHandler = setTimeout(() => {
@@ -81,9 +71,22 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
       <Dropdown.Button menu={{ items: [] }} size='small'>{conf.title}</Dropdown.Button>
 
       <div className={styles['button-group__content']} ref={contentRef}>
-        <div className={styles['button-container']} data-dynamic-component-container='children' data-dynamic-container-owner={conf.id} ref={groupChildrenContainerRef}>
-          {ChildrenComponents}
-        </div>
+        <DynamicComponentContainer
+          className={styles['button-container']}
+          configuration={conf}
+          slot={CommonSlot.children}
+          ref={groupChildrenContainerRef}
+        >
+          {(cs: Array<IButtonComponentConfiguration>) => {
+            return cs.map(c => (
+              <DynamicComponent key={c.id} configuration={c}>
+                <div className={styles['sub-button']}>
+                  <p className={styles['sub-button__title']}>{c.title}</p>
+                </div>
+              </DynamicComponent>
+            ));
+          }}
+        </DynamicComponentContainer>
       </div>
     </div>
   );

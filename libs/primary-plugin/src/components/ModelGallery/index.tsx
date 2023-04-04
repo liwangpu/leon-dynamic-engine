@@ -35,7 +35,7 @@ export interface IModelLoader {
 }
 
 export interface IConfigurationTransfer {
-  (data: IBusinessField | IBusinessModel): Promise<IComponentConfiguration>;
+  (data: IBusinessField | IBusinessModel): Promise<Partial<IComponentConfiguration>>;
 }
 
 export interface IModelGalleryProps {
@@ -86,7 +86,7 @@ const TitleNode: React.FC<{ field: IBusinessField; configurationTransfer: IConfi
   const ref = useRef<HTMLDivElement>();
 
   useEffect(() => {
-    let currentConf: IComponentConfiguration | null;
+    let currentConf: Partial<IComponentConfiguration> | null;
     const instance = Sortable.create(ref.current, {
       group: {
         name: 'dynamic-component',
@@ -110,7 +110,7 @@ const TitleNode: React.FC<{ field: IBusinessField; configurationTransfer: IConfi
         const itemEl: HTMLElement = evt.item;
         if (_.isFunction(notification)) {
           const eventData: IDynamicContainerDragDropEventData = {
-            conf: currentConf,
+            conf: currentConf as any,
             dragItem: itemEl,
             ownContainer: itemEl.parentNode as any,
           };
@@ -123,7 +123,7 @@ const TitleNode: React.FC<{ field: IBusinessField; configurationTransfer: IConfi
         itemEl.classList.remove('dragging');
         if (_.isFunction(notification)) {
           const eventData: IDynamicContainerDragDropEventData = {
-            conf: currentConf,
+            conf: currentConf as any,
             dragItem: itemEl,
             ownContainer: itemEl.parentNode as any,
           };

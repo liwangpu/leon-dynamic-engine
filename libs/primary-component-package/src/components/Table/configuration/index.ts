@@ -61,7 +61,7 @@ const registerMetadata: IMetadataRegister = register => {
                       name: 'features',
                       label: '表格功能',
                       data: [
-                        { value: TableFeature.serialNumberColumn, label: '序号' },
+                        // { value: TableFeature.serialNumberColumn, label: '序号' },
                         { value: TableFeature.operationColumn, label: '操作列' },
                         { value: TableFeature.pagination, label: '分页' },
                       ]

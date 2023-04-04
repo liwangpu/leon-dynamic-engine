@@ -24,6 +24,7 @@ class ToolBar {
 
   public toggleStatus(enabled: boolean): void {
     if (!this.host) { return; }
+
     if (enabled) {
       if (!this.componentIntersecting.has(this.activeComponentId) || this.componentIntersecting.get(this.activeComponentId)) {
         this.reposition();
@@ -114,7 +115,9 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
 
     subs.sink = event.message
       .pipe(filter(evt => evt.topic === EventTopicEnum.componentContainerScrollEnd))
-      .subscribe(() => toolbar.toggleStatus(true));
+      .subscribe(() => {
+        toolbar.toggleStatus(true);
+      });
 
     const componentHostResizeDetector = (() => {
       let lastResizeAt = Date.now();

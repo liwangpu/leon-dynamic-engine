@@ -21,6 +21,16 @@
 
 :global {
 
+  .component-not-defined {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 32px;
+    padding: 0 20px;
+    border: 1px solid #E5E7EC;
+    background-color: #FFF;
+  }
+
   .editor-dynamic-component {
     position: relative !important;
     overflow: hidden;
@@ -126,8 +136,19 @@
 
   .editor-dynamic-component-container {
     border: 1px solid transparent;
+    padding: 12px;
+
+    &--vertical {
+      overflow-x: hidden;
+      overflow-y: auto;
+      &>:global(.dynamic-component) {
+        margin-bottom: 10px;
+      }
+    }
 
     &--horizontal {
+      overflow-x: auto;
+      overflow-y: hidden;
       &>.editor-dynamic-component--preview.dragging {
         @s: @component-dragging-size;
         flex: 0 0 @s  !important;
@@ -139,6 +160,10 @@
         min-height: 100% !important;
         padding: 0 !important;
         border-width: 0 !important;
+      }
+
+      &>:global(.dynamic-component) {
+        margin-right: 6px;
       }
     }
 

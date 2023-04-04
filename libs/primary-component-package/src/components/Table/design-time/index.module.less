@@ -61,9 +61,11 @@
   height: 100%;
   overflow-y: hidden;
   overflow-x: auto;
+  padding: 0;
 
   &>:global(.editor-dynamic-component) {
     flex: 1;
+    margin: 0;
   }
 
   &:global(.editor-dynamic-component-container--dragging) {
@@ -155,4 +157,39 @@
 
 .pagination {
   height: 32px;
+}
+
+.operator-column {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 80px;
+  height: 100%;
+
+  &__title {
+    margin: 0;
+    padding: 0;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  &__header {
+    display: flex;
+    height: 36px;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    overflow: hidden;
+    padding: 4px 0;
+
+    &>:global(.dynamic-component) {
+      margin-bottom: 4px;
+    }
+  }
 }

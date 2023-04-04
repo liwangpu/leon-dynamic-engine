@@ -6,7 +6,7 @@ export interface ITabComponentConfiguration extends IComponentConfiguration {
 }
 
 export interface ITabsComponentConfiguration extends IComponentConfiguration {
-  activeKey?: string;
+  defaultActiveTab?: string;
   direction?: 'horizontal' | 'vertical';
   children?: Array<ITabComponentConfiguration>;
 }

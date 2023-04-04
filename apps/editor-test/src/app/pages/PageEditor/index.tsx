@@ -23,6 +23,10 @@ const buttonTypes: Array<ComponentTypes> = [
   ComponentTypes.buttonGroup
 ];
 
+const selfSlotTypes: Array<ComponentTypes> = [
+  ComponentTypes.tab
+];
+
 const formInputTypes: Array<ComponentTypes> = [
   ComponentTypes.text,
   ComponentTypes.number
@@ -62,7 +66,7 @@ const PageEditor: React.FC = memo(() => {
             slot.registerMap({
               [ComponentTypes.detailPage]: {
                 children: {
-                  rejects: [...buttonTypes, ...formInputTypes]
+                  rejects: [...buttonTypes, ...formInputTypes, ...selfSlotTypes]
                 },
                 operators: {
                   accepts: [...buttonTypes]
@@ -70,7 +74,7 @@ const PageEditor: React.FC = memo(() => {
               },
               [ComponentTypes.listPage]: {
                 children: {
-                  rejects: [...buttonTypes, ...formInputTypes]
+                  rejects: [...buttonTypes, ...formInputTypes, ...selfSlotTypes]
                 },
                 operators: {
                   accepts: [...buttonTypes]
@@ -78,7 +82,7 @@ const PageEditor: React.FC = memo(() => {
               },
               [ComponentTypes.block]: {
                 children: {
-                  rejects: [...buttonTypes]
+                  rejects: [...buttonTypes, ...selfSlotTypes]
                 }
               },
               [ComponentTypes.buttonGroup]: {
@@ -93,7 +97,7 @@ const PageEditor: React.FC = memo(() => {
               },
               [ComponentTypes.tab]: {
                 children: {
-                  // accepts: []
+                  rejects: [...buttonTypes, ...selfSlotTypes]
                 }
               },
               [ComponentTypes.table]: {
@@ -167,7 +171,7 @@ const PageEditor: React.FC = memo(() => {
                 },
               ];
 
-              conf.activeKey = conf.children[0].id;
+              conf.defaultActiveTab = conf.children[0].id;
               conf.direction = 'horizontal';
               conf.fullHeight = true;
               return conf;

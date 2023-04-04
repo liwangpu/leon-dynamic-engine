@@ -1,4 +1,5 @@
 import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
+import { CommonSlot } from '../../../enums';
 import React, { memo, useMemo } from 'react';
 import { GRID_SYSTEM_SECTION_TOTAL } from '../../../consts';
 import { IBlockComponentConfiguration } from '../../../models';
@@ -8,7 +9,7 @@ const Block: React.FC<IDynamicComponentProps<IBlockComponentConfiguration>> = me
 
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
-  const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
+  const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerRenderFactory();
 
   const gridLayoutStyle = useMemo(() => ({
     gridTemplateColumns: `repeat(${GRID_SYSTEM_SECTION_TOTAL},1fr)`,
@@ -17,18 +18,18 @@ const Block: React.FC<IDynamicComponentProps<IBlockComponentConfiguration>> = me
     gridColumnGap: '20px'
   }), []);
 
-  const ChildrenComponents = useMemo(() => {
-    return conf.children?.map(c => (<DynamicComponent key={c.id} configuration={c} />))
-  }, [conf.children]);
-
   return (
     <div className={styles['block']}>
       <div className={styles['block__header']}>
         <p className={styles['block__title']}>{conf.title}</p>
       </div>
-      <div className={styles['block__content']} style={gridLayoutStyle} data-dynamic-component-container='children' data-dynamic-container-direction='horizontal' data-dynamic-container-owner={conf.id}>
-        {ChildrenComponents}
-      </div>
+      <DynamicComponentContainer
+        className={styles['block__content']}
+        configuration={conf}
+        slot={CommonSlot.children}
+        direction='horizontal'
+        style={gridLayoutStyle}
+      />
     </div>
   );
 });

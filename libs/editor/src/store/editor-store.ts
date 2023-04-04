@@ -28,7 +28,8 @@ const EditorStore = types.model({
       const childrenIds = slots.get(slotProperty);
       return childrenIds;
     },
-    selectHierarchyList: (id: string): Array<IComponentHierarchy> => {
+    selectHierarchyList: (id: string, ignoreTypes?: Array<string>): Array<IComponentHierarchy> => {
+      const ignoreTypeSet = new Set<string>(ignoreTypes || []);
       const { treeStore, configurationStore } = self;
       const hierarchyList: Array<IComponentHierarchy> = [];
       let currentId = id;
@@ -37,7 +38,10 @@ const EditorStore = types.model({
         const treeNode = treeStore.trees.get(currentId);
         const title = configurationStore.selectComponentTitle(treeNode.id);
         currentNode = { id: treeNode.id, title, type: treeNode.type };
-        hierarchyList.unshift(currentNode);
+        if (!ignoreTypeSet.has(treeNode.type)) {
+          hierarchyList.unshift(currentNode);
+        }
+
         currentId = treeNode.parentId;
       }
       return hierarchyList;
@@ -96,9 +100,13 @@ const EditorStore = types.model({
     },
     addComponent: (config: IComponentConfiguration, parentId: string, index: number, slotProperty: string): void => {
       const componentTrees = self.treeStore.trees;
+      const parentTree = componentTrees.get(parentId);
+      if (!parentId || !parentTree) {
+        console.error(`父组件已经被删除,添加将不生效`);
+        return;
+      }
       const tree: SnapshotIn<ComponentTreeModel> = { id: config.id, type: config.type, parentId, slotProperty };
       componentTrees.set(config.id, tree);
-      const parentTree = componentTrees.get(parentId);
       const innerIds = parentTree.selectSlotComponetIds(slotProperty);
       if (!innerIds.includes(config.id)) {
         innerIds.splice(index, 0, config.id);

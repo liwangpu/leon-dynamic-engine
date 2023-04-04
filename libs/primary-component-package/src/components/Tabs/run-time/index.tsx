@@ -31,7 +31,7 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
     <div className={styles['tabs']}>
       <AntdTabs
         className='runtime-tabs'
-        defaultActiveKey={conf.activeKey}
+        defaultActiveKey={conf.defaultActiveTab}
         tabPosition={isVertical ? 'left' : 'top'}
         items={Items}
       />

@@ -99,15 +99,15 @@ export function ComponentToolBarRegister(toolBarMap?: IComponentToolBarMap): IPl
   }
 }
 
-export function HierarchyIndicatorRegister(): IPluginRegister {
+export function HierarchyIndicatorRegister(typeIgnores?: Array<string>): IPluginRegister {
   const skeletonKey = 'HIERARCHY_INDICATOR_PLUGIN';
-  return function _HierarchyIndicatorRegister({ skeleton}) {
+  return function _HierarchyIndicatorRegister({ skeleton }) {
     return {
       init: async () => {
         skeleton.add({
           key: skeletonKey,
           area: SkeletonAreaEnum.pagePresentationFooterArea,
-          content: <HierarchyIndicator />,
+          content: <HierarchyIndicator typeIgnores={typeIgnores} />,
         });
       },
       destroy: async () => {

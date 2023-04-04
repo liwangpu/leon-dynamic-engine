@@ -1,5 +1,5 @@
-import { GenerateComponentId, IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
-import React, { memo, useState, MouseEvent, useContext } from 'react';
+import { GenerateComponentId, IDynamicComponentContainerRef, IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
+import React, { memo, useState, MouseEvent, useContext, useRef, useMemo } from 'react';
 import classnames from 'classnames';
 import { ITabComponentConfiguration, ITabsComponentConfiguration } from '../../../models';
 import styles from './index.module.less';
@@ -8,33 +8,26 @@ import { PlusOutlined } from '@ant-design/icons';
 import { CommonSlot, ComponentTypes } from '../../../enums';
 import { EditorContext } from '@lowcode-engine/editor';
 
-const TabRenderOptions = {
-  disableUIInteraction: true
-};
-
 const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo(props => {
 
   const conf = props.configuration;
   const children = conf.children || [];
   const dynamicEngine = useDynamicComponentEngine();
   const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
-  const CustomRenderDynamicComponent = dynamicEngine.getCustomComponentRenderFactory();
-  const [activeKey, setActiveKey] = useState<string>(conf.activeKey || children[0]?.id);
-  const [tabLoadedMap, setTabLoadedMap] = useState<{ [key: string]: boolean }>({ [activeKey]: true });
-  const isVertical = conf.direction === 'vertical';
+  const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerRenderFactory();
+  const [activeTabId, setActiveTabId] = useState<string>(conf.defaultActiveTab || children[0]?.id);
+  const tabNavsContainerRef = useRef<IDynamicComponentContainerRef>();
+  const isVertical = conf.direction !== 'horizontal';
   const { configuration } = useContext(EditorContext);
 
-  const setTabLoadedState = (id: string) => {
-    setTabLoadedMap(prev => ({
-      ...prev,
-      [id]: true,
-    }));
-  };
+  const activeTabConf = useMemo(() => {
+    return {
+      id: activeTabId
+    };
+  }, [activeTabId]);
 
-  const activeTab = (item) => {
-    const { id } = item;
-    setActiveKey(id);
-    setTabLoadedState(id);
+  const activeTab = (tab: ITabComponentConfiguration) => {
+    setActiveTabId(tab.id);
   };
 
   const addTab = async (e: MouseEvent) => {
@@ -43,66 +36,55 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
     const tabConf: ITabComponentConfiguration = {
       id,
       type: ComponentTypes.tab,
-      title: '页签项',
+      title: `页签 ${children.length + 1}`,
     };
-    setActiveKey(id);
-    setTabLoadedMap(prev => ({
-      ...prev,
-      [id]: true,
-    }));
     await configuration.addComponent(tabConf, conf.id, children.length, CommonSlot.children);
     configuration.activeComponent(tabConf.id);
+    setTimeout(() => {
+      setActiveTabId(id);
+      tabNavsContainerRef.current.scrollToEnd();
+    }, 80);
   };
 
   const renderNavs = () => {
     return (
-      <div
+      <DynamicComponentContainer
         className={styles['navs']}
-        data-dynamic-component-container='children'
-        data-dynamic-container-direction='horizontal'
-        data-dynamic-container-owner={conf.id}
-        data-dynamic-container-drop-only="true"
+        configuration={conf}
+        slot={CommonSlot.children}
+        direction={isVertical ? 'vertical' : 'horizontal'}
+        ref={tabNavsContainerRef}
       >
-        {children.map((tabCfg, index) => {
-          const { id, title } = tabCfg;
+        {(cs: Array<ITabComponentConfiguration>) => cs.map(c => {
           return (
-            <CustomRenderDynamicComponent configuration={tabCfg} key={id}>
+            <DynamicComponent configuration={c} key={c.id}>
               <div className={classnames(
                 styles['nav'],
                 {
-                  [styles['nav--active']]: id === activeKey
+                  [styles['nav--active']]: c.id === activeTabId
                 }
               )}
-                onClick={() => activeTab(tabCfg)}
-                title={title}
+                onClick={() => activeTab(c)}
+                title={c.title}
               >
-                <p className={styles['nav__title']}>{title}</p>
+                <p className={styles['nav__title']}>{c.title}</p>
               </div>
-            </CustomRenderDynamicComponent>
+            </DynamicComponent>
           );
 
         })}
-      </div>
+      </DynamicComponentContainer>
     );
   };
 
-  const renderTabsContent = () => {
-    return children.map((tabCfg) => {
-      const { id } = tabCfg;
-      return tabLoadedMap[id] ? (
-        <div
-          key={id}
-          className={classnames(
-            styles['tab-container'],
-            {
-              [styles['tab-container--active']]: activeKey === id
-            }
-          )}
-        >
-          <DynamicComponent configuration={tabCfg} options={TabRenderOptions} />
-        </div>
-      ) : null;
-    });
+  const renderTabContent = () => {
+    return (
+      <DynamicComponentContainer
+        className={styles['tab-container']}
+        configuration={activeTabConf}
+        slot={CommonSlot.children}
+      />
+    );
   };
 
   return (
@@ -124,7 +106,7 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
         </div>
       </div>
       <div className={styles['tabs__content']}>
-        {renderTabsContent()}
+        {renderTabContent()}
       </div>
     </div>
   );

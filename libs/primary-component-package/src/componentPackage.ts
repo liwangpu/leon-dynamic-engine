@@ -61,7 +61,10 @@ export const ComponentDescriptions: IComponentDescription[] = [
   },
 ];
 
-const noDesignTimeComponents = new Set<ComponentTypes>([ComponentTypes.listPage, ComponentTypes.detailPage, ComponentTypes.block]);
+const customConfiguration = {
+  [ComponentTypes.tableOperatorColumn]: () => import(`./components/Table/configuration/table-operator-column`),
+  [ComponentTypes.tab]: () => import(`./components/Tabs/configuration/tab`),
+};
 
 export class ComponentPackage implements IComponentPackage {
 
@@ -80,7 +83,7 @@ export class ComponentPackage implements IComponentPackage {
 
   async queryComponentDescriptions(): Promise<IComponentDescription[]> {
     return ComponentDescriptions;
-  }  
+  }
 
   /**
    * 加载运行时组件模块
@@ -97,8 +100,6 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentDesignTimeModule(type: ComponentTypes, platform: string): Promise<IDesignTimePackageModule> {
-    if (noDesignTimeComponents.has(type)) { return null; }
-
     return import(`./components/${pascalFormat(type)}/design-time`);
   }
 
@@ -108,7 +109,9 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   async loadComponentConfigurationModule(type: ComponentTypes, platform: string): Promise<IConfigurationPackageModule> {
-    return DynamicConfigPanelLoader(() => import(`./components/${pascalFormat(type)}/configuration`));
+    return DynamicConfigPanelLoader(
+      customConfiguration[type] ? customConfiguration[type] : () => import(`./components/${pascalFormat(type)}/configuration`)
+    );
   }
 
 }

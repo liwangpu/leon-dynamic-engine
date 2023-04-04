@@ -64,7 +64,7 @@ const PageDetail: React.FC<PageDetailProps> = observer(props => {
 
   const onSave = useCallback(async () => {
     const formValue: IFormValue = form.getFieldsValue() as any;
-    const configuration: IComponentConfiguration = await generatePageConfiguration(formValue, businessModels);
+    const configuration = await generatePageConfiguration(formValue, businessModels);
     props.onConfirm(configuration);
   }, []);
 
@@ -208,8 +208,8 @@ PageDetail.displayName = 'PageDetail';
 
 export default PageDetail;
 
-async function generatePageConfiguration(formValue: IFormValue, models: Array<IBusinessModel>): Promise<IComponentConfiguration> {
-  const conf: IComponentConfiguration = {
+async function generatePageConfiguration(formValue: IFormValue, models: Array<IBusinessModel>): Promise<Partial<IComponentConfiguration>> {
+  const conf: Partial<IComponentConfiguration> = {
     ...formValue,
     width: '100%',
     height: '100%',

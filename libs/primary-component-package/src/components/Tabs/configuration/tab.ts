@@ -70,13 +70,13 @@ const registerMetadata: IMetadataRegister = register => {
             const { store } = editor;
             const parentId = store.treeStore.selectComponentParentId(id);
             const parentConfig = store.configurationStore.configurations.get(parentId);
-            const { origin: { activeKey } } = parentConfig as ITabsComponentConfiguration;
+            const { origin: { defaultActiveTab } } = parentConfig as ITabsComponentConfiguration;
 
             if (isDefault) {
-              if (activeKey !== id) {
+              if (defaultActiveTab !== id) {
                 editor.configuration.updateComponents([
-                  { id: parentId, activeKey: id, type: ComponentTypes.tabs },
-                  { id: activeKey, isDefault: false, type: ComponentTypes.tab },
+                  { id: parentId, defaultActiveTab: id, type: ComponentTypes.tabs },
+                  { id: defaultActiveTab, isDefault: false, type: ComponentTypes.tab },
                 ]);
               }
             } 
