@@ -1,16 +1,13 @@
 import React, { ComponentType } from 'react';
 import { IComponentConfiguration, IDynamicComponentProps } from '../models';
 
-export interface ICustomRenderOptions {
-  disableUIInteraction?: boolean;
+export interface IDynamicComponentRendererProps extends IDynamicComponentProps {
+  className?: string | Array<string> | { [name: string]: boolean };
+  children?: React.ReactNode | ((conf: IComponentConfiguration) => React.ReactNode);
+  options?: { [key: string]: any };
 }
 
-export interface IDynamicComponentCustomRenderProps {
-  configuration: IComponentConfiguration;
-  children: React.ReactNode | ((c: IComponentConfiguration) => React.ReactNode), options?: ICustomRenderOptions;
-}
-
-export interface IDynamicComponentContainerProps {
+export interface IDynamicComponentContainerRendererProps {
   configuration: Partial<IComponentConfiguration> & { id: string };
   slot: string;
   direction?: 'horizontal' | 'vertical';
@@ -20,14 +17,14 @@ export interface IDynamicComponentContainerProps {
   children?: (cs: Array<IComponentConfiguration>) => React.ReactNode;
 }
 
-export interface IDynamicComponentContainerRef {
+export interface IDynamicComponentContainerRendererRef {
   scrollToEnd(): void;
   getContainerRef(): HTMLDivElement;
 }
 
 export interface IDynamicComponentFactory {
-  getDynamicComponentRenderFactory(): ComponentType<IDynamicComponentProps>;
-  getDynamicComponentContainerRenderFactory?(): React.ForwardRefExoticComponent<IDynamicComponentContainerProps & React.RefAttributes<IDynamicComponentContainerRef>>;
+  getDynamicComponentRenderFactory(): ComponentType<IDynamicComponentRendererProps>;
+  getDynamicComponentContainerRenderFactory?(): React.ForwardRefExoticComponent<IDynamicComponentContainerRendererProps & React.RefAttributes<IDynamicComponentContainerRendererRef>>;
 }
 
 export const DynamicComponentFactoryContext = React.createContext<IDynamicComponentFactory>(null);

@@ -32,7 +32,7 @@ export const _Renderer: React.FC<_RendererProps> = memo(props => {
   };
   return (
     <>
-      {validatedSchema && <DynamicComponent configuration={props.schema} onChange={onChange} />}
+      {validatedSchema && <DynamicComponent configuration={props.schema} />}
     </>
   );
 });

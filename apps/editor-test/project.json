@@ -56,7 +56,7 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "editor-test:build",
-        "hmr": true,
+        "hmr": false,
         "port": 8102
       },
       "configurations": {

@@ -1,5 +1,5 @@
-import { GenerateComponentId, IDynamicComponentContainerRef, IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
-import React, { memo, useState, MouseEvent, useContext, useRef, useMemo } from 'react';
+import { GenerateComponentId, IDynamicComponentContainerRendererRef, IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
+import React, { memo, useState, MouseEvent, useContext, useRef, useMemo, useEffect } from 'react';
 import classnames from 'classnames';
 import { ITabComponentConfiguration, ITabsComponentConfiguration } from '../../../models';
 import styles from './index.module.less';
@@ -16,9 +16,19 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
   const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
   const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerRenderFactory();
   const [activeTabId, setActiveTabId] = useState<string>(conf.defaultActiveTab || children[0]?.id);
-  const tabNavsContainerRef = useRef<IDynamicComponentContainerRef>();
+  const tabNavsContainerRef = useRef<IDynamicComponentContainerRendererRef>();
+  const lastDefaultTabRef = useRef<string>();
   const isVertical = conf.direction !== 'horizontal';
   const { configuration } = useContext(EditorContext);
+
+  useEffect(() => {
+    const lastDefaultTab = lastDefaultTabRef.current;
+    if (lastDefaultTab && lastDefaultTab != conf.defaultActiveTab) {
+      setActiveTabId(conf.defaultActiveTab);
+    }
+
+    lastDefaultTabRef.current = conf.defaultActiveTab;
+  }, [conf.defaultActiveTab]);
 
   const activeTabConf = useMemo(() => {
     return {

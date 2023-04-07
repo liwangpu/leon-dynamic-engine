@@ -1,4 +1,4 @@
-import { ComponentDiscoveryContext, IComponentConfiguration, IDynamicComponentContainerProps, IDynamicComponentContainerRef, IDynamicComponentProps, useDataCenter } from '@lowcode-engine/core';
+import { ComponentDiscoveryContext, IComponentConfiguration, IDynamicComponentContainerRendererProps, IDynamicComponentContainerRendererRef, IDynamicComponentProps, IDynamicComponentRendererProps, useDataCenter } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect, useRef, useState, ComponentType, useImperativeHandle, useMemo, memo, forwardRef } from 'react';
 import { DataStoreContext } from '../../contexts';
@@ -7,14 +7,14 @@ import { useComponentStyle } from '../../hooks';
 import classnames from 'classnames';
 
 
-export const DynamicComponent: React.FC<IDynamicComponentProps> = memo(props => {
+export const DynamicComponent: React.FC<IDynamicComponentRendererProps> = memo(props => {
   const conf = props.configuration;
   const compDiscovery = useContext(ComponentDiscoveryContext);
   const [componentLoaded, setComponentLoaded] = useState(false);
   const Component = useRef<any>(null);
 
   useEffect(() => {
-    if (props.configuration?.type) {
+    if (conf.type) {
       (async () => {
         const module = await compDiscovery.loadComponentRunTimeModule(props.configuration.type, 'pc').then(m => {
           if (!m?.default) { return Promise.resolve(null); }
@@ -37,7 +37,7 @@ export const DynamicComponent: React.FC<IDynamicComponentProps> = memo(props => 
 
 DynamicComponent.displayName = 'DynamicComponent';
 
-export const DynamicComponentContainer = memo(forwardRef<IDynamicComponentContainerRef, IDynamicComponentContainerProps>((props, ref) => {
+export const DynamicComponentContainer = memo(forwardRef<IDynamicComponentContainerRendererRef, IDynamicComponentContainerRendererProps>((props, ref) => {
   const { configuration, children: CustomSlotRenderer, direction, className, dropOnly, slot: slotProperty, style } = props;
   const componentId = configuration.id;
   const horizontal = direction === 'horizontal';
@@ -95,7 +95,7 @@ export const DynamicComponentContainer = memo(forwardRef<IDynamicComponentContai
       data-dynamic-component-container={slotProperty}
       data-dynamic-container-direction={direction || 'horizontal'}
       data-dynamic-container-owner={componentId}
-      data-dynamic-container-drop-only={_.isNil(dropOnly) ? `${dropOnly}` : 'false'}
+      data-dynamic-container-drop-only={_.isNil(dropOnly) ? 'false' : `${dropOnly}`}
     >
       {_.isFunction(CustomSlotRenderer) ?
         CustomSlotRenderer(childrenConfs) : (

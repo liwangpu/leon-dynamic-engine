@@ -1,6 +1,6 @@
 import { ComponentDiscoveryProvider, IComponentDiscovery, IComponentPackage } from '@lowcode-engine/core';
 import { createStore, EditorStoreModel } from '../store';
-import { ConfigurationAddingHandlerManager } from './configuration-handler-manager';
+import { ConfigurationAddingHandlerManager, IConfigurationAddingHandlerManager, IConfigurationDeleteHandlerManager, ConfigurationDeleteHandlerManager } from './configuration-handler-manager';
 import { ConfigurationManager, IConfigurationManager } from './configuration-manager';
 import { DomManager, IDomManager } from './dom-manager';
 import { EditorStorage, IEditorStorage } from './editor-storage';
@@ -19,7 +19,8 @@ export interface IEditorContext {
   event: IEventManager;
   slot: ISlotManager;
   configuration: IConfigurationManager;
-  configurationAddingHandler: ConfigurationAddingHandlerManager;
+  configurationAddingHandler: IConfigurationAddingHandlerManager;
+  configurationDeleteHandler: IConfigurationDeleteHandlerManager;
 }
 
 export class EditorContextManager implements IEditorContext {
@@ -30,6 +31,7 @@ export class EditorContextManager implements IEditorContext {
   public readonly event = new EventManager(this);
   public readonly slot = new SlotManager(this);
   public readonly configurationAddingHandler = new ConfigurationAddingHandlerManager(this);
+  public readonly configurationDeleteHandler = new ConfigurationDeleteHandlerManager(this);
   public readonly storage = new EditorStorage(this);
   public readonly configuration = new ConfigurationManager(this);
   public readonly store = createStore();

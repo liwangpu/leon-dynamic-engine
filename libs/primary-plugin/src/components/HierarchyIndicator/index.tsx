@@ -1,6 +1,6 @@
 import { EditorContext } from '@lowcode-engine/editor';
 import { observer } from 'mobx-react-lite';
-import React, { memo, useContext, useEffect, useLayoutEffect, useMemo, useRef, MouseEvent } from 'react';
+import React, { memo, useContext, useLayoutEffect, useMemo, useRef, MouseEvent } from 'react';
 import styles from './index.module.less';
 import * as _ from 'lodash';
 import classnames from 'classnames';

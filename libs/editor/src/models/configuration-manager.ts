@@ -11,8 +11,9 @@ interface IConfigurationSelector {
 export interface IConfigurationManager {
   registerConfigurationSelector(filter: ISetterPanelContext, selector: IConfigurationSelector): void;
   getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector;
+  getComponent(id: string, withSlot?: boolean): IComponentConfiguration;
   addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): Promise<void>;
-  deleteComponent(id: string): void;
+  deleteComponent(id: string): Promise<boolean>;
   updateComponent(conf: Partial<IComponentConfiguration>): void;
   updateComponents(confs: Array<Partial<IComponentConfiguration>>): void;
   activeComponent(id: string): void;
@@ -24,6 +25,7 @@ export class ConfigurationManager implements IConfigurationManager {
 
   // eslint-disable-next-line no-useless-constructor
   public constructor(private context: IEditorContext) { }
+
 
   public getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector {
     // 先找最精确匹配的,如果找不到然后逐次降低优先级
@@ -45,6 +47,28 @@ export class ConfigurationManager implements IConfigurationManager {
   public registerConfigurationSelector(filter: ISetterPanelContext, selector: IConfigurationSelector): void {
     const key = ConfigurationManager.generateFilterKey(filter);
     this.selectors.set(key, selector);
+  }
+
+  public getComponent(id: string, withSlot?: boolean): IComponentConfiguration {
+    if (!id) { return null; }
+    if (!this.context.store.treeStore.trees.has(id)) {
+      return null;
+    }
+    const conf = withSlot ? this.context.store.configurationStore.selectComponentConfigurationWithChildren(id) : this.context.store.configurationStore.selectComponentConfigurationWithoutChildren(id, true);
+
+    // 根据插槽是否是单数还是复数,修改类型
+    if (withSlot) {
+      const slotProperties = this.context.slot.getSlotProperties(conf.type);
+      for (const slotProperty of slotProperties) {
+        const values: Array<IComponentConfiguration> = conf[slotProperty];
+        if (values && values.length) {
+          if (this.context.slot.checkSlotSingleton(conf.type, slotProperty)) {
+            conf[slotProperty] = values[0];
+          }
+        }
+      }
+    }
+    return conf;
   }
 
   public async addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): Promise<void> {
@@ -77,9 +101,44 @@ export class ConfigurationManager implements IConfigurationManager {
     await addComponent(conf, parentId, index, slotProperty);
   }
 
-  public deleteComponent(id: string): void {
+  public async deleteComponent(id: string): Promise<boolean> {
+    const current = this.getComponent(id, true);
+    const currentTree = this.context.store.treeStore.trees.get(id);
+    if (!currentTree) { return false; }
+    let parent: IComponentConfiguration = this.getComponent(currentTree.parentId, true);
+    const deleteHandler = this.context.configurationDeleteHandler.getDeleteHandler({
+      typeSelector: current.type,
+      parentTypeSelector: parent?.type,
+      slotSelector: currentTree.slotProperty,
+    });
+
+    if (_.isFunction(deleteHandler)) {
+      const res = await deleteHandler(current, parent, currentTree.slotProperty);
+      const canDelete = res ? res.canDelete : true;
+      const msg = res ? res.message : '因为不满足删除条件,所以删除失败!';
+
+      if (!canDelete) {
+        if (msg) {
+          console.log(`删除提示:`, msg);
+        }
+        return false;
+      }
+    }
     this.context.store.deleteComponent(id);
     this.context.event.emit(EventTopicEnum.componentActiving, this.context.store.interactionStore.activeComponentId);
+
+    const afterDeleteHandler = this.context.configurationDeleteHandler.getAfterDeleteHandler({
+      typeSelector: current.type,
+      parentTypeSelector: parent?.type,
+      slotSelector: currentTree.slotProperty,
+    });
+    // 删除后父节点需要重新获取更新后的子节点信息
+    parent = this.getComponent(currentTree.parentId, true)
+    if (_.isFunction(afterDeleteHandler)) {
+      await afterDeleteHandler(current, parent, currentTree.slotProperty);
+    }
+
+    return true;
   }
 
   public updateComponent(conf: Partial<IComponentConfiguration>): void {

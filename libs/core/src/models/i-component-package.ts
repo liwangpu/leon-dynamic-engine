@@ -13,9 +13,7 @@ export interface IDynamicComponentProps<T = IComponentConfiguration> {
   configuration: T;
   disabled?: boolean;
   value?: any;
-  options?: { [key: string]: any };
   onChange?: (val: any) => void;
-  children?: React.ReactNode | ((conf: IComponentConfiguration) => React.ReactNode);
 }
 
 export interface IComponentConfigurationPanelProps<T = IComponentConfiguration> {

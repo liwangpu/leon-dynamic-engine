@@ -18,7 +18,6 @@ export function useEventCenter(conf: IComponentConfiguration) {
         console.warn(`事件引擎没有实施,事件将不会生效`);
         return;
       }
-      // console.log(`dispatch:`, event, data);
       return engine.dispatch(event, data);
     },
     registerAction: (action: string, executor: (data?: any) => Promise<any>) => {

@@ -15,3 +15,7 @@ export interface IButtonComponentConfiguration extends IComponentConfiguration {
     [ButtonEventType.click]: IEvent;
   };
 }
+
+export interface IButtonGroupComponentConfiguration extends IComponentConfiguration {
+  children?: Array<IButtonComponentConfiguration>;
+}

@@ -5,7 +5,6 @@ export function useDynamicComponentEngine() {
   const componentFactory = useContext(DynamicComponentFactoryContext);
   return {
     getDynamicComponentRenderFactory: componentFactory.getDynamicComponentRenderFactory,
-    // getCustomComponentRenderFactory: componentFactory.getDynamicComponentCustomRenderFactory,
     getDynamicComponentContainerRenderFactory: componentFactory.getDynamicComponentContainerRenderFactory,
   };
 }

@@ -5,7 +5,7 @@ import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/edito
 import { ComponentGalleryPluginRegister, ComponentToolBarRegister, HierarchyIndicatorRegister, IBusinessModel, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
 import PageEditorOperation from '../../components/PageEditorOperation';
 import { ComponentPackageContext } from '../../contexts';
-import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode, RegisterSetter as RegisterPrimarySetter, GridSystemSection, ITabsComponentConfiguration } from '@lowcode-engine/primary-component-package';
+import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode, RegisterSetter as RegisterPrimarySetter, GridSystemSection, ITabsComponentConfiguration, ITabComponentConfiguration } from '@lowcode-engine/primary-component-package';
 import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/component-configuration-shared';
 import { Button } from 'antd';
 import * as _ from 'lodash';
@@ -131,10 +131,11 @@ const PageEditor: React.FC = memo(() => {
         };
       },
       // 组件元数据处理管道注册插件
-      function configAddingHandlerPluginRegistry({ configurationAddingHandler }) {
+      function configAddingHandlerPluginRegistry({ configurationAddingHandler, configurationDeleteHandler, configuration }) {
         return {
           init: async () => {
 
+            // 组件添加元数据
             configurationAddingHandler.registerHandler({ parentTypeSelector: ComponentTypes.block, typeSelector: [ComponentTypes.text, ComponentTypes.number] }, async (conf) => {
               // eslint-disable-next-line no-param-reassign
               conf.gridColumnSpan = GridSystemSection['1/2'];
@@ -192,6 +193,36 @@ const PageEditor: React.FC = memo(() => {
               conf.code = GenerateShortId();
               return conf;
             });
+
+            configurationDeleteHandler.registerHandler(
+              { typeSelector: ComponentTypes.table },
+              async (current: ITabComponentConfiguration, parent: ITabsComponentConfiguration) => {
+                console.log(`current:`, current);
+                console.log(`parent:`, parent);
+              });
+
+            configurationDeleteHandler.registerHandler(
+              { typeSelector: ComponentTypes.tab },
+              async (current: ITabComponentConfiguration, parent: ITabsComponentConfiguration) => {
+                // 如果当前的页签已经已经是最后一个,那么不允许删除
+                if (parent.children.length === 1) {
+                  return {
+                    canDelete: false,
+                    message: '已经是最后一个页签了,不能执行删除',
+                  };
+                }
+              },
+              async (current: ITabComponentConfiguration, parent: ITabsComponentConfiguration) => {
+                // 如果当前的页签是默认页签,那么需要把多页签组件默认页签信息更新
+                if (current.isDefault) {
+                  const firstTab = parent.children[0];
+
+                  configuration.updateComponents([
+                    ({ id: parent.id, type: parent.type, defaultActiveTab: firstTab.id } as Partial<ITabsComponentConfiguration>),
+                    ({ id: firstTab.id, type: firstTab.type, isDefault: true } as Partial<ITabComponentConfiguration>),
+                  ]);
+                }
+              });
           },
         };
       },

@@ -1,18 +1,18 @@
 import styles from './index.module.less';
 import React, { memo, useLayoutEffect, useRef } from 'react';
-import { IDynamicComponentContainerRef, IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
+import { IDynamicComponentContainerRendererRef, IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { Dropdown } from 'antd';
 import { CommonSlot } from '../../../enums';
-import { IButtonComponentConfiguration } from 'libs/primary-component-package/src/models';
+import { IButtonComponentConfiguration, IButtonGroupComponentConfiguration } from '../../../models';
 
-const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
+const ButtonGroup: React.FC<IDynamicComponentProps<IButtonGroupComponentConfiguration>> = memo(props => {
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
   const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
   const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerRenderFactory();
   const hostRef = useRef<HTMLDivElement>();
   const contentRef = useRef<HTMLDivElement>();
-  const groupChildrenContainerRef = useRef<IDynamicComponentContainerRef>();
+  const groupChildrenContainerRef = useRef<IDynamicComponentContainerRendererRef>();
 
   useLayoutEffect(() => {
     const editorActiveDetector = (() => {
@@ -23,7 +23,6 @@ const ButtonGroup: React.FC<IDynamicComponentProps> = memo(props => {
       let cancelActiveHandler: NodeJS.Timeout;
 
       const activeComponent = () => {
-        console.log(`active trigger:`,);
         if (cancelActiveHandler) {
           clearTimeout(cancelActiveHandler);
           cancelActiveHandler = null;
