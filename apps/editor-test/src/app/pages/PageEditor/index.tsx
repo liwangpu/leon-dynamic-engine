@@ -29,6 +29,7 @@ const selfSlotTypes: Array<ComponentTypes> = [
 
 const formInputTypes: Array<ComponentTypes> = [
   ComponentTypes.text,
+  ComponentTypes.textarea,
   ComponentTypes.number
 ];
 
@@ -142,6 +143,13 @@ const PageEditor: React.FC = memo(() => {
               return conf;
             });
 
+            configurationAddingHandler.registerHandler({ parentTypeSelector: ComponentTypes.block, typeSelector: [ComponentTypes.textarea] }, async (conf) => {
+              // eslint-disable-next-line no-param-reassign
+              conf.gridColumnSpan = GridSystemSection['1/2'];
+              conf.gridRowSpan = 3;
+              return conf;
+            });
+
             configurationAddingHandler.registerHandler({ typeSelector: ComponentTypes.table }, async (conf: ITableComponentConfiguration) => {
               conf.selectionColumn = {
                 id: GenerateNestedComponentId(conf.id, ComponentTypes.tableSelectionColumn),
@@ -194,12 +202,12 @@ const PageEditor: React.FC = memo(() => {
               return conf;
             });
 
-            configurationDeleteHandler.registerHandler(
-              { typeSelector: ComponentTypes.table },
-              async (current: ITabComponentConfiguration, parent: ITabsComponentConfiguration) => {
-                console.log(`current:`, current);
-                console.log(`parent:`, parent);
-              });
+            // configurationDeleteHandler.registerHandler(
+            //   { typeSelector: ComponentTypes.table },
+            //   async (current: ITabComponentConfiguration, parent: ITabsComponentConfiguration) => {
+            //     console.log(`current:`, current);
+            //     console.log(`parent:`, parent);
+            //   });
 
             configurationDeleteHandler.registerHandler(
               { typeSelector: ComponentTypes.tab },
@@ -277,6 +285,7 @@ const PageEditor: React.FC = memo(() => {
           title: '表单项',
           components: [
             ComponentTypes.text,
+            ComponentTypes.textarea,
             ComponentTypes.number,
           ]
         },

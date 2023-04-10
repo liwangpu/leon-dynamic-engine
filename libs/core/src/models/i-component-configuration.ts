@@ -10,6 +10,7 @@ export interface IComponentConfiguration {
   // eventBindings?: IComponentEventBinding[];
   // size?: { width?: number; height?: number; };
   gridColumnSpan?: string;
+  gridRowSpan?: number;
   children?: IComponentConfiguration[];
   [key: string]: any;
 }

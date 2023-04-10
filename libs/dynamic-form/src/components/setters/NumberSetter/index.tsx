@@ -5,7 +5,7 @@ import { useSetterName } from '../../../hooks';
 
 const Setter: React.FC<INumberSetter> = memo(props => {
 
-  const { label, required, help, min, max, step } = props;
+  const { label, required, help, min, max, step, precision } = props;
   const name = useSetterName();
 
   return (
@@ -14,7 +14,7 @@ const Setter: React.FC<INumberSetter> = memo(props => {
       name={name}
       rules={[{ required, message: help }]}
     >
-      <InputNumber style={{ width: '100%' }} min={min} max={max} step={step} />
+      <InputNumber style={{ width: '100%' }} min={min} max={max} step={step} precision={precision} />
     </Form.Item>
   );
 });

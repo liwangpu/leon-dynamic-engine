@@ -65,6 +65,7 @@ export interface INumberSetter extends ISetterBase {
   min?: number;
   max?: number;
   step?: number;
+  precision?: number;
 }
 
 export interface IBooleanSetter extends ISetterBase {

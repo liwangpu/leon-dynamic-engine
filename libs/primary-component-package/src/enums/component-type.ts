@@ -4,6 +4,7 @@ export enum ComponentTypes {
   button = 'button',
   buttonGroup = 'button-group',
   text = 'text',
+  textarea = 'textarea',
   block = 'block',
   tabs = 'tabs',
   tab = 'tab',

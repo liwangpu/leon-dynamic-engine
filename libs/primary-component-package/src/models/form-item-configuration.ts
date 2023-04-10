@@ -12,6 +12,11 @@ export interface ITextComponentConfiguration extends IFormItemConfiguration {
   min?: number;
 }
 
+export interface ITextAreaComponentConfiguration extends IFormItemConfiguration {
+  max?: number;
+  min?: number;
+}
+
 export interface INumberComponentConfiguration extends IFormItemConfiguration {
   max?: number;
   min?: number;

@@ -18,6 +18,11 @@ export function useComponentStyle(conf: IComponentConfiguration) {
       }
     }
 
+    if (conf.gridRowSpan) {
+      _style['gridRow'] = `span ${conf.gridRowSpan}`;
+      _style['minHeight'] = `${conf.gridRowSpan*60}px`;
+    }
+
     if (conf.gridColumnSpan) {
       let sec = GRID_SYSTEM_SECTION_TOTAL;
       try {

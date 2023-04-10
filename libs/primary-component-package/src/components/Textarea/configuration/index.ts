@@ -5,7 +5,7 @@ import { ComponentTypes, PrimarySetterType } from '../../../enums';
 const registerMetadata: IMetadataRegister = register => {
 
   register({
-    type: ComponentTypes.text
+    type: ComponentTypes.textarea
   }, async () => {
 
     return {
@@ -54,7 +54,7 @@ const registerMetadata: IMetadataRegister = register => {
   });
 
   register({
-    type: ComponentTypes.text,
+    type: ComponentTypes.textarea,
     parentType: ComponentTypes.block,
   }, async () => {
 
@@ -98,6 +98,15 @@ const registerMetadata: IMetadataRegister = register => {
                       setter: PrimarySetterType.gridColumnSpan,
                       name: 'gridColumnSpan',
                       label: '宽度',
+                    },
+                    {
+                      key: 'gridRowSpan',
+                      setter: SetterType.number,
+                      name: 'gridRowSpan',
+                      label: '占行',
+                      min: 1,
+                      step: 1,
+                      precision: 0,
                     }
                   ],
                 },

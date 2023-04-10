@@ -28,6 +28,10 @@ export const ComponentDescriptions: IComponentDescription[] = [
     title: '文本'
   },
   {
+    type: ComponentTypes.textarea,
+    title: '多行文本'
+  },
+  {
     type: ComponentTypes.number,
     title: '数字'
   },

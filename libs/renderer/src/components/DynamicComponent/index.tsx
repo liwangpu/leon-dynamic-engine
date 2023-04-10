@@ -114,8 +114,9 @@ const DataCenterDetectorWrapper = (Component: ComponentType<IDynamicComponentPro
 
   const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
     const store = useContext(DataStoreContext);
+    const conf = props.configuration;
     const { setData } = useDataCenter();
-    const style = useComponentStyle(props.configuration);
+    const style = useComponentStyle(conf);
     const field = _.get(props, 'configuration.field');
     const value = store.data.get(field);
     const visible = store.getFieldVisible(field);
@@ -129,7 +130,11 @@ const DataCenterDetectorWrapper = (Component: ComponentType<IDynamicComponentPro
     return (
       <>
         {visible && (
-          <div className='dynamic-component' style={style} >
+          <div className='dynamic-component'
+            style={style}
+            data-dynamic-component={conf.id}
+            data-dynamic-component-type={conf.type}
+          >
             <Component configuration={props.configuration} disabled={disabled} value={value} onChange={onChange} />
           </div>
         )}

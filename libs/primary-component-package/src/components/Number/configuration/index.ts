@@ -89,7 +89,7 @@ const registerMetadata: IMetadataRegister = register => {
                       key: 'gridColumnSpan',
                       setter: PrimarySetterType.gridColumnSpan,
                       name: 'gridColumnSpan',
-                      label: '大小',
+                      label: '宽度',
                     }
                   ],
                 },
