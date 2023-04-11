@@ -33,6 +33,17 @@ const formInputTypes: Array<ComponentTypes> = [
   ComponentTypes.number
 ];
 
+const ComponentIndexTitleIncludeTypes = new Set<string>([
+  ComponentTypes.block,
+  ComponentTypes.table,
+  ComponentTypes.button,
+  ComponentTypes.buttonGroup,
+]);
+
+const GenerateComponentCode = (type: string) => {
+  return GenerateShortId(type, 8).toLocaleLowerCase().replace('-', '_');
+}
+
 const PageEditor: React.FC = memo(() => {
 
   const packages = useContext(ComponentPackageContext);
@@ -197,8 +208,21 @@ const PageEditor: React.FC = memo(() => {
             });
 
             configurationAddingHandler.registerHandler({ typeSelector: null }, async (conf) => {
+              const typeCount = configuration.getComponentTypeCount(conf.type);
               // eslint-disable-next-line no-param-reassign
-              conf.code = GenerateShortId();
+              if (!conf.code) {
+                conf.code = GenerateComponentCode(conf.type);
+              }
+              if (ComponentIndexTitleIncludeTypes.has(conf.type)) {
+                if (conf.title) {
+                  // 取出组件标题,如果后面一位不是数字,加上数字标识
+                  const lastChar = conf.title[conf.title.length - 1];
+                  const isIndex = !isNaN(parseInt(lastChar));
+                  if (!isIndex) {
+                    conf.title = `${conf.title} ${typeCount + 1}`;
+                  }
+                }
+              }
               return conf;
             });
 
@@ -209,6 +233,7 @@ const PageEditor: React.FC = memo(() => {
             //     console.log(`parent:`, parent);
             //   });
 
+            // 删除组件
             configurationDeleteHandler.registerHandler(
               { typeSelector: ComponentTypes.tab },
               async (current: ITabComponentConfiguration, parent: ITabsComponentConfiguration) => {

@@ -45,6 +45,28 @@ const registerMetadata: IMetadataRegister = register => {
                     }
                   ],
                 },
+                {
+                  key: 'collapsed',
+                  setter: SetterType.primaryHeading,
+                  label: '展开和收缩',
+                  children: [
+                    {
+                      key: 'enableCollapse',
+                      setter: SetterType.boolean,
+                      name: 'enableCollapse',
+                      label: '启用展开和收缩',
+                    },
+                    {
+                      key: 'collapsedRow',
+                      setter: SetterType.number,
+                      name: 'collapsedRow',
+                      label: '固定行数',
+                      min: 1,
+                      step: 1,
+                      precision: 0,
+                    },
+                  ],
+                }
               ]
             },
           ]

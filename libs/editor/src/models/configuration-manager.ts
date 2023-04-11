@@ -11,6 +11,7 @@ interface IConfigurationSelector {
 export interface IConfigurationManager {
   registerConfigurationSelector(filter: ISetterPanelContext, selector: IConfigurationSelector): void;
   getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector;
+  getComponentTypeCount(type: string): number;
   getComponent(id: string, withSlot?: boolean): IComponentConfiguration;
   addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): Promise<void>;
   deleteComponent(id: string): Promise<boolean>;
@@ -25,7 +26,6 @@ export class ConfigurationManager implements IConfigurationManager {
 
   // eslint-disable-next-line no-useless-constructor
   public constructor(private context: IEditorContext) { }
-
 
   public getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector {
     // 先找最精确匹配的,如果找不到然后逐次降低优先级
@@ -69,6 +69,10 @@ export class ConfigurationManager implements IConfigurationManager {
       }
     }
     return conf;
+  }
+
+  public getComponentTypeCount(type: string): number {
+    return this.context.store.treeStore.selectComponentTypeCount(type);
   }
 
   public async addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): Promise<void> {

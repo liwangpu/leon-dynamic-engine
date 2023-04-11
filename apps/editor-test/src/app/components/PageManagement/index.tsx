@@ -1,5 +1,5 @@
 import styles from './index.module.less';
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { Button, Input, Modal } from 'antd';
@@ -24,7 +24,6 @@ const PageGroupInfos = [
 
 const PageManagement: React.FC = observer(() => {
 
-  const navigate = useNavigate();
   const { businessModel } = useParams();
   const store = useContext(StoreContext);
   const pages: Array<IComponentConfiguration> = values(store.pageStore.pages) || [] as any;
@@ -33,11 +32,11 @@ const PageManagement: React.FC = observer(() => {
   const [deletedPageId, setDeletedPageId] = useState<string>(null);
 
   const onEditPage = useCallback((id: string, pageType: string) => {
-    navigate(`/app/page-editor/${businessModel}/${id}?pageType=${pageType}`);
+    window.open(`/app/page-editor/${businessModel}/${id}?pageType=${pageType}`, `page-editor@${businessModel}#${id}`);
   }, []);
 
   const onPreviewPage = useCallback((id: string) => {
-    navigate(`/app/page-preview/${businessModel}/${id}?showNav=true`);
+    window.open(`/app/page-preview/${businessModel}/${id}`, `preview-page@${businessModel}#${id}`);
   }, []);
 
   const onDeletePage = (id: string) => {
@@ -58,7 +57,7 @@ const PageManagement: React.FC = observer(() => {
   const savePage = async (page: { [key: string]: any }) => {
     closeAddingModal();
     const id = await store.pageStore.addPage(page);
-    navigate(`/app/page-editor/${businessModel}/${id}?pageType=${page['type']}`);
+    window.open(`/app/page-editor/${businessModel}/${id}?pageType=${pageType}`, `page-editor@${businessModel}#${id}`);
   };
 
   const closeAddingModal = () => {

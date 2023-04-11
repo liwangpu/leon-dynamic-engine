@@ -17,7 +17,6 @@ const PageEditorOperation: React.FC<PageOperationProps> = observer(props => {
 
   const navigate = useNavigate();
   const { pageId, businessModel } = useParams();
-
   const clear = useCallback(async () => {
     const schema = props.project.export();
     const newSchema: IProjectSchema = {
@@ -48,7 +47,7 @@ const PageEditorOperation: React.FC<PageOperationProps> = observer(props => {
   }, []);
 
   const previewPage = useCallback(() => {
-    window.open(`/app/page-preview/${businessModel}/${pageId}`, '_blank');
+    window.open(`/app/page-preview/${businessModel}/${pageId}`, `preview-page@${businessModel}#${pageId}`);
   }, []);
 
   return (

@@ -27,12 +27,10 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
     const c = conf.operatorColumn;
     return (
       <DynamicComponent configuration={c}>
-        <div className={styles['operator-column']}>
-          <div className={styles['operator-column__header']}>
-            <p className={styles['operator-column__title']}>{c.title}</p>
-          </div>
+        <div className={styles['col']}>
+          <div className={styles['col__header']}>{c.title}</div>
           <DynamicComponentContainer
-            className={styles['operator-column__content']}
+            className={styles['col__content']}
             configuration={c}
             slot={CommonSlot.children}
           />

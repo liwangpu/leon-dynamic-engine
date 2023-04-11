@@ -76,7 +76,16 @@ export const TreeStore = types.model({
       check(descendantId);
 
       return isDescendant;
-    }
+    },
+    selectComponentTypeCount: (type: string): number => {
+      let count = 0;
+      self.trees.forEach(v => {
+        if (v.type === type) {
+          count++;
+        }
+      });
+      return count;
+    },
   }))
   .actions(self => ({
     moveComponent: (id: string, parentId: string, index: number, slotProperty: string) => {
