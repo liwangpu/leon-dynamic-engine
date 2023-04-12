@@ -38,7 +38,8 @@ export const FormBuilder: React.FC<IFormBuilderProps> = memo(({ metadata, value,
   }, [children]);
 
   const valueChangeObs = useMemo(() => new Subject<any>(), []);
-  const handleChange = useCallback(_.debounce(async () => {
+
+  const handleChange = useCallback(async () => {
     let val = form.getFieldsValue();
     valueChangeObs.next(val);
     if (_.isFunction(metadata.onChange)) {
@@ -47,7 +48,7 @@ export const FormBuilder: React.FC<IFormBuilderProps> = memo(({ metadata, value,
     if (_.isFunction(onChange)) {
       onChange(val);
     }
-  }, 100), [metadata]);
+  }, [metadata]);
 
   useEffect(() => {
     if (_.isFunction(metadata.onLoad)) {

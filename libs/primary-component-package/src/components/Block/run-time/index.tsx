@@ -1,11 +1,14 @@
-import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
+import { IDynamicComponentContainerRendererRef, IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { CommonSlot } from '../../../enums';
-import React, { memo, useMemo, useState, MouseEvent, useLayoutEffect } from 'react';
+import React, { memo, useMemo, useState, MouseEvent, useLayoutEffect, useRef } from 'react';
 import { GRID_SYSTEM_SECTION_TOTAL } from '../../../consts';
 import { IBlockComponentConfiguration } from '../../../models';
 import styles from './index.module.less';
 import { UpOutlined } from '@ant-design/icons';
 import classnames from 'classnames';
+import * as _ from 'lodash';
+
+const UNIT_ROW_HEIGHT = 58;// 单位像素
 
 const Block: React.FC<IDynamicComponentProps<IBlockComponentConfiguration>> = memo(props => {
 
@@ -13,10 +16,18 @@ const Block: React.FC<IDynamicComponentProps<IBlockComponentConfiguration>> = me
   const dynamicEngine = useDynamicComponentEngine();
   const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerRenderFactory();
   const [collapsed, setCollapsed] = useState<boolean>();
-  // console.log(`block conf:`, conf);
+  const [rowCollapsed, setRowCollapsed] = useState<boolean>(false);
+  const blockContentRef = useRef<HTMLDivElement>();
+
+
   const handleCollapse = (e: MouseEvent) => {
-    e.stopPropagation();
+    if (!conf.enableCollapse) { return; }
     setCollapsed(!collapsed);
+  };
+
+  const handleRowCollapse = (e: MouseEvent) => {
+    e.stopPropagation();
+    setRowCollapsed(!rowCollapsed);
   };
 
   const gridLayoutStyle = useMemo(() => ({
@@ -26,27 +37,79 @@ const Block: React.FC<IDynamicComponentProps<IBlockComponentConfiguration>> = me
     gridColumnGap: '20px'
   }), []);
 
-  useLayoutEffect(() => {
+  const blockContentStyle = useMemo(() => {
+    const _style = {};
+    if (_.isNumber(conf.collapsedRow) && rowCollapsed) {
+      _style['maxHeight'] = `${conf.collapsedRow * UNIT_ROW_HEIGHT + (conf.collapsedRow) * 10 + 28}px`;
+    }
 
-    return () => { 
+    return _style;
+  }, [conf.collapsedRow, rowCollapsed]);
 
-    };
-  }, []);
+  // useLayoutEffect(() => {
+  //   // if (!_.isNumber(conf.collapsedRow)) { return; }
+  //   // console.log(`1:`,);
+  //   // const blockContentNode = blockContentRef.current;
+  //   // console.log(`blockContentNode:`, blockContentNode);
+
+  //   return () => {
+
+  //   };
+  // }, [conf.collapsedRow]);
+
+  const renderHeader = () => {
+    if (!conf.title && !conf.enableCollapse) {
+      return;
+    }
+    return (
+      <div className={classnames(
+        styles['block__header'],
+        {
+          [styles['block__header--collapsed-enable']]: conf.enableCollapse,
+        }
+      )} onClick={handleCollapse}>
+        <p className={styles['block__title']}>{conf.title}</p>
+        {renderToggler()}
+      </div>
+    );
+  };
 
   const renderToggler = () => {
     if (!conf.enableCollapse) { return; }
     return (
-      <div className={styles['block-toggler']} onClick={handleCollapse}>
-        <p className={styles['block-toggler__title']}>
+      <div className={styles['collapse-toggler']}>
+        {/* <p className={styles['collapse-toggler__title']}>
           {collapsed ? '展开' : '收起'}
-        </p>
+        </p> */}
         <div className={classnames(
-          styles['block-toggler__icon'],
+          styles['collapse-toggler__icon'],
           {
-            [styles['block-toggler__icon--collapsed']]: collapsed,
+            [styles['collapse-toggler__icon--collapsed']]: collapsed,
           }
         )}>
           <UpOutlined />
+        </div>
+      </div>
+    );
+  };
+
+  const renderRowToggler = () => {
+    if (!_.isNumber(conf.collapsedRow)) { return; }
+
+    return (
+      <div className={styles['row-toggler']}>
+        <div className={styles['collapse-toggler']} onClick={handleRowCollapse}>
+          <p className={styles['collapse-toggler__title']}>
+            {rowCollapsed ? '展开' : '收起'}
+          </p>
+          <div className={classnames(
+            styles['collapse-toggler__icon'],
+            {
+              [styles['collapse-toggler__icon--collapsed']]: rowCollapsed,
+            }
+          )}>
+            <UpOutlined />
+          </div>
         </div>
       </div>
     );
@@ -59,17 +122,25 @@ const Block: React.FC<IDynamicComponentProps<IBlockComponentConfiguration>> = me
         [styles['block--collapsed']]: collapsed,
       }
     )}>
-      <div className={styles['block__header']}>
-        <p className={styles['block__title']}>{conf.title}</p>
-        {renderToggler()}
+      {renderHeader()}
+      <div className={classnames(
+        styles['block__content'],
+        {
+          [styles['block__content--collapsed']]: rowCollapsed,
+        }
+      )}
+        style={blockContentStyle}
+        ref={blockContentRef}
+      >
+        <DynamicComponentContainer
+          className={styles['grid-layout-container']}
+          configuration={conf}
+          slot={CommonSlot.children}
+          direction='horizontal'
+          style={gridLayoutStyle}
+        />
+        {/* {renderRowToggler()} */}
       </div>
-      <DynamicComponentContainer
-        className={styles['block__content']}
-        configuration={conf}
-        slot={CommonSlot.children}
-        direction='horizontal'
-        style={gridLayoutStyle}
-      />
     </div>
   );
 });

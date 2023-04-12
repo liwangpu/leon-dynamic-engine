@@ -88,22 +88,25 @@ const registerMetadata: IMetadataRegister = register => {
               editor.configuration.deleteComponent(paginationId);
             }
           });
-        // 序号列功能配置切换
-        subs.sink = obs
-          .pipe(checkTableFeature(TableFeature.serialNumberColumn))
-          .subscribe((enable: boolean) => {
-            if (enable) {
-              const conf: ISerialNumberColumnComponentConfiguration = { id: serialNumberColumnId, type: ComponentTypes.tableSerialNumberColumn, title: '序号列', visible: true };
-              editor.configuration.addComponent(conf, config.id, 0, TableSlot.serialNumberColumn);
-            } else {
-              editor.configuration.deleteComponent(serialNumberColumnId);
-            }
-          });
+        // // 序号列功能配置切换
+        // subs.sink = obs
+        //   .pipe(checkTableFeature(TableFeature.serialNumberColumn))
+        //   .subscribe((enable: boolean) => {
+        //     if (enable) {
+        //       const conf: ISerialNumberColumnComponentConfiguration = { id: serialNumberColumnId, type: ComponentTypes.tableSerialNumberColumn, title: '序号列', visible: true };
+        //       editor.configuration.addComponent(conf, config.id, 0, TableSlot.serialNumberColumn);
+        //     } else {
+        //       editor.configuration.deleteComponent(serialNumberColumnId);
+        //     }
+        //   });
         // 表格操作列功能配置切换
         subs.sink = obs
           .pipe(checkTableFeature(TableFeature.operationColumn))
           .subscribe((enable: boolean) => {
             if (enable) {
+              if (editor.configuration.hasComponent(operatorColumnId)) {
+                return;
+              }
               const conf: ITableOperatorColumnComponentConfiguration = { id: operatorColumnId, type: ComponentTypes.tableOperatorColumn, title: '操作列', visible: true };
               editor.configuration.addComponent(conf, config.id, 0, TableSlot.operatorColumn);
             } else {

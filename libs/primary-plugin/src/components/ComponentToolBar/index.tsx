@@ -23,7 +23,7 @@ const ComponentToolBar: React.FC<IComponentToolBarProps> = observer(({ store, to
   const componentId = store.interactionStore.activeComponentId;
   const componentType = store.treeStore.selectComponentType(componentId);
   const componentDiscovery = useContext(ComponentDiscoveryContext);
-  const [componentTitle, setComponentTitle] = useState<string>();
+  const [componentTitle, setComponentTitle] = useState<string>('未定义');
 
   const menus = useMemo(() => {
     const arr = toolBarMap[componentType] || [ToolBarMenu.delete];
@@ -42,7 +42,9 @@ const ComponentToolBar: React.FC<IComponentToolBarProps> = observer(({ store, to
     (async () => {
       const cs = await componentDiscovery.queryComponentDescriptions();
       const c = cs.find(c => c.type === componentType);
-      setComponentTitle(c ? c.title : '未定义');
+      if (c?.title) {
+        setComponentTitle(c.title);
+      }
     })();
   }, [componentType]);
 

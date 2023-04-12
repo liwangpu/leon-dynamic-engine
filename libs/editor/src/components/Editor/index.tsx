@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { forwardRef, memo, useContext, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import styles from './index.module.less';
-import { observer } from 'mobx-react-lite';
 import * as _ from 'lodash';
 import { EditorContextManager, IEditorContext, IPlugin, IPluginRegister } from '../../models';
 import { DataStoreCollocationContext, EditorContext } from '../../contexts';
@@ -16,14 +15,21 @@ export interface IEditorProps {
   plugins?: Array<IPluginRegister>;
 };
 
-export const Editor: React.FC<IEditorProps> = observer(props => {
+export interface IEditorRef {
+  getContext(): IEditorContext;
+}
+
+export const Editor = memo(forwardRef<IEditorRef, IEditorProps>((props, ref) => {
 
   const [initialized, setInitialized] = useState(false);
   const collocationContext = useContext(DataStoreCollocationContext);
-  const editor = useMemo<IEditorContext>(() => {
-    const cxt = new EditorContextManager(props.packages);
-    return cxt;
-  }, []);
+  const editor = useMemo<IEditorContext>(() => new EditorContextManager(props.packages), []);
+
+  useImperativeHandle(ref, () => ({
+    getContext() {
+      return editor;
+    },
+  }));
 
   useEffect(() => {
     if (collocationContext) {
@@ -83,6 +89,6 @@ export const Editor: React.FC<IEditorProps> = observer(props => {
       )}
     </EditorContext.Provider >
   );
-});
+}));
 
 Editor.displayName = 'Editor';

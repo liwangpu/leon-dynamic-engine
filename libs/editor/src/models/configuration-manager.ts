@@ -13,6 +13,7 @@ export interface IConfigurationManager {
   getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector;
   getComponentTypeCount(type: string): number;
   getComponent(id: string, withSlot?: boolean): IComponentConfiguration;
+  hasComponent(id: string): boolean;
   addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): Promise<void>;
   deleteComponent(id: string): Promise<boolean>;
   updateComponent(conf: Partial<IComponentConfiguration>): void;
@@ -71,6 +72,11 @@ export class ConfigurationManager implements IConfigurationManager {
     return conf;
   }
 
+  public hasComponent(id: string): boolean {
+    if (!id) { return false; }
+    return this.context.store.treeStore.trees.has(id);
+  }
+
   public getComponentTypeCount(type: string): number {
     return this.context.store.treeStore.selectComponentTypeCount(type);
   }
@@ -78,6 +84,10 @@ export class ConfigurationManager implements IConfigurationManager {
   public async addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): Promise<void> {
     if (!conf.id) {
       conf.id = GenerateComponentId(conf.type);
+    }
+
+    if (this.hasComponent(conf.id)) {
+      return;
     }
     // 新增的组件可能会有插槽组件数据,这里需要解析一下插槽配置
     const addComponent = async (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {

@@ -6,14 +6,14 @@ import { ComponentPackageContext, StoreContext } from '../../contexts';
 import { Renderer } from '@lowcode-engine/renderer';
 import { INavigationBackContext, NavigationBackContext } from '@lowcode-engine/primary-component-package';
 import { Button } from 'antd';
-import { ArrowLeftOutlined, EditOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 import { EventActionType, EventCenterEngineContext, IEventCenterEngineContext, IOpenUrlEventAction } from '@lowcode-engine/core';
 
 const PagePreview: React.FC = observer(() => {
 
   const navigate = useNavigate();
   const { pageId, businessModel } = useParams();
-  const [search, setSearch] = useSearchParams();
+  const [search] = useSearchParams();
   const store = useContext(StoreContext);
   const packages = useContext(ComponentPackageContext);
   const schema = store.pageStore.editingPage(pageId);
@@ -24,7 +24,6 @@ const PagePreview: React.FC = observer(() => {
       return (
         <div className={styles['page-navigation']}>
           <Button type="text" icon={<ArrowLeftOutlined />} size='small' onClick={goback} >返回</Button>
-          <Button type="text" icon={<EditOutlined />} shape="circle" onClick={editoPage} />
         </div>
       );
     }
@@ -62,11 +61,12 @@ const PagePreview: React.FC = observer(() => {
   }, []);
 
   const goback = useCallback(() => {
-    navigate(`/app/business-detail/${businessModel}`);
-  }, []);
-
-  const editoPage = useCallback(() => {
-    navigate(`/app/page-editor/${businessModel}/${pageId}`);
+    if (window.opener != null && !window.opener.closed) {
+      window.close();
+    } else {
+      window.name = null;
+      navigate(`/app/business-detail/${businessModel}`);
+    }
   }, []);
 
   return (

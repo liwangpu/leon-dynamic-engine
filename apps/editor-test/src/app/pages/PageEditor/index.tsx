@@ -1,17 +1,16 @@
-import React, { memo, useCallback, useContext, useMemo } from 'react';
+import React, { memo, useCallback, useContext, useMemo, useRef } from 'react';
 import styles from './index.module.less';
 import { useLoaderData, useNavigate, useParams } from "react-router-dom";
-import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
+import { Editor, IEditorRef, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
 import { ComponentGalleryPluginRegister, ComponentToolBarRegister, HierarchyIndicatorRegister, IBusinessModel, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
-import PageEditorOperation from '../../components/PageEditorOperation';
 import { ComponentPackageContext } from '../../contexts';
-import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, ITableComponentConfiguration, TableSelectionMode, RegisterSetter as RegisterPrimarySetter, GridSystemSection, ITabsComponentConfiguration, ITabComponentConfiguration } from '@lowcode-engine/primary-component-package';
+import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, RegisterSetter as RegisterPrimarySetter, GridSystemSection, ITabsComponentConfiguration, ITabComponentConfiguration } from '@lowcode-engine/primary-component-package';
 import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/component-configuration-shared';
-import { Button } from 'antd';
+import { Button, notification } from 'antd';
 import * as _ from 'lodash';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { EventCenterEngineContext, GenerateComponentId, GenerateNestedComponentId, GenerateShortId, IComponentConfiguration, IEventCenterEngineContext } from '@lowcode-engine/core';
-import { ModelRepository } from '../../models';
+import { ArrowLeftOutlined, ClearOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
+import { GenerateComponentId, GenerateShortId, IComponentConfiguration, IProjectSchema } from '@lowcode-engine/core';
+import { ModelRepository, PageRepository } from '../../models';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
 import { IVideoPlayerComponentConfiguration } from '../../video-player';
 
@@ -47,34 +46,61 @@ const GenerateComponentCode = (type: string) => {
 const PageEditor: React.FC = memo(() => {
 
   const packages = useContext(ComponentPackageContext);
-  const { businessModel } = useParams();
+  const { pageId, businessModel } = useParams();
   const { schema } = useLoaderData() as { model: IBusinessModel, schema: IComponentConfiguration };
+  const editorRef = useRef<IEditorRef>();
   const navigate = useNavigate();
+
   const goBack = useCallback(() => {
-    navigate(`/app/business-detail/${businessModel}`);
+    if (window.opener != null && !window.opener.closed) {
+      window.close();
+    } else {
+      window.name = null;
+      navigate(`/app/business-detail/${businessModel}`);
+    }
   }, []);
 
-  const eventCenterEngineContext = useMemo<IEventCenterEngineContext>(() => {
+  const showMessage = useCallback((msg?: string) => {
+    notification.open({
+      message: '温馨提示',
+      description:
+        msg || '数据保存成功',
+      placement: 'bottomRight',
+      duration: 2.5
+    });
+  }, []);
 
-    return {
-      dispatch: async (event, data?) => {
+  const saveSchema = async () => {
+    const ctx = editorRef.current.getContext();
+    const s = ctx.project.export();
+    console.log(`schema save:`, s);
+    await PageRepository.getInstance().update(s.id, s);
+    showMessage();
+  };
 
-      },
-      registerAction: (component, action, executor) => {
-
-      },
-      deRegisterAction: (component) => {
-
-      },
+  const clearSchema = async () => {
+    const ctx = editorRef.current.getContext();
+    const schema = ctx.project.export();
+    const newSchema: IProjectSchema = {
+      ...schema,
+      children: [],
+      operators: []
     };
+    await PageRepository.getInstance().update(newSchema.id, newSchema);
+    ctx.project.import(newSchema);
+    showMessage('清空成功');
+  };
+
+  const previewPage = useCallback(() => {
+    window.open(`/app/page-preview/${businessModel}/${pageId}?showNav=true`, `preview-page@${businessModel}#${pageId}`);
   }, []);
 
   const plugins = useMemo<Array<IPluginRegister>>(() => {
     return [
       // 组件插槽相关注册插件
-      function pageOperationPluginRegistry({ slot }) {
+      ({ slot }) => {
         return {
-          init: async () => {
+          init() {
             slot.registerMap({
               [ComponentTypes.detailPage]: {
                 children: {
@@ -143,10 +169,9 @@ const PageEditor: React.FC = memo(() => {
         };
       },
       // 组件元数据处理管道注册插件
-      function configAddingHandlerPluginRegistry({ configurationAddingHandler, configurationDeleteHandler, configuration }) {
+      ({ configurationAddingHandler, configurationDeleteHandler, configuration }) => {
         return {
-          init: async () => {
-
+          init() {
             // 组件添加元数据
             configurationAddingHandler.registerHandler({ parentTypeSelector: ComponentTypes.block, typeSelector: [ComponentTypes.text, ComponentTypes.number] }, async (conf) => {
               // eslint-disable-next-line no-param-reassign
@@ -161,15 +186,15 @@ const PageEditor: React.FC = memo(() => {
               return conf;
             });
 
-            configurationAddingHandler.registerHandler({ typeSelector: ComponentTypes.table }, async (conf: ITableComponentConfiguration) => {
-              conf.selectionColumn = {
-                id: GenerateNestedComponentId(conf.id, ComponentTypes.tableSelectionColumn),
-                type: ComponentTypes.tableSelectionColumn,
-                selectionMode: TableSelectionMode.multiple,
-                title: '选择列',
-              };
-              return conf;
-            });
+            // configurationAddingHandler.registerHandler({ typeSelector: ComponentTypes.table }, async (conf: ITableComponentConfiguration) => {
+            //   conf.selectionColumn = {
+            //     id: GenerateNestedComponentId(conf.id, ComponentTypes.tableSelectionColumn),
+            //     type: ComponentTypes.tableSelectionColumn,
+            //     selectionMode: TableSelectionMode.multiple,
+            //     title: '选择列',
+            //   };
+            //   return conf;
+            // });
 
             configurationAddingHandler.registerHandler({ typeSelector: ComponentTypes.tabs }, async (conf: ITabsComponentConfiguration) => {
               conf.children = [
@@ -260,9 +285,9 @@ const PageEditor: React.FC = memo(() => {
         };
       },
       // // 组件面板配置数据选择器注册插件
-      // function configSelectorPluginRegistry({ configuration }) {
+      // ({ configuration }) => {
       //   return {
-      //     init: async () => {
+      //     init() {
       //       configuration.registerConfigurationSelector({
       //         type: ComponentTypes.listPage
       //       }, (editor, conf) => {
@@ -283,9 +308,9 @@ const PageEditor: React.FC = memo(() => {
       //   };
       // },
       // 文档模型注册插件
-      function pageProjectPluginRegistry({ project }) {
+      ({ project }) => {
         return {
-          init: async () => {
+          init() {
             project.import(schema);
           }
         };
@@ -349,10 +374,10 @@ const PageEditor: React.FC = memo(() => {
         [ComponentTypes.pagination]: [],
       }),
       // 页面返回按钮注册插件
-      function pageReturnPluginRegistry({ skeleton }) {
+      ({ skeleton }) => {
         const skeletonKey = 'EDITOR_RETURN_ST';
         return {
-          init: async () => {
+          init() {
             skeleton.add({
               key: skeletonKey,
               area: SkeletonAreaEnum.topLeftArea,
@@ -367,14 +392,20 @@ const PageEditor: React.FC = memo(() => {
         };
       },
       // 设计器保存按钮区域注册插件
-      function pageOperationPluginRegistry({ skeleton, project }) {
+      ({ skeleton }) => {
         const skeletonKey = 'PAGE_OPERATION_ST';
         return {
-          init: async () => {
+          init() {
             skeleton.add({
               key: skeletonKey,
               area: SkeletonAreaEnum.topRightArea,
-              content: <PageEditorOperation project={project} />
+              content: (
+                <div className={styles['editor-operation']}>
+                  <Button type="default" icon={<EyeOutlined />} onClick={previewPage} >预览</Button>
+                  <Button type="primary" danger icon={<ClearOutlined />} onClick={clearSchema} >清空</Button>
+                  <Button type="primary" icon={<SaveOutlined />} onClick={saveSchema} >保存</Button>
+                </div >
+              )
             });
           },
           destroy: async () => {
@@ -387,9 +418,7 @@ const PageEditor: React.FC = memo(() => {
 
   return (
     <div className={styles['page-editor']}>
-      <EventCenterEngineContext.Provider value={eventCenterEngineContext}>
-        <Editor packages={packages} plugins={plugins} />
-      </EventCenterEngineContext.Provider>
+      <Editor packages={packages} plugins={plugins} ref={editorRef} />
     </div>
   );
 });

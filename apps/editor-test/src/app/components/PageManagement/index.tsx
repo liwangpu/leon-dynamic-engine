@@ -36,7 +36,7 @@ const PageManagement: React.FC = observer(() => {
   }, []);
 
   const onPreviewPage = useCallback((id: string) => {
-    window.open(`/app/page-preview/${businessModel}/${id}`, `preview-page@${businessModel}#${id}`);
+    window.open(`/app/page-preview/${businessModel}/${id}?showNav=true`, `preview-page@${businessModel}#${id}`);
   }, []);
 
   const onDeletePage = (id: string) => {

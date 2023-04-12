@@ -45,12 +45,17 @@ class ToolBar {
     this.componentIntersecting.delete(id);
   }
 
-  private reposition(): void {
+  public reposition(): void {
     const componentHost = this.dom.getComponentHost(this.activeComponentId);
     if (!componentHost || !this.host) { return; }
     const rect = componentHost.getBoundingClientRect();
-    this.host.style.top = `${rect.top}px`;
-    this.host.style.left = `${rect.left + rect.width}px`;
+    const hostRect = this.host.getBoundingClientRect();
+    const distTop = rect.top;
+    const distLeft = rect.left + rect.width;
+    if (hostRect.top !== distTop || hostRect.left !== distLeft) {
+      this.host.style.top = `${distTop}px`;
+      this.host.style.left = `${distLeft}px`;
+    }
   }
 
 }
@@ -128,9 +133,6 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
           isFirst = false;
           return;
         }
-        if (Date.now() - lastResizeAt > 100) {
-          toolbar.toggleStatus(false);
-        }
 
         lastResizeAt = Date.now();
         if (resizeTimeout) {
@@ -139,7 +141,7 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
 
         resizeTimeout = setTimeout(() => {
           if (Date.now() - lastResizeAt > 99) {
-            toolbar.toggleStatus(true);
+            toolbar.reposition();
           }
         }, 100);
       };

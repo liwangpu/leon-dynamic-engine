@@ -25,12 +25,16 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
   const OperatorColumn = useMemo(() => {
     if (!conf.operatorColumn || !features.enableOperator) { return null; }
     const c = conf.operatorColumn;
+
     return (
       <DynamicComponent configuration={c}>
         <div className={styles['col']}>
           <div className={styles['col__header']}>{c.title}</div>
           <DynamicComponentContainer
-            className={styles['col__content']}
+            className={[
+              styles['col__content'],
+              styles['operator-column-container']
+            ]}
             configuration={c}
             slot={CommonSlot.children}
           />
@@ -97,45 +101,6 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
       />
     );
   };
-
-  // const SerialNumberColumn = useMemo(() => {
-  //   if (!features.enableSerialNumberColumn) { return null; }
-  //   if (!conf.serialNumberColumn) { return null; }
-  //   return (
-  //     <CustomRenderDynamicComponent configuration={conf.serialNumberColumn}>
-  //       <div className={classnames(
-  //         styles['custom-column'],
-  //         styles['custom-column--line-number']
-  //       )}>
-  //         <div className={classnames(
-  //           styles['col'],
-  //           'line-number-col'
-  //         )}>
-  //           <div className={styles['col__header']}>序号</div>
-  //           <div className={classnames(
-  //             styles['col__content'],
-  //             styles['col__content--data'],
-  //           )}>-</div>
-  //         </div>
-  //       </div>
-  //     </CustomRenderDynamicComponent>
-  //   )
-  // }, [conf.serialNumberColumn, features.enableSerialNumberColumn]);
-
-  // const Columns = useMemo(() => {
-  //   if (!conf.columns || !conf.columns.length) { return null; }
-  //   return conf.columns.map(c => (
-  //     <CustomRenderDynamicComponent key={c.id} configuration={c}>
-  //       <div className={styles['col']} title={c.title}>
-  //         <div className={styles['col__header']}>{c.title}</div>
-  //         <div className={classnames(
-  //           styles['col__content'],
-  //           styles['col__content--data'],
-  //         )}>-</div>
-  //       </div>
-  //     </CustomRenderDynamicComponent>
-  //   ));
-  // }, [conf.columns]);
 
   const renderColumns = () => {
     return (
