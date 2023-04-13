@@ -125,10 +125,10 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
     const scrollDetector = (() => {
       let lastScrollAt = Date.now();
       let scrollTimeout = null;
-
+      const debounceTime = 150;
       const scrollDetecting = () => {
 
-        if (Date.now() - lastScrollAt > 100) {
+        if (Date.now() - lastScrollAt > debounceTime) {
           event.emit(EventTopicEnum.componentContainerScrollStart);
         }
 
@@ -139,10 +139,10 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
         }
 
         scrollTimeout = setTimeout(function () {
-          if (Date.now() - lastScrollAt > 99) {
+          if (Date.now() - lastScrollAt > (debounceTime - 1)) {
             event.emit(EventTopicEnum.componentContainerScrollEnd);
           }
-        }, 100);
+        }, debounceTime);
       };
 
       return {

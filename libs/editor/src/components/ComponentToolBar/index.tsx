@@ -128,6 +128,7 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
       let lastResizeAt = Date.now();
       let resizeTimeout = null;
       let isFirst = true;
+      const debounceTime = 150;
       const resizeDetecting = () => {
         if (isFirst) {
           isFirst = false;
@@ -140,10 +141,10 @@ export const ComponentToolBarWrapper: React.FC = memo(() => {
         }
 
         resizeTimeout = setTimeout(() => {
-          if (Date.now() - lastResizeAt > 99) {
+          if (Date.now() - lastResizeAt > (debounceTime - 1)) {
             toolbar.reposition();
           }
-        }, 100);
+        }, debounceTime);
       };
 
       let obs: ResizeObserver;

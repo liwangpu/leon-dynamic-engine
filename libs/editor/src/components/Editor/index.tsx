@@ -29,7 +29,7 @@ export const Editor = memo(forwardRef<IEditorRef, IEditorProps>((props, ref) => 
     getContext() {
       return editor;
     },
-  }));
+  }), []);
 
   useEffect(() => {
     if (collocationContext) {

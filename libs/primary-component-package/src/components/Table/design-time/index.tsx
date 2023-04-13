@@ -28,7 +28,10 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
 
     return (
       <DynamicComponent configuration={c}>
-        <div className={styles['col']}>
+        <div className={classnames(
+          styles['col'],
+          styles['operator-column'],
+        )}>
           <div className={styles['col__header']}>{c.title}</div>
           <DynamicComponentContainer
             className={[

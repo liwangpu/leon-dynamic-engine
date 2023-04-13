@@ -6,13 +6,15 @@ import { ComponentGalleryPluginRegister, ComponentToolBarRegister, HierarchyIndi
 import { ComponentPackageContext } from '../../contexts';
 import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, RegisterSetter as RegisterPrimarySetter, GridSystemSection, ITabsComponentConfiguration, ITabComponentConfiguration } from '@lowcode-engine/primary-component-package';
 import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/component-configuration-shared';
-import { Button, notification } from 'antd';
+import { Button, Modal, notification } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined, ClearOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
-import { GenerateComponentId, GenerateShortId, IComponentConfiguration, IProjectSchema } from '@lowcode-engine/core';
+import { GenerateComponentId, GenerateShortId, IProjectSchema } from '@lowcode-engine/core';
 import { ModelRepository, PageRepository } from '../../models';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
 import { IVideoPlayerComponentConfiguration } from '../../video-player';
+
+const { confirm } = Modal;
 
 RegisterPrimarySetter();
 RegisterSharedSetter();
@@ -47,18 +49,43 @@ const PageEditor: React.FC = memo(() => {
 
   const packages = useContext(ComponentPackageContext);
   const { pageId, businessModel } = useParams();
-  const { schema } = useLoaderData() as { model: IBusinessModel, schema: IComponentConfiguration };
+  const { schema } = useLoaderData() as { model: IBusinessModel, schema: IProjectSchema };
+  const schemaRef = useRef<IProjectSchema>(schema);
   const editorRef = useRef<IEditorRef>();
   const navigate = useNavigate();
 
-  const goBack = useCallback(() => {
-    if (window.opener != null && !window.opener.closed) {
-      window.close();
-    } else {
-      window.name = null;
-      navigate(`/app/business-detail/${businessModel}`);
+  const getCurrentSchema = () => {
+    const ctx = editorRef.current.getContext();
+    return ctx.project.export();
+  };
+
+  const goBack = () => {
+    const back = () => {
+      if (window.opener != null && !window.opener.closed) {
+        window.close();
+      } else {
+        window.name = null;
+        navigate(`/app/business-detail/${businessModel}`);
+      }
+    };
+    // 退出前先看看当前有没有保存
+    const lastestSchema = schemaRef.current;
+    const currentSchema = getCurrentSchema();
+    const persistent = _.isEqual(currentSchema, lastestSchema);
+    if (persistent) {
+      return back();
     }
-  }, []);
+
+    confirm({
+      title: '温馨提示',
+      content: '页面有修改, 关闭可能使得内容丢失, 确认要关闭？',
+      okText: '确认',
+      cancelText: '取消',
+      onOk() {
+        back();
+      }
+    });
+  };
 
   const showMessage = useCallback((msg?: string) => {
     notification.open({
@@ -71,22 +98,23 @@ const PageEditor: React.FC = memo(() => {
   }, []);
 
   const saveSchema = async () => {
-    const ctx = editorRef.current.getContext();
-    const s = ctx.project.export();
+    const s = getCurrentSchema();
     console.log(`schema save:`, s);
     await PageRepository.getInstance().update(s.id, s);
+    schemaRef.current = s;
     showMessage();
   };
 
   const clearSchema = async () => {
     const ctx = editorRef.current.getContext();
-    const schema = ctx.project.export();
+    const s = getCurrentSchema();
     const newSchema: IProjectSchema = {
-      ...schema,
+      ...s,
       children: [],
       operators: []
     };
     await PageRepository.getInstance().update(newSchema.id, newSchema);
+    schemaRef.current = newSchema;
     ctx.project.import(newSchema);
     showMessage('清空成功');
   };
@@ -357,7 +385,6 @@ const PageEditor: React.FC = memo(() => {
       ModelGalleryPluginRegister(businessModel, async id => {
         return ModelRepository.getInstance().get(id);
       }, async data => {
-
         return { type: 'text', title: data.name };
       }),
       // schema源码插件
