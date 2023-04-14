@@ -14,14 +14,10 @@ export class ComponentDiscoveryProvider implements IComponentDiscovery {
   protected descriptionQueryPromise: Promise<IComponentDescription[]>;
   constructor(protected packages: Array<IComponentPackage>) { }
 
-  public async queryComponentDescriptions(): Promise<IComponentDescription[]> {
+  public async queryComponentDescriptions(): Promise<Array<IComponentDescription>> {
     if (this.loadedAllPakageDescriptions) {
       return [...this.componentDescriptionMap.values()];
     }
-
-    // if(this.descriptionQueryPromise&&this.descriptionQueryPromise.){
-
-    // }
 
     const descriptions: IComponentDescription[] = [];
     if (!this.packages || !this.packages.length) {

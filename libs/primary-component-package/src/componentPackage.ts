@@ -85,7 +85,7 @@ export class ComponentPackage implements IComponentPackage {
     return this._instance;
   }
 
-  async queryComponentDescriptions(): Promise<IComponentDescription[]> {
+  queryComponentDescriptions(): Array<IComponentDescription> {
     return ComponentDescriptions;
   }
 
