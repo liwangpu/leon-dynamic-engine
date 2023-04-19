@@ -9,7 +9,7 @@ export interface IEditorStorage {
 export class EditorStorage implements IEditorStorage {
 
   private readonly storage = new Map<string, any>();
-  public constructor(private context: IEditorContext) { }
+  public constructor(protected context: IEditorContext) { }
 
   public getItem(key: string): any {
     return this.storage.get(key);

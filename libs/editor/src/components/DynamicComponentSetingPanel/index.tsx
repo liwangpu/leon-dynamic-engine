@@ -1,5 +1,5 @@
 import { IComponentConfiguration } from '@lowcode-engine/core';
-import React, { ComponentType, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { ComponentType, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import styles from './index.module.less';
 import { Empty } from 'antd';
 import { ComponentSetterPanelContext, EditorContext, ISetterPanelContext } from '../../contexts';
@@ -11,26 +11,32 @@ export interface DynamicComponentSettingPanelProps {
   componentId: string;
 };
 
+interface PanelWrapperProps {
+  componentId: string;
+  componentType: string;
+};
+
 const DynamicComponentSettingPanel: React.FC<DynamicComponentSettingPanelProps> = observer(props => {
 
   const [panelLoaded, setPanelLoaded] = useState(false);
-  const [unRegistryConfigPanel, setUnRegistryConfigPanel] = useState(false);
+  const [ConfigPanel, setConfigPanel] = useState<ComponentType<PanelWrapperProps>>();
   const { store, componentDiscovery } = useContext(EditorContext);
   const componentType = store.treeStore.selectComponentType(props.componentId);
   const activeComponentId = store.interactionStore.activeComponentId;
-  const Component = useRef<any>(null);
 
   useEffect(() => {
     (async () => {
       const module = await componentDiscovery.loadComponentConfigurationModule(componentType, 'pc');
+
       if (module) {
-        Component.current = ConfigPanelRenderWrapper(module.default);
-        setPanelLoaded(true);
+        setConfigPanel(ConfigPanelRenderWrapper(module.default));
+        // 
       } else {
-        setUnRegistryConfigPanel(true);
+        setConfigPanel(null);
       }
+      setPanelLoaded(true);
     })();
-  }, []);
+  }, [componentType]);
 
   return (
     <div className={
@@ -41,8 +47,8 @@ const DynamicComponentSettingPanel: React.FC<DynamicComponentSettingPanelProps> 
         }
       )
     } >
-      {panelLoaded && <Component.current componentId={props.componentId} componentType={componentType} />}
-      {unRegistryConfigPanel && <div className={styles['setting-panel-container__empty-placeholder']}>
+      {panelLoaded && <ConfigPanel componentId={props.componentId} componentType={componentType} />}
+      {panelLoaded && !ConfigPanel && <div className={styles['setting-panel-container__empty-placeholder']}>
         <Empty description='没有注册组件的配置面板' />
       </div>}
     </div >
@@ -50,11 +56,6 @@ const DynamicComponentSettingPanel: React.FC<DynamicComponentSettingPanelProps> 
 });
 
 DynamicComponentSettingPanel.displayName = 'DynamicComponentSettingPanel';
-
-interface PanelWrapperProps {
-  componentId: string;
-  componentType: string;
-};
 
 // 配置面板容器
 const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => {
@@ -77,8 +78,8 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
     const configSelector = editorCtx.configuration.getConfigurationSelector(settingItemCxt);
     const value = _.isFunction(configSelector) ? _.cloneDeep(configSelector(editorCtx, conf)) : conf;
 
-    const valueChange = useCallback(_.debounce(c => {
-      const current = { ...conf, ...c };
+    const valueChange = useCallback(_.debounce(async c => {
+      let current = { ...conf, ...c };
       editorCtx.configuration.updateComponent(current);
     }, 250), []);
 

@@ -64,19 +64,13 @@ const EditorStore = types.model({
         }
       }
     },
-    deleteComponent: (componentId: string) => {
+    deleteComponent: (componentId: string, insistActive?: boolean) => {
       if (!self.treeStore.trees.has(componentId)) { return; }
       const _delete = (id: string) => {
         if (!self.treeStore.trees.has(id)) { return; }
         const tree = self.treeStore.trees.get(id);
 
         if (tree.slots) {
-          // const slotProperties = Object.keys();
-          // console.log(`slotProperties:`,slotProperties);
-          // for (let property of slotProperties) {
-          //   const componentIds = tree.slots[property];
-          //   // console.log(`title:`, property, componentIds);
-          // }
           tree.slots.forEach(v => {
             v.forEach(bid => {
               _delete(bid);
@@ -93,7 +87,12 @@ const EditorStore = types.model({
       if (currentTree.parentId) {
         const parentTree = self.treeStore.trees.get(currentTree.parentId);
         parentTree.slots.get(currentTree.slotProperty).remove(componentId);
-        self.interactionStore.activeComponent(currentTree.parentId);
+        if (self.interactionStore.activeComponentId === componentId) {
+          if (!insistActive) {
+            // 如果当前组件是激活组件,那么设置父组件为激活组件
+            self.interactionStore.activeComponent(currentTree.parentId);
+          }
+        }
       }
 
       _delete(componentId);
@@ -113,6 +112,32 @@ const EditorStore = types.model({
       }
       self.configurationStore.updateComponentConfiguration(config);
       parentTree.updateSlot(slotProperty, innerIds);
+    },
+  })).actions(self => ({
+    clearSlotComponents: (componentId: string, slots?: Array<string>) => {
+      if (!self.treeStore.trees.has(componentId)) { return; }
+      const currentTree = self.treeStore.trees.get(componentId);
+
+      // 如果slots没有定义,默认删除所有
+      const needDeleteChildComponentIds: Array<string> = [];
+      slots = slots ? slots : [];
+      currentTree.slots.forEach((ids, slotProperty) => {
+        if (slots && slots.length) {
+          if (!slots.some(s => s === slotProperty)) {
+            return;
+          }
+        }
+        ids.forEach(id => needDeleteChildComponentIds.push(id));
+        slots.push(slotProperty);
+      });
+
+      needDeleteChildComponentIds.forEach(id => {
+        self.deleteComponent(id);
+      });
+
+      slots.forEach(sp => {
+        currentTree.slots.delete(sp);
+      });
     },
   }));
 

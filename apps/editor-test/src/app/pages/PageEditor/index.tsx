@@ -9,7 +9,7 @@ import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/componen
 import { Button, Modal, notification } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined, ClearOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
-import { GenerateComponentId, GenerateShortId, IProjectSchema } from '@lowcode-engine/core';
+import { GenerateComponentId, GenerateNestedComponentId, GenerateShortId, IProjectSchema } from '@lowcode-engine/core';
 import { ModelRepository, PageRepository } from '../../models';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
 import { IVideoPlayerComponentConfiguration } from '../../video-player';
@@ -196,36 +196,36 @@ const PageEditor: React.FC = memo(() => {
           }
         };
       },
-      // 组件元数据处理管道注册插件
-      ({ configurationAddingHandler, configurationDeleteHandler, configuration }) => {
+      // 组件配置副作用注册插件
+      ({ configurationAddingHandler, configurationDeleteHandler, configurationTypeTransferHandler, configuration }) => {
         return {
           init() {
-            // 组件添加元数据
-            configurationAddingHandler.registerHandler({ parentTypeSelector: ComponentTypes.block, typeSelector: [ComponentTypes.text, ComponentTypes.number] }, async (conf) => {
+            // 添加组件副作用
+            configurationAddingHandler.registerHandler({ parentType: ComponentTypes.block, type: [ComponentTypes.text, ComponentTypes.number] }, ({ current }) => {
               // eslint-disable-next-line no-param-reassign
-              conf.gridColumnSpan = GridSystemSection['1/2'];
-              return conf;
+              current.gridColumnSpan = GridSystemSection['1/2'];
+              return current;
             });
 
-            configurationAddingHandler.registerHandler({ parentTypeSelector: ComponentTypes.block, typeSelector: [ComponentTypes.textarea] }, async (conf) => {
+            configurationAddingHandler.registerHandler({ parentType: ComponentTypes.block, type: ComponentTypes.textarea }, ({ current }) => {
               // eslint-disable-next-line no-param-reassign
-              conf.gridColumnSpan = GridSystemSection['1/2'];
-              conf.gridRowSpan = 3;
-              return conf;
+              current.gridColumnSpan = GridSystemSection['1/2'];
+              current.gridRowSpan = 3;
+              return current;
             });
 
-            // configurationAddingHandler.registerHandler({ typeSelector: ComponentTypes.table }, async (conf: ITableComponentConfiguration) => {
-            //   conf.selectionColumn = {
-            //     id: GenerateNestedComponentId(conf.id, ComponentTypes.tableSelectionColumn),
-            //     type: ComponentTypes.tableSelectionColumn,
-            //     selectionMode: TableSelectionMode.multiple,
-            //     title: '选择列',
-            //   };
-            //   return conf;
+            // configurationAddingHandler.registerHandler({ type: ComponentTypes.table }, async ({ current }) => {
+            //   // conf.selectionColumn = {
+            //   //   id: GenerateNestedComponentId(conf.id, ComponentTypes.tableSelectionColumn),
+            //   //   type: ComponentTypes.tableSelectionColumn,
+            //   //   selectionMode: TableSelectionMode.multiple,
+            //   //   title: '选择列',
+            //   // };
+            //   return current;
             // });
 
-            configurationAddingHandler.registerHandler({ typeSelector: ComponentTypes.tabs }, async (conf: ITabsComponentConfiguration) => {
-              conf.children = [
+            configurationAddingHandler.registerHandler({ type: ComponentTypes.tabs }, ({ current }: { current: ITabsComponentConfiguration }) => {
+              current.children = [
                 {
                   id: GenerateComponentId(ComponentTypes.tab),
                   type: ComponentTypes.tab,
@@ -244,52 +244,45 @@ const PageEditor: React.FC = memo(() => {
                 },
               ];
 
-              conf.defaultActiveTab = conf.children[0].id;
-              conf.direction = 'horizontal';
-              conf.fullHeight = true;
-              return conf;
+              current.defaultActiveTab = current.children[0].id;
+              current.direction = 'horizontal';
+              current.fullHeight = true;
+              return current;
             });
 
-            configurationAddingHandler.registerHandler({ typeSelector: ComponentTypes.button, parentTypeSelector: ComponentTypes.tableOperatorColumn }, async (conf: IButtonComponentConfiguration) => {
-              conf.uiType = ButtonUIType.link;
-              return conf;
+            // configurationAddingHandler.registerHandler({ type: ComponentTypes.button, parentType: ComponentTypes.tableOperatorColumn }, (conf: IButtonComponentConfiguration) => {
+            //   conf.uiType = ButtonUIType.link;
+            //   return conf;
+            // });
+
+            configurationAddingHandler.registerHandler({ type: VideoPlayerComponentTypes.videoPlayer }, ({ current }: { current: IVideoPlayerComponentConfiguration }) => {
+              current.vedioUrl = 'https://www.runoob.com/try/demo_source/movie.ogg';
+              return current;
             });
 
-            configurationAddingHandler.registerHandler({ typeSelector: VideoPlayerComponentTypes.videoPlayer }, async (conf: IVideoPlayerComponentConfiguration) => {
-              conf.vedioUrl = 'https://www.runoob.com/try/demo_source/movie.ogg';
-              return conf;
-            });
-
-            configurationAddingHandler.registerHandler({ typeSelector: null }, async (conf) => {
-              const typeCount = configuration.getComponentTypeCount(conf.type);
+            configurationAddingHandler.registerHandler({}, ({ current }) => {
+              const typeCount = configuration.getComponentTypeCount(current.type);
               // eslint-disable-next-line no-param-reassign
-              if (!conf.code) {
-                conf.code = GenerateComponentCode(conf.type);
+              if (!current.code) {
+                current.code = GenerateComponentCode(current.type);
               }
-              if (ComponentIndexTitleIncludeTypes.has(conf.type)) {
-                if (conf.title) {
+              if (ComponentIndexTitleIncludeTypes.has(current.type)) {
+                if (current.title) {
                   // 取出组件标题,如果后面一位不是数字,加上数字标识
-                  const lastChar = conf.title[conf.title.length - 1];
+                  const lastChar = current.title[current.title.length - 1];
                   const isIndex = !isNaN(parseInt(lastChar));
                   if (!isIndex) {
-                    conf.title = `${conf.title} ${typeCount + 1}`;
+                    current.title = `${current.title} ${typeCount + 1}`;
                   }
                 }
               }
-              return conf;
+              return current;
             });
-
-            // configurationDeleteHandler.registerHandler(
-            //   { typeSelector: ComponentTypes.table },
-            //   async (current: ITabComponentConfiguration, parent: ITabsComponentConfiguration) => {
-            //     console.log(`current:`, current);
-            //     console.log(`parent:`, parent);
-            //   });
 
             // 删除组件
             configurationDeleteHandler.registerHandler(
-              { typeSelector: ComponentTypes.tab },
-              async (current: ITabComponentConfiguration, parent: ITabsComponentConfiguration) => {
+              { type: ComponentTypes.tab },
+              ({ current, parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
                 // 如果当前的页签已经已经是最后一个,那么不允许删除
                 if (parent.children.length === 1) {
                   return {
@@ -298,7 +291,7 @@ const PageEditor: React.FC = memo(() => {
                   };
                 }
               },
-              async (current: ITabComponentConfiguration, parent: ITabsComponentConfiguration) => {
+              ({ current, parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
                 // 如果当前的页签是默认页签,那么需要把多页签组件默认页签信息更新
                 if (current.isDefault) {
                   const firstTab = parent.children[0];
@@ -309,6 +302,26 @@ const PageEditor: React.FC = memo(() => {
                   ]);
                 }
               });
+
+            // configurationDeleteHandler.registerHandler({
+            //   type: ComponentTypes.block,
+            //   parentType: ComponentTypes.block,
+            // }, ({ current, parent }) => {
+
+            //   return {
+            //     canDelete: false,
+            //     message: '不想给你删除',
+            //   };
+            // });
+
+            configurationTypeTransferHandler.registerHandler({
+              destType: VideoPlayerComponentTypes.videoPlayer,
+            }, ({ current }: { current: IVideoPlayerComponentConfiguration }) => {
+              current.vedioUrl = 'https://www.runoob.com/try/demo_source/movie.ogg';
+              // return { vedioUrl: 'https://www.runoob.com/try/demo_source/movie.ogg' };
+              return current;
+            });
+
           },
         };
       },

@@ -3,7 +3,7 @@ import { SharedSetterType } from '../enums';
 
 export interface IComponentSetter extends ISetterBase {
   setter: SharedSetterType.component;
-  componentFilter?: string | Array<string>;
+  componentFilter?: Array<string>;
 }
 
 export interface IComponentActionSetter extends ISetterBase {

@@ -22,16 +22,14 @@ export const DynamicComponent: React.FC<IDynamicComponentRendererProps> = observ
   const CustomRender = props.children;
   const compDiscovery = useContext(ComponentDiscoveryContext);
   const [componentLoaded, setComponentLoaded] = useState(false);
-  const [componentDefined, setComponentDefined] = useState(false);
-  const Component = useRef<React.ComponentType<IDynamicComponentRendererProps>>(null);
+  const [Component, setComponent] = useState<ComponentType<IDynamicComponentRendererProps>>();
 
   useEffect(() => {
     if (CustomRender) {
-      Component.current = EditorUIEffectWrapper(ChildSlotProperyPatchWrapper(ChildrenContentWrapper));
-      setComponentDefined(true);
+      setComponent(EditorUIEffectWrapper(ChildSlotProperyPatchWrapper(ChildrenContentWrapper)));
       setComponentLoaded(true);
     } else {
-      if (conf.type && !componentLoaded) {
+      if (conf.type) {
         (async () => {
           let module: { default: any };
           module = await loadRemoteModule(() => compDiscovery.loadComponentDesignTimeModule(props.configuration.type, 'pc'));
@@ -39,8 +37,7 @@ export const DynamicComponent: React.FC<IDynamicComponentRendererProps> = observ
             module = await loadRemoteModule(() => compDiscovery.loadComponentRunTimeModule(props.configuration.type, 'pc'));
           }
           if (module && module.default) {
-            Component.current = EditorUIEffectWrapper(ChildSlotProperyPatchWrapper(module.default));
-            setComponentDefined(true);
+            setComponent(EditorUIEffectWrapper(ChildSlotProperyPatchWrapper(module.default)));
           }
           setComponentLoaded(true);
         })();
@@ -51,8 +48,8 @@ export const DynamicComponent: React.FC<IDynamicComponentRendererProps> = observ
   return (
     <>
       {componentLoaded && (
-        componentDefined ? (
-          <Component.current {...props} />
+        Component ? (
+          <Component {...props} />
         ) : (
           <div className='component-not-defined'>组件未定义</div>
         )
@@ -214,7 +211,11 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
         const addComponent = async (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {
           const slotProperties = slot.getSlotProperties(subConf.type);
           const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
-          subConf = await configurationAddingHandler.handle(subConf, parentConf, slotProperty);
+          subConf = await configurationAddingHandler.handle({
+            current: subConf,
+            parent: parentConf,
+            slot: slotProperty,
+          });
           const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
           store.addComponent(pureConf, parentId, index, slotProperty);
           for (const sp of slotProperties) {

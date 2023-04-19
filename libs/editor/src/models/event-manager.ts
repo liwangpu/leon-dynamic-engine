@@ -25,7 +25,7 @@ export interface IEventManager {
 export class EventManager implements IEventManager {
 
   private readonly _message = new Subject<IEventMessage>();
-  public constructor(private context: IEditorContext) { }
+  public constructor(protected context: IEditorContext) { }
 
   public get message(): Observable<IEventMessage> {
     return this._message.asObservable();

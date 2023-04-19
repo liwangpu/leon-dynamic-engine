@@ -16,7 +16,7 @@ export interface IProjectManager {
 
 export class ProjectSchemaManager implements IProjectManager {
 
-  public constructor(private context: IEditorContext) { }
+  public constructor(protected context: IEditorContext) { }
 
   public import(schema: IProjectSchema): void {
     const slotPropertyMap = this.context.slot.getAllSlotProperties();

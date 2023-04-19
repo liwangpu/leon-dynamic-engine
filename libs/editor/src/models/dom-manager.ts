@@ -33,7 +33,7 @@ export interface IDomManager {
 
 export class DomManager implements IDomManager {
 
-  public constructor(private context: IEditorContext) { }
+  public constructor(protected context: IEditorContext) { }
   private readonly id2RootDomMap = new Map<string, HTMLElement>();
   private readonly rootDom2IdMap = new Map<HTMLElement, string>();
   private readonly componentSlotProperty2DomMap = new Map<string, Array<HTMLElement>>();

@@ -28,7 +28,7 @@ export class SlotManager implements ISlotManager {
   private readonly allSlotMap = new Map<string, ISlotPropertyDefinition>();
   private readonly componentMatchedSlotPropertyMap = new Map<string, Array<string>>();
   private readonly slotPropertySingletonMap = new Map<string, boolean>();
-  public constructor(private context: IEditorContext) { }
+  public constructor(protected context: IEditorContext) { }
 
 
   public checkSlotSingleton(componentType: string, slotProperty: string): boolean {

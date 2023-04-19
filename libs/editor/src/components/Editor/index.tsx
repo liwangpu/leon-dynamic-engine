@@ -23,13 +23,13 @@ export const Editor = memo(forwardRef<IEditorRef, IEditorProps>((props, ref) => 
 
   const [initialized, setInitialized] = useState(false);
   const collocationContext = useContext(DataStoreCollocationContext);
-  const editor = useMemo<IEditorContext>(() => new EditorContextManager(props.packages), []);
+  const editor = useMemo<IEditorContext>(() => new EditorContextManager(props.packages), [props.plugins]);
 
   useImperativeHandle(ref, () => ({
     getContext() {
       return editor;
     },
-  }), []);
+  }), [editor]);
 
   useEffect(() => {
     if (collocationContext) {

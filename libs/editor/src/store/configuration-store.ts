@@ -27,6 +27,10 @@ const Configuration = types.model({
       }
       const originValue = self.origin ? { ...self.origin, ...conf } : { ...conf, id: self.id };
       self.origin = originValue;
+    },
+    resetConfig: () => {
+      self.title = null;
+      self.origin = { id: self.id, type: self.type };
     }
   }));
 
@@ -109,6 +113,10 @@ export const ConfigurationStore = types.model({
       }
       conf.setConfig(config as IComponentConfiguration);
     },
+    resetConfiguration: (id: string) => {
+      let conf = self.configurations.get(id);
+      conf.resetConfig();
+    }
   }));
 
 export type ConfigurationStoreModel = Instance<typeof ConfigurationStore>;

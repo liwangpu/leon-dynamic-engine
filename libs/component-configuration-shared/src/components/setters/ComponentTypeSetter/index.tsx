@@ -1,11 +1,13 @@
 import { memo, useContext, useEffect, useState } from 'react';
 import { Form, Select } from 'antd';
-import { ISetterBase, useSetterName } from '@lowcode-engine/dynamic-form';
+import { useSetterName } from '@lowcode-engine/dynamic-form';
 import { ComponentDiscoveryContext } from '@lowcode-engine/core';
+import { IComponentSetter } from '../../../models';
+import * as _ from 'lodash';
 
-const Setter: React.FC<ISetterBase> = memo(props => {
+const Setter: React.FC<IComponentSetter> = memo(props => {
 
-  const { label, required, help, disabled } = props;
+  const { label, required, help, disabled, componentFilter } = props;
   const componentDiscovery = useContext(ComponentDiscoveryContext);
   const [options, setOptions] = useState<Array<{ value: string, label: string }>>();
   const name = useSetterName();
@@ -13,7 +15,10 @@ const Setter: React.FC<ISetterBase> = memo(props => {
   useEffect(() => {
     (async () => {
       const descriptions = await componentDiscovery.queryComponentDescriptions();
-      setOptions(descriptions.map(d => ({ value: d.type, label: d.title })));
+      setOptions(descriptions.filter(d => {
+        if (!componentFilter || !componentFilter.length) { return true; }
+        return componentFilter.some(t => t === d.type);
+      }).map(d => ({ value: d.type, label: d.title })));
     })();
   }, []);
 

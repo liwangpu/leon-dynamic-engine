@@ -21,7 +21,7 @@ export class SkeletonManager implements ISkeletonManager {
 
   public skeletonMap = new Map<string, ISkeleton>();
   public skeletonGroup: { [name in SkeletonAreaEnum]?: Set<string> } = {};
-  public constructor(private context: IEditorContext) {
+  public constructor(protected context: IEditorContext) {
     makeAutoObservable(this, {
       skeletonMap: false
     });

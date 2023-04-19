@@ -1,6 +1,6 @@
 import { ComponentDiscoveryProvider, IComponentDiscovery, IComponentPackage } from '@lowcode-engine/core';
 import { createStore, EditorStoreModel } from '../store';
-import { ConfigurationAddingHandlerManager, IConfigurationAddingHandlerManager, IConfigurationDeleteHandlerManager, ConfigurationDeleteHandlerManager } from './configuration-handler-manager';
+import { ConfigurationAddingEffectManager, IConfigurationAddingEffectManager, IConfigurationDeleteEffectManager, IConfigurationTypeTransferEffectManager, ConfigurationTypeTransferEffectManager, ConfigurationDeleteEffectManager } from './configuration-effect-manager';
 import { ConfigurationManager, IConfigurationManager } from './configuration-manager';
 import { DomManager, IDomManager } from './dom-manager';
 import { EditorStorage, IEditorStorage } from './editor-storage';
@@ -10,17 +10,37 @@ import { ISkeletonManager, SkeletonManager } from './skeleton-manager';
 import { ISlotManager, SlotManager } from './slot-manager';
 
 export interface IEditorContext {
+  /**
+   * 扩展面板管理器
+   */
   skeleton: ISkeletonManager;
+  /**
+   * 项目管理器
+   */
   project: IProjectManager;
+  /**
+   * 组件注册服务
+   */
+  componentDiscovery: IComponentDiscovery;
+  /**
+   * 事件中心管理器
+   */
+  event: IEventManager;
+  /**
+   * 插槽管理器
+   */
+  slot: ISlotManager;
+  /**
+   * 组件配置管理器
+   */
+  configuration: IConfigurationManager;
+  configurationAddingHandler: IConfigurationAddingEffectManager;
+  configurationDeleteHandler: IConfigurationDeleteEffectManager;
+  configurationTypeTransferHandler: IConfigurationTypeTransferEffectManager;
+  // 组件dom管理器
+  dom: IDomManager;
   store: EditorStoreModel;
   storage: IEditorStorage;
-  componentDiscovery: IComponentDiscovery;
-  dom: IDomManager;
-  event: IEventManager;
-  slot: ISlotManager;
-  configuration: IConfigurationManager;
-  configurationAddingHandler: IConfigurationAddingHandlerManager;
-  configurationDeleteHandler: IConfigurationDeleteHandlerManager;
 }
 
 export class EditorContextManager implements IEditorContext {
@@ -30,13 +50,28 @@ export class EditorContextManager implements IEditorContext {
   public readonly dom = new DomManager(this);
   public readonly event = new EventManager(this);
   public readonly slot = new SlotManager(this);
-  public readonly configurationAddingHandler = new ConfigurationAddingHandlerManager(this);
-  public readonly configurationDeleteHandler = new ConfigurationDeleteHandlerManager(this);
+  public readonly configurationAddingHandler = new ConfigurationAddingEffectManager(this);
+  public readonly configurationDeleteHandler = new ConfigurationDeleteEffectManager(this);
+  public readonly configurationTypeTransferHandler = new ConfigurationTypeTransferEffectManager(this);
   public readonly storage = new EditorStorage(this);
   public readonly configuration = new ConfigurationManager(this);
-  public readonly store = createStore();
-  public readonly componentDiscovery;
+  public store = createStore();
+  public componentDiscovery;
   public constructor(packages: Array<IComponentPackage>) {
     this.componentDiscovery = new ComponentDiscoveryProvider(packages);
+  }
+
+  public init(): void {
+    // public readonly skeleton = new SkeletonManager(this);
+    // public readonly project = new ProjectSchemaManager(this);
+    // public readonly dom = new DomManager(this);
+    // public readonly event = new EventManager(this);
+    // public readonly slot = new SlotManager(this);
+    // public readonly configurationAddingHandler = new ConfigurationAddingHandlerManager(this);
+    // public readonly configurationDeleteHandler = new ConfigurationDeleteHandlerManager(this);
+    // public readonly configurationTypeTransferHandler = new ConfigurationTypeTransferEffectManager(this);
+    // public readonly storage = new EditorStorage(this);
+    // public readonly configuration = new ConfigurationManager(this);
+    // public readonly store = createStore();
   }
 }

@@ -86,6 +86,23 @@ export const TreeStore = types.model({
       });
       return count;
     },
+    selectComponentTreeInfo: (id: string) => {
+      if (!self.trees.has(id)) { return null; }
+      const info: { parentId?: string; parentType?: string; slotProperty?: string; index?: number; } = {};
+
+      const current = self.trees.get(id);
+      info.slotProperty = current.slotProperty;
+      if (current.parentId) {
+        const parent = self.trees.get(current.parentId);
+        if (parent) {
+          info.index = parent.slots.get(current.slotProperty).findIndex(t => t === id);
+          info.parentId = parent.id;
+          info.parentType = parent.type
+        }
+
+      }
+      return info;
+    },
   }))
   .actions(self => ({
     moveComponent: (id: string, parentId: string, index: number, slotProperty: string) => {
@@ -120,6 +137,10 @@ export const TreeStore = types.model({
       });
       self.trees.set(conf.id, tree);
     },
+    changeComponentType: (id: string, type) => {
+      const tree = self.trees.get(id);
+      tree.type = type;
+    }
   }));
 
 export type ComponentTreeModel = Instance<typeof ComponentTree>;

@@ -2,22 +2,80 @@ import { GenerateComponentId, IComponentConfiguration } from '@lowcode-engine/co
 import { ISetterPanelContext } from '../contexts';
 import { IEditorContext } from './editor-manager';
 import * as _ from 'lodash';
-import { EventTopicEnum } from '../enums';
 
+// 组件配置面板数据切片器
 interface IConfigurationSelector {
   (editorContext: IEditorContext, conf: IComponentConfiguration): IComponentConfiguration;
 }
 
+/**
+ * 组件配置管理器
+ */
 export interface IConfigurationManager {
+  /**
+   * 设置组件配置面板数据切片器
+   * @param filter 组件所处的上下文过滤条件
+   * @param selector 数据切片器
+   */
   registerConfigurationSelector(filter: ISetterPanelContext, selector: IConfigurationSelector): void;
+  /**
+   * 获取组件配置面板数据切片器
+   * @param filter 组件所处的上下文过滤条件
+   */
   getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector;
+  /**
+   * 获取组件类型
+   * @param type 组件类型
+   */
   getComponentTypeCount(type: string): number;
+  /**
+   * 获取组件配置
+   * @param id 组件id
+   * @param withSlot 是否附带插槽子组件配置(如果带,只附带子一级)
+   */
   getComponent(id: string, withSlot?: boolean): IComponentConfiguration;
+  /**
+   * 获取组件的类型
+   * @param id 组件id
+   */
+  getComponentType(id: string): string;
+  /**
+   * 获取组件的父组件id
+   * @param id 父组件id
+   */
+  getParentId(id: string): string;
+  /**
+   * 判断是否含有组件
+   * @param id 组件id
+   */
   hasComponent(id: string): boolean;
+  /**
+   * 添加组件
+   * @param conf 组件配置 
+   * @param parentId 父组件id
+   * @param index 下标
+   * @param slotProperty 组件在父组件里面的插槽属性 
+   */
   addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): Promise<void>;
+  /**
+   * 删除组件
+   * @param id 组件id
+   */
   deleteComponent(id: string): Promise<boolean>;
-  updateComponent(conf: Partial<IComponentConfiguration>): void;
-  updateComponents(confs: Array<Partial<IComponentConfiguration>>): void;
+  /**
+   * 更新单个组件
+   * @param conf 组件配置 
+   */
+  updateComponent(conf: Partial<IComponentConfiguration>): Promise<void>;
+  /**
+   * 更新多个组件
+   * @param confs 组件配置 
+   */
+  updateComponents(confs: Array<Partial<IComponentConfiguration>>): Promise<void>;
+  /**
+   * 激活组件
+   * @param id 组件id
+   */
   activeComponent(id: string): void;
 }
 
@@ -25,8 +83,7 @@ export class ConfigurationManager implements IConfigurationManager {
 
   private readonly selectors = new Map<string, IConfigurationSelector>();
 
-  // eslint-disable-next-line no-useless-constructor
-  public constructor(private context: IEditorContext) { }
+  public constructor(protected context: IEditorContext) { }
 
   public getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector {
     // 先找最精确匹配的,如果找不到然后逐次降低优先级
@@ -81,6 +138,14 @@ export class ConfigurationManager implements IConfigurationManager {
     return this.context.store.treeStore.selectComponentTypeCount(type);
   }
 
+  public getComponentType(id: string): string {
+    return this.context.store.treeStore.selectComponentType(id);
+  }
+
+  public getParentId(id: string): string {
+    return this.context.store.treeStore.selectComponentParentId(id);
+  }
+
   public async addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): Promise<void> {
     if (!conf.id) {
       conf.id = GenerateComponentId(conf.type);
@@ -93,7 +158,11 @@ export class ConfigurationManager implements IConfigurationManager {
     const addComponent = async (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {
       const slotProperties = this.context.slot.getSlotProperties(subConf.type);
       const parentConf = this.context.store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
-      subConf = await this.context.configurationAddingHandler.handle(subConf, parentConf, slotProperty);
+      subConf = await this.context.configurationAddingHandler.handle({
+        current: subConf,
+        parent: parentConf,
+        slot: slotProperty,
+      });
       const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
       this.context.store.addComponent(pureConf, parentId, index, slotProperty);
       for (const sp of slotProperties) {
@@ -119,45 +188,60 @@ export class ConfigurationManager implements IConfigurationManager {
     const current = this.getComponent(id, true);
     const currentTree = this.context.store.treeStore.trees.get(id);
     if (!currentTree) { return false; }
+
     let parent: IComponentConfiguration = this.getComponent(currentTree.parentId, true);
-    const deleteHandler = this.context.configurationDeleteHandler.getDeleteHandler({
-      typeSelector: current.type,
-      parentTypeSelector: parent?.type,
-      slotSelector: currentTree.slotProperty,
+
+    const deleteResponse = await this.context.configurationDeleteHandler.handleDelete({
+      current,
+      parent,
+      slot: currentTree.slotProperty
     });
 
-    if (_.isFunction(deleteHandler)) {
-      const res = await deleteHandler(current, parent, currentTree.slotProperty);
-      const canDelete = res ? res.canDelete : true;
-      const msg = res ? res.message : '因为不满足删除条件,所以删除失败!';
-
-      if (!canDelete) {
-        if (msg) {
-          console.log(`删除提示:`, msg);
-        }
-        return false;
+    const canDelete = deleteResponse ? deleteResponse.canDelete : true;
+    const deleteMessage = deleteResponse ? deleteResponse.message : '因为不满足删除条件,所以删除失败!';
+    if (!canDelete) {
+      if (deleteMessage) {
+        console.log(`删除提示:`, deleteMessage);
       }
+      return false;
     }
     this.context.store.deleteComponent(id);
-    this.context.event.emit(EventTopicEnum.componentActiving, this.context.store.interactionStore.activeComponentId);
+    // this.context.event.emit(EventTopicEnum.componentActiving, this.context.store.interactionStore.activeComponentId);
 
-    const afterDeleteHandler = this.context.configurationDeleteHandler.getAfterDeleteHandler({
-      typeSelector: current.type,
-      parentTypeSelector: parent?.type,
-      slotSelector: currentTree.slotProperty,
-    });
     // 删除后父节点需要重新获取更新后的子节点信息
-    parent = this.getComponent(currentTree.parentId, true)
-    if (_.isFunction(afterDeleteHandler)) {
-      await afterDeleteHandler(current, parent, currentTree.slotProperty);
-    }
+    parent = this.getComponent(currentTree.parentId, true);
+
+    this.context.configurationDeleteHandler.handleAfterDelete({
+      current,
+      parent,
+      slot: currentTree.slotProperty
+    });
 
     return true;
   }
 
-  public updateComponent(conf: Partial<IComponentConfiguration>): void {
+  public async updateComponent(conf: Partial<IComponentConfiguration>): Promise<void> {
     if (!conf) { return; }
-    const maintainSlot = (subConf: Partial<IComponentConfiguration>) => {
+    const store = this.context.store;
+    const type = this.getComponentType(conf.id);
+    // 检查组件类型是否变更
+    if (conf.type && conf.type !== type) {
+      const previousConf = this.getComponent(conf.id, true);
+      const transferConf = await this.context.configurationTypeTransferHandler.handle({
+        previous: previousConf,
+        current: conf as any,
+      });
+      // 一般来讲,转化后的conf是不可能为空的,如果有,说明转化处理器肯定有问题,那么这次转化没有意义
+      // 转化组件的id是不能变的
+      if (transferConf) {
+        conf = transferConf;
+        store.clearSlotComponents(conf.id);
+        store.treeStore.changeComponentType(conf.id, conf.type);
+        store.configurationStore.resetConfiguration(conf.id);
+      }
+    }
+
+    const maintainSlot = async (subConf: Partial<IComponentConfiguration>) => {
       // 查看组件插槽设定,把插槽部分配置维护到组件树
       // 如果插槽部分数据不规范,不给予维护
       if (!subConf || !subConf.type) {
@@ -190,7 +274,7 @@ export class ConfigurationManager implements IConfigurationManager {
           if (!originChildrenIds || !originChildrenIds.some(oid => oid === c.id)) {
             this.context.store.treeStore.addComponentTree(c as any, subConf.id, slotProperty);
           }
-          maintainSlot(c);
+          await maintainSlot(c);
         }
         this.context.store.treeStore.updateSlot(subConf.id, slotProperty, childrenIds);
         delete subConf[slotProperty];
@@ -198,14 +282,14 @@ export class ConfigurationManager implements IConfigurationManager {
       this.context.store.configurationStore.updateComponentConfiguration(subConf);
     };
 
-    maintainSlot(conf);
+    await maintainSlot({ type, ...conf });
   }
 
-  public updateComponents(confs: Array<Partial<IComponentConfiguration>>): void {
+  public async updateComponents(confs: Array<Partial<IComponentConfiguration>>): Promise<void> {
     if (confs && confs.length) {
-      confs.forEach(c => {
-        this.updateComponent(c);
-      });
+      for (const c of confs) {
+        await this.updateComponent(c);
+      }
     }
   }
 
