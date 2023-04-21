@@ -62,7 +62,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
             styles['col__header--no-split-bar']
           )}>
             {isMultipleSelect && (
-              <Checkbox  />
+              <Checkbox className={styles['click-disable']} />
             )}
           </div>
           <div className={classnames(
@@ -70,9 +70,12 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
             styles['col__content--data'],
           )}>
             {isMultipleSelect ? (
-              <Checkbox  />
+              <Checkbox className={styles['click-disable']} />
             ) : (
-              <Radio />
+              <Radio className={classnames(
+                styles['click-disable'],
+                styles['empty-label-radio']
+              )} />
             )}
           </div>
         </div>

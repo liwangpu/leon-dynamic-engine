@@ -41,15 +41,15 @@ export const ComponentDescriptions: IComponentDescription[] = [
   },
   {
     type: ComponentTypes.tableSerialNumberColumn,
-    title: '表格序号列'
+    title: '序号列'
   },
   {
     type: ComponentTypes.tableOperatorColumn,
-    title: '表格操作列'
+    title: '操作列'
   },
   {
     type: ComponentTypes.tableSelectionColumn,
-    title: '表格选择列'
+    title: '选择列'
   },
   {
     type: ComponentTypes.pagination,
