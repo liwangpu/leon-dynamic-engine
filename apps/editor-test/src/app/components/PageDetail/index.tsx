@@ -3,7 +3,7 @@ import styles from './index.module.less';
 import { Button, Form, Input, Radio, Select } from 'antd';
 import { observer } from 'mobx-react-lite';
 import classNames from 'classnames';
-import { ComponentTypes, TableSelectionMode } from '@lowcode-engine/primary-component-package';
+import { ComponentTypes, TableFeature, TableSelectionMode } from '@lowcode-engine/primary-component-package';
 import { StoreContext } from '../../contexts';
 import { useParams } from 'react-router-dom';
 import { GenerateComponentId, GenerateNestedComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
@@ -226,6 +226,11 @@ async function generatePageConfiguration(formValue: IFormValue, models: Array<IB
           id: tableId,
           type: ComponentTypes.table,
           title: '列表',
+          features: [
+            TableFeature.selectionColumn,
+            TableFeature.operationColumn,
+            TableFeature.pagination,
+          ],
           columns: businessModel.fields.map(f => ({
             id: GenerateComponentId(ComponentTypes.text),
             type: ComponentTypes.text,
@@ -234,9 +239,21 @@ async function generatePageConfiguration(formValue: IFormValue, models: Array<IB
           selectionColumn: {
             id: GenerateNestedComponentId(tableId, ComponentTypes.tableSelectionColumn),
             type: ComponentTypes.tableSelectionColumn,
-            title: '选择列',
             selectionMode: TableSelectionMode.multiple,
-          }
+          },
+          operatorColumn: {
+            id: GenerateNestedComponentId(tableId, ComponentTypes.tableOperatorColumn),
+            type: ComponentTypes.tableOperatorColumn,
+            visible: true,
+            tileButtonCount: 3,
+            title: '操作列',
+          },
+          pagination: {
+            id: GenerateNestedComponentId(tableId, ComponentTypes.pagination),
+            type: ComponentTypes.pagination,
+            title: '分页器',
+            pageSize: 20,
+          },
         }
       ];
       break;

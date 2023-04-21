@@ -130,6 +130,12 @@
       background-color: #CACDD1;
     }
 
+    &--no-split-bar {
+      &::after {
+        display: none !important;
+      }
+    }
+
     &--operator {
       &::after {
         display: none !important;
@@ -163,6 +169,11 @@
 .operator-column {
   width: 80px;
 }
+
+.selection-column {
+  width: 50px;
+}
+
 
 .operator-column-container {
 

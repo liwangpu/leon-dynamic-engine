@@ -1,11 +1,11 @@
 import { IMetadataRegister, SharedSetterType } from '@lowcode-engine/component-configuration-shared';
 import { SetterType } from '@lowcode-engine/dynamic-form';
-import { ComponentTypes } from '../../../enums';
+import { ComponentTypes, TableSelectionMode } from '../../../enums';
 
 const registerMetadata: IMetadataRegister = register => {
 
   register({
-    type: ComponentTypes.videoPlayer
+    type: ComponentTypes.tableSelectionColumn,
   }, async () => {
 
     return {
@@ -29,41 +29,26 @@ const registerMetadata: IMetadataRegister = register => {
                       setter: SharedSetterType.componentType,
                       name: 'type',
                       label: '组件类型',
+                      required: true,
                       disabled: true,
                     },
                     {
-                      key: 'title',
-                      setter: SetterType.string,
-                      name: 'title',
-                      label: '标题',
-                      required: true,
-                    },
-                    {
-                      key: 'code',
-                      setter: SetterType.string,
-                      name: 'code',
-                      label: '编码',
-                    },
-                    {
-                      key: 'vedioUrl',
-                      setter: SetterType.string,
-                      name: 'vedioUrl',
-                      label: '视频地址',
-                      required: true,
-                    },
-                    {
-                      key: 'showControl',
-                      setter: SetterType.boolean,
-                      name: 'showControl',
-                      label: '显示控件',
+                      key: 'selectionMode',
+                      setter: SetterType.radio,
+                      name: 'selectionMode',
+                      label: '选择方式',
+                      data: [
+                        { value: TableSelectionMode.single, label: '单选' },
+                        { value: TableSelectionMode.multiple, label: '多选' },
+                      ]
                     },
                   ],
-                },
-              ]
+                }
+              ],
             },
-          ]
-        }
-      ]
+          ],
+        },
+      ],
     };
   });
 };

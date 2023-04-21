@@ -231,14 +231,26 @@ export class ConfigurationManager implements IConfigurationManager {
         previous: previousConf,
         current: conf as any,
       });
-      // 一般来讲,转化后的conf是不可能为空的,如果有,说明转化处理器肯定有问题,那么这次转化没有意义
-      // 转化组件的id是不能变的
+
+      /**
+       * 一般来讲,转化后的conf是不可能为空的,如果有,说明转化处理器肯定有问题,那么这次转化没有意义
+       * 转化组件的id是不能变的
+       */
       if (transferConf) {
         conf = transferConf;
         store.clearSlotComponents(conf.id);
         store.treeStore.changeComponentType(conf.id, conf.type);
         store.configurationStore.resetConfiguration(conf.id);
       }
+
+      const { parentId, slotProperty } = store.treeStore.selectComponentTreeInfo(conf.id);
+      const parentConf = this.getComponent(parentId, true);
+      // 对于类型转化,其实也是另一种形式的添加组件,所以也需要调用adding effect
+      conf = await this.context.configurationAddingHandler.handle({
+        current: conf as any,
+        parent: parentConf,
+        slot: slotProperty,
+      });
     }
 
     const maintainSlot = async (subConf: Partial<IComponentConfiguration>) => {
@@ -260,26 +272,26 @@ export class ConfigurationManager implements IConfigurationManager {
         const slotValue: Array<Partial<IComponentConfiguration>> = singleton ? [subConf[slotProperty]] : subConf[slotProperty];
         // id维护到父组件插槽上
         const childrenIds = slotValue.map(x => x.id);
-        const originChildrenIds = this.context.store.treeStore.selectSlotChildrenIds(subConf.id, slotProperty);
+        const originChildrenIds = store.treeStore.selectSlotChildrenIds(subConf.id, slotProperty);
         // 先检查是否有已经删除的组件
         const deletedIds = _.difference(originChildrenIds, childrenIds);
         if (deletedIds.length) {
           deletedIds.forEach(oid => {
-            this.context.store.deleteComponent(oid);
+            store.deleteComponent(oid);
           });
         }
 
         for (const c of slotValue) {
           // 先看看没有没有新增的组件,因为新增的组件需要维护到组件树上
           if (!originChildrenIds || !originChildrenIds.some(oid => oid === c.id)) {
-            this.context.store.treeStore.addComponentTree(c as any, subConf.id, slotProperty);
+            store.treeStore.addComponentTree(c as any, subConf.id, slotProperty);
           }
           await maintainSlot(c);
         }
-        this.context.store.treeStore.updateSlot(subConf.id, slotProperty, childrenIds);
+        store.treeStore.updateSlot(subConf.id, slotProperty, childrenIds);
         delete subConf[slotProperty];
       }
-      this.context.store.configurationStore.updateComponentConfiguration(subConf);
+      store.configurationStore.updateComponentConfiguration(subConf);
     };
 
     await maintainSlot({ type, ...conf });

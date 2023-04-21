@@ -17,7 +17,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
     const s = new Set<TableFeature>(conf.features || []);
     return {
       enableOperator: s.has(TableFeature.operationColumn),
-      enableSerialNumberColumn: s.has(TableFeature.serialNumberColumn),
+      enableSelectionColumn: s.has(TableFeature.selectionColumn),
       enablePagination: s.has(TableFeature.pagination)
     };
   }, [conf.features]);
@@ -47,45 +47,38 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
   }, [conf.operatorColumn, features.enableOperator]);
 
   const SelectionColumn = useMemo(() => {
-    if (!conf.selectionColumn) { return null; }
+    if (!conf.selectionColumn || !features.enableSelectionColumn) { return null; }
+    const c = conf.selectionColumn;
+    const isMultipleSelect = c.selectionMode === TableSelectionMode.multiple;
     return (
-      <DynamicComponentContainer
-        className={[
-          styles['custom-column'],
-          styles['custom-column--line-number'],
-        ]}
-        configuration={conf}
-        slot={TableSlot.selectionColumn}
-      >
-        {
-          (cs: Array<ISelectionColumnComponentConfiguration>) => {
-            return cs.map(c => (
-              <div className={classnames(
-                styles['col'],
-                'line-number-col'
-              )}>
-                <div className={styles['col__header']}>
-                  {c.selectionMode === TableSelectionMode.multiple ? (
-                    <Checkbox></Checkbox>
-                  ) : null}
-                </div>
-                <div className={classnames(
-                  styles['col__content'],
-                  styles['col__content--data'],
-                )}>
-                  {c.selectionMode === TableSelectionMode.multiple ? (
-                    <Checkbox></Checkbox>
-                  ) : (
-                    <Radio></Radio>
-                  )}
-                </div>
-              </div>
-            ));
-          }
-        }
-      </DynamicComponentContainer>
+      <DynamicComponent configuration={c}>
+        <div className={classnames(
+          styles['col'],
+          styles['selection-column'],
+        )}
+        >
+          <div className={classnames(
+            styles['col__header'],
+            styles['col__header--no-split-bar']
+          )}>
+            {isMultipleSelect && (
+              <Checkbox  />
+            )}
+          </div>
+          <div className={classnames(
+            styles['col__content'],
+            styles['col__content--data'],
+          )}>
+            {isMultipleSelect ? (
+              <Checkbox  />
+            ) : (
+              <Radio />
+            )}
+          </div>
+        </div>
+      </DynamicComponent>
     );
-  }, [conf.selectionColumn]);
+  }, [conf.selectionColumn, features.enableSelectionColumn]);
 
   const Pagination = useMemo(() => {
     if (!conf.pagination || !features.enablePagination) { return null; }
@@ -139,6 +132,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
         {renderOperators()}
       </div>
       <div className={styles['table__content']}>
+        {SelectionColumn}
         {renderColumns()}
         {OperatorColumn}
       </div>

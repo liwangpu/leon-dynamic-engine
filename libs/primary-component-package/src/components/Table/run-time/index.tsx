@@ -4,6 +4,7 @@ import React, { memo, useMemo } from 'react';
 import { ITableComponentConfiguration } from '../../../models';
 import { faker } from '@faker-js/faker';
 import styles from './index.module.less';
+import { TableSelectionMode } from '../../../enums';
 
 const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = memo(props => {
 
@@ -14,6 +15,22 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
     if (!conf.operatorColumn || !conf.operatorColumn.children) { return null; }
     return conf.operatorColumn.children.map(c => (<Button key={c.id} type="text" size='small'>{c.title}</Button>))
   }, [conf.operatorColumn]);
+
+  const getRowSelection = () => {
+    if (!conf.selectionColumn) { return null; }
+    return {
+      type: conf.selectionColumn.selectionMode === TableSelectionMode.multiple ? 'checkbox' : 'radio' as any,
+      onChange: (selectedRowKeys: React.Key[], selectedRows: any[]) => {
+        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+      },
+      getCheckboxProps: (record: any) => ({
+        // disabled: record.name === 'Disabled User', // Column configuration not to be checked
+        name: record.name,
+      }),
+    };
+  };
+
+
 
   const Operators = useMemo(() => {
     if (!conf.operators || !conf.operators.length) { return null; }
@@ -60,7 +77,11 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
   return (
     <div className={styles['table']}>
       <div className={styles['table__operators']}>{Operators}</div>
-      <AntdTable columns={columns} dataSource={dataSource} />
+      <AntdTable
+        rowSelection={getRowSelection()}
+        columns={columns}
+        dataSource={dataSource}
+      />
     </div>
   );
 });

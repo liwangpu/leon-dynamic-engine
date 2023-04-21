@@ -68,6 +68,7 @@ export const ComponentDescriptions: IComponentDescription[] = [
 const customConfiguration = {
   [ComponentTypes.tableOperatorColumn]: () => import(`./components/Table/configuration/table-operator-column`),
   [ComponentTypes.tab]: () => import(`./components/Tabs/configuration/tab`),
+  [ComponentTypes.tableSelectionColumn]: () => import(`./components/Table/configuration/selection-column`),
 };
 
 export class ComponentPackage implements IComponentPackage {

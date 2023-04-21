@@ -4,7 +4,7 @@ import { useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Editor, IEditorRef, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
 import { ComponentGalleryPluginRegister, ComponentToolBarRegister, HierarchyIndicatorRegister, IBusinessModel, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
 import { ComponentPackageContext } from '../../contexts';
-import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, RegisterSetter as RegisterPrimarySetter, GridSystemSection, ITabsComponentConfiguration, ITabComponentConfiguration } from '@lowcode-engine/primary-component-package';
+import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, RegisterSetter as RegisterPrimarySetter, GridSystemSection, ITabsComponentConfiguration, ITabComponentConfiguration, ITableComponentConfiguration, TableFeature, TableSelectionMode } from '@lowcode-engine/primary-component-package';
 import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/component-configuration-shared';
 import { Button, Modal, notification } from 'antd';
 import * as _ from 'lodash';
@@ -214,15 +214,24 @@ const PageEditor: React.FC = memo(() => {
               return current;
             });
 
-            // configurationAddingHandler.registerHandler({ type: ComponentTypes.table }, async ({ current }) => {
-            //   // conf.selectionColumn = {
-            //   //   id: GenerateNestedComponentId(conf.id, ComponentTypes.tableSelectionColumn),
-            //   //   type: ComponentTypes.tableSelectionColumn,
-            //   //   selectionMode: TableSelectionMode.multiple,
-            //   //   title: '选择列',
-            //   // };
-            //   return current;
-            // });
+            configurationAddingHandler.registerHandler(
+              {
+                type: ComponentTypes.table,
+              },
+              ({ current }: { current: ITableComponentConfiguration }) => {
+                // 添加表格默认支持操作列和分页
+                current.features = [
+                  TableFeature.selectionColumn,
+                  TableFeature.operationColumn,
+                  TableFeature.pagination,
+                ];
+                current.pagination = { id: GenerateNestedComponentId(current.id, ComponentTypes.pagination), type: ComponentTypes.pagination, title: '分页器', pageSize: 20 };
+                current.selectionColumn = { id: GenerateNestedComponentId(current.id, ComponentTypes.tableSelectionColumn), type: ComponentTypes.tableSelectionColumn, selectionMode: TableSelectionMode.multiple };
+                current.operatorColumn = { id: GenerateNestedComponentId(current.id, ComponentTypes.tableOperatorColumn), type: ComponentTypes.tableOperatorColumn, title: '操作列', visible: true, tileButtonCount: 3 };
+
+                return current;
+              }
+            );
 
             configurationAddingHandler.registerHandler({ type: ComponentTypes.tabs }, ({ current }: { current: ITabsComponentConfiguration }) => {
               current.children = [

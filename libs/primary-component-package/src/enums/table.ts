@@ -1,5 +1,5 @@
 export enum TableFeature {
-  serialNumberColumn = 'serialNumberColumn',
+  selectionColumn = 'selectionColumn',
   operationColumn = 'operationColumn',
   pagination = 'pagination'
 }
