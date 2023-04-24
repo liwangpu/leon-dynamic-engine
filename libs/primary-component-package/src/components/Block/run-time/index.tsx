@@ -14,7 +14,7 @@ const Block: React.FC<IDynamicComponentProps<IBlockComponentConfiguration>> = me
 
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
-  const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerRenderFactory();
+  const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerFactory();
   const [collapsed, setCollapsed] = useState<boolean>();
   const [rowCollapsed, setRowCollapsed] = useState<boolean>(false);
   const blockContentRef = useRef<HTMLDivElement>();

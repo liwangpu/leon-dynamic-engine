@@ -8,8 +8,8 @@ import { IButtonComponentConfiguration, IButtonGroupComponentConfiguration } fro
 const ButtonGroup: React.FC<IDynamicComponentProps<IButtonGroupComponentConfiguration>> = memo(props => {
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
-  const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
-  const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerRenderFactory();
+  const DynamicComponent = dynamicEngine.getDynamicComponentFactory();
+  const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerFactory();
   const hostRef = useRef<HTMLDivElement>();
   const contentRef = useRef<HTMLDivElement>();
   const groupChildrenContainerRef = useRef<IDynamicComponentContainerRendererRef>();

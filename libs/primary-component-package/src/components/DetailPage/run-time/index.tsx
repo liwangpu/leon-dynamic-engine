@@ -10,7 +10,7 @@ const Page: React.FC<IDynamicComponentProps<IPageComponentConfiguration>> = memo
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
   const navigationBack = useNavigationBack();
-  const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerRenderFactory();
+  const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerFactory();
   const NavigationBack = navigationBack.getGoBackContent();
 
   return (

@@ -197,24 +197,24 @@ const PageEditor: React.FC = memo(() => {
         };
       },
       // 组件配置副作用注册插件
-      ({ configurationAddingHandler, configurationDeleteHandler, configurationTypeTransferHandler, configuration }) => {
+      ({ configurationAddingEffect, configurationDeleteEffect, configurationTypeTransferEffect, configuration }) => {
         return {
           init() {
             // 添加组件副作用
-            configurationAddingHandler.registerHandler({ parentType: ComponentTypes.block, type: [ComponentTypes.text, ComponentTypes.number] }, ({ current }) => {
+            configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, type: [ComponentTypes.text, ComponentTypes.number] }, ({ current }) => {
               // eslint-disable-next-line no-param-reassign
               current.gridColumnSpan = GridSystemSection['1/2'];
               return current;
             });
 
-            configurationAddingHandler.registerHandler({ parentType: ComponentTypes.block, type: ComponentTypes.textarea }, ({ current }) => {
+            configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, type: ComponentTypes.textarea }, ({ current }) => {
               // eslint-disable-next-line no-param-reassign
               current.gridColumnSpan = GridSystemSection['1/2'];
               current.gridRowSpan = 3;
               return current;
             });
 
-            configurationAddingHandler.registerHandler(
+            configurationAddingEffect.registerHandler(
               {
                 type: ComponentTypes.table,
               },
@@ -233,7 +233,7 @@ const PageEditor: React.FC = memo(() => {
               }
             );
 
-            configurationAddingHandler.registerHandler({ type: ComponentTypes.tabs }, ({ current }: { current: ITabsComponentConfiguration }) => {
+            configurationAddingEffect.registerHandler({ type: ComponentTypes.tabs }, ({ current }: { current: ITabsComponentConfiguration }) => {
               current.children = [
                 {
                   id: GenerateComponentId(ComponentTypes.tab),
@@ -259,17 +259,12 @@ const PageEditor: React.FC = memo(() => {
               return current;
             });
 
-            // configurationAddingHandler.registerHandler({ type: ComponentTypes.button, parentType: ComponentTypes.tableOperatorColumn }, (conf: IButtonComponentConfiguration) => {
-            //   conf.uiType = ButtonUIType.link;
-            //   return conf;
-            // });
-
-            configurationAddingHandler.registerHandler({ type: VideoPlayerComponentTypes.videoPlayer }, ({ current }: { current: IVideoPlayerComponentConfiguration }) => {
+            configurationAddingEffect.registerHandler({ type: VideoPlayerComponentTypes.videoPlayer }, ({ current }: { current: IVideoPlayerComponentConfiguration }) => {
               current.vedioUrl = 'https://www.runoob.com/try/demo_source/movie.ogg';
               return current;
             });
 
-            configurationAddingHandler.registerHandler({}, ({ current }) => {
+            configurationAddingEffect.registerHandler({}, ({ current }) => {
               const typeCount = configuration.getComponentTypeCount(current.type);
               // eslint-disable-next-line no-param-reassign
               if (!current.code) {
@@ -289,7 +284,7 @@ const PageEditor: React.FC = memo(() => {
             });
 
             // 删除组件
-            configurationDeleteHandler.registerHandler(
+            configurationDeleteEffect.registerHandler(
               { type: ComponentTypes.tab },
               ({ current, parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
                 // 如果当前的页签已经已经是最后一个,那么不允许删除
@@ -312,7 +307,7 @@ const PageEditor: React.FC = memo(() => {
                 }
               });
 
-            // configurationDeleteHandler.registerHandler({
+            // configurationDeleteEffect.registerHandler({
             //   type: ComponentTypes.block,
             //   parentType: ComponentTypes.block,
             // }, ({ current, parent }) => {
@@ -323,7 +318,7 @@ const PageEditor: React.FC = memo(() => {
             //   };
             // });
 
-            configurationTypeTransferHandler.registerHandler({
+            configurationTypeTransferEffect.registerHandler({
               destType: VideoPlayerComponentTypes.videoPlayer,
             }, ({ current }: { current: IVideoPlayerComponentConfiguration }) => {
               current.vedioUrl = 'https://www.runoob.com/try/demo_source/movie.ogg';
@@ -450,8 +445,8 @@ const PageEditor: React.FC = memo(() => {
               area: SkeletonAreaEnum.topRightArea,
               content: (
                 <div className={styles['editor-operation']}>
-                  <Button type="default" icon={<EyeOutlined />} onClick={previewPage} >预览</Button>
                   <Button type="primary" danger icon={<ClearOutlined />} onClick={clearSchema} >清空</Button>
+                  <Button type="default" icon={<EyeOutlined />} onClick={previewPage} >预览</Button>
                   <Button type="primary" icon={<SaveOutlined />} onClick={saveSchema} >保存</Button>
                 </div >
               )

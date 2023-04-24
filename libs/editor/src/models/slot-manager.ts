@@ -1,15 +1,5 @@
-import { IComponentConfiguration } from '@lowcode-engine/core';
+import { IComponentConfiguration, ISlotPropertyDefinition } from '@lowcode-engine/core';
 import { IEditorContext } from './editor-manager';
-
-export interface ISlotPropertyMatch {
-  accepts?: Array<string>;
-  rejects?: Array<string>;
-  singleton?: boolean;
-}
-
-export interface ISlotPropertyDefinition {
-  [slotProperty: string]: ISlotPropertyMatch;
-}
 
 export interface ISlotManager {
   checkSlotSingleton(componentType: string, slotProperty: string): boolean;
@@ -29,7 +19,6 @@ export class SlotManager implements ISlotManager {
   private readonly componentMatchedSlotPropertyMap = new Map<string, Array<string>>();
   private readonly slotPropertySingletonMap = new Map<string, boolean>();
   public constructor(protected context: IEditorContext) { }
-
 
   public checkSlotSingleton(componentType: string, slotProperty: string): boolean {
     const key = `${componentType}@${slotProperty}`;
@@ -80,11 +69,15 @@ export class SlotManager implements ISlotManager {
 
   public registerMap(map: { [componentType: string]: ISlotPropertyDefinition }): void {
     if (!map) { return; }
-    this.allSlotMap.clear();
     const componentTypes = Object.keys(map);
     for (let componentType of componentTypes) {
-      const definition = map[componentType];
+      let definition = map[componentType];
       if (!definition) { continue; }
+      // 因为对于设计器来说,slot起作用的主要是accepts,rejects,singleton
+      // 而对于组件包定义来说,主要是singleton,所以这里进行合并
+      if (this.allSlotMap.has(componentType)) {
+        definition = { ...this.allSlotMap.get(componentType), ...definition };
+      }
       this.allSlotMap.set(componentType, definition);
       const properties = Object.keys(definition);
       this.slotPropertyMap.set(componentType, properties || []);

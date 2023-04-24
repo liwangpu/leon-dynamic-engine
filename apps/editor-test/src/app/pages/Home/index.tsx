@@ -7,7 +7,6 @@ import { Button, Dropdown } from 'antd';
 
 const Home: React.FC = memo(() => {
   const navigate = useNavigate();
-
   const gotoBusinessDetail = useCallback((businessModel: string) => {
     navigate(`/app/business-detail/${businessModel}`);
   }, []);

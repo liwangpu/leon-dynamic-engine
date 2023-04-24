@@ -4,7 +4,8 @@ import { DynamicComponentFactoryContext } from '../contexts';
 export function useDynamicComponentEngine() {
   const componentFactory = useContext(DynamicComponentFactoryContext);
   return {
-    getDynamicComponentRenderFactory: componentFactory.getDynamicComponentRenderFactory,
-    getDynamicComponentContainerRenderFactory: componentFactory.getDynamicComponentContainerRenderFactory,
+    hierarchyManager: componentFactory.hierarchyManager,
+    getDynamicComponentFactory: componentFactory.getDynamicComponentFactory,
+    getDynamicComponentContainerFactory: componentFactory.getDynamicComponentContainerFactory,
   };
 }

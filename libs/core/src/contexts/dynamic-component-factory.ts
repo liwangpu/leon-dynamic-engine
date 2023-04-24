@@ -1,30 +1,27 @@
 import React, { ComponentType } from 'react';
-import { IComponentConfiguration, IDynamicComponentProps } from '../models';
-
-export interface IDynamicComponentRendererProps extends IDynamicComponentProps {
-  className?: string | Array<string> | { [name: string]: boolean };
-  children?: React.ReactNode | ((conf: IComponentConfiguration) => React.ReactNode);
-  options?: { [key: string]: any };
-}
-
-export interface IDynamicComponentContainerRendererProps {
-  configuration: Partial<IComponentConfiguration> & { id: string };
-  slot: string;
-  direction?: 'horizontal' | 'vertical';
-  dropOnly?: boolean;
-  className?: string | Array<string> | { [name: string]: boolean };
-  style?: { [property: string]: any };
-  children?: (cs: Array<IComponentConfiguration>) => React.ReactNode;
-}
+import { IComponentConfiguration, IDynamicComponentContainerProps, IDynamicComponentProps } from '../models';
 
 export interface IDynamicComponentContainerRendererRef {
   scrollToEnd(): void;
   getContainerRef(): HTMLDivElement;
 }
 
+export interface IComponentHierarchyNode {
+  id: string;
+  type: string;
+  parentId?: string;
+  slotProperty?: string;
+  slots?: { [slotProperty: string]: Array<string> };
+}
+
+export interface IComponentHierarchyManager {
+  getParent(id: string): IComponentConfiguration;
+}
+
 export interface IDynamicComponentFactory {
-  getDynamicComponentRenderFactory(): ComponentType<IDynamicComponentRendererProps>;
-  getDynamicComponentContainerRenderFactory?(): React.ForwardRefExoticComponent<IDynamicComponentContainerRendererProps & React.RefAttributes<IDynamicComponentContainerRendererRef>>;
+  hierarchyManager: IComponentHierarchyManager;
+  getDynamicComponentFactory(): ComponentType<IDynamicComponentProps>;
+  getDynamicComponentContainerFactory(): React.ForwardRefExoticComponent<IDynamicComponentContainerProps & React.RefAttributes<IDynamicComponentContainerRendererRef>>;
 }
 
 export const DynamicComponentFactoryContext = React.createContext<IDynamicComponentFactory>(null);

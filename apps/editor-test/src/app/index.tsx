@@ -5,7 +5,7 @@ import { ComponentPackageContext } from './contexts';
 import { IComponentPackage } from '@lowcode-engine/core';
 import { DataStoreCollocationContext, EditorStoreModel, IDataStoreCollocation } from '@lowcode-engine/editor';
 import { ComponentPackage as PrimaryComponentPackage } from '@lowcode-engine/primary-component-package';
-import { ComponentPackage as VideoPlayerComponentPackage } from './video-player'
+import { ComponentPackage as VideoPlayerComponentPackage } from './video-player';
 import { connectReduxDevtools } from 'mst-middlewares';
 
 const packages: Array<IComponentPackage> = [

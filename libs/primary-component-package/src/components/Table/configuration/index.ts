@@ -1,6 +1,6 @@
 import { IMetadataRegister, SharedSetterType } from '@lowcode-engine/component-configuration-shared';
 import { SetterType } from '@lowcode-engine/dynamic-form';
-import { IPaginationComponentConfiguration, ISelectionColumnComponentConfiguration, ISerialNumberColumnComponentConfiguration, ITableComponentConfiguration, ITableOperatorColumnComponentConfiguration } from '../../../models';
+import { IPaginationComponentConfiguration, ISelectionColumnComponentConfiguration, ITableComponentConfiguration, ITableOperatorColumnComponentConfiguration } from '../../../models';
 import { ComponentTypes, TableFeature, TableSelectionMode, TableSlot } from '../../../enums';
 import { distinctUntilChanged, map, Observable, pipe, UnaryFunction } from 'rxjs';
 import { GenerateNestedComponentId } from '@lowcode-engine/core';

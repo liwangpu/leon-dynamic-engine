@@ -35,7 +35,7 @@ export interface IModelLoader {
 }
 
 export interface IConfigurationTransfer {
-  (data: IBusinessField | IBusinessModel): Promise<Partial<IComponentConfiguration>>;
+  (data: IBusinessField | IBusinessModel): Partial<IComponentConfiguration>;
 }
 
 export interface IModelGalleryProps {
@@ -100,8 +100,8 @@ const TitleNode: React.FC<{ field: IBusinessField; configurationTransfer: IConfi
       scroll: false,
       bubbleScroll: false,
       swapThreshold: 0.65,
-      setData: async (dataTransfer, dragEl: HTMLElement) => {
-        const conf = await configurationTransfer(field);
+      setData: (dataTransfer, dragEl: HTMLElement) => {
+        const conf = configurationTransfer(field);
         if (!conf) { return; }
         dataTransfer.setData('Text', JSON.stringify(conf));
         currentConf = conf;

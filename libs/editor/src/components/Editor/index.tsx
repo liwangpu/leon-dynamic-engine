@@ -42,9 +42,13 @@ export const Editor = memo(forwardRef<IEditorRef, IEditorProps>((props, ref) => 
     }
 
     (async () => {
+      const slotInfo = await editor.componentDiscovery.queryComponentSlotInfo();
+      editor.slot.registerMap(slotInfo);
+
       for (const plugin of plugins) {
         await plugin.init();
       }
+
       setInitialized(true);
     })();
 

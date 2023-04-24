@@ -1,66 +1,102 @@
-import { IComponentDescription, IComponentPackage, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from './i-component-package';
+import { IComponentDescription, IComponentPackage, IComponentSlotInfo, IConfigurationPackageModule, IDesignTimePackageModule, IRunTimePackageModule } from './i-component-package';
 import * as _ from 'lodash';
-import { IComponentMetadata } from './i-component-metadata';
 
 export type IComponentDiscovery = IComponentPackage;
 
 export class ComponentDiscoveryProvider implements IComponentDiscovery {
 
   protected readonly componentTypePackageMap = new Map<string, IComponentPackage>();
-  protected readonly componentDescriptionMap = new Map<string, IComponentDescription>();
-  protected readonly componentMetadataMap = new Map<string, IComponentMetadata>();
   protected loadedAllPakageDescriptions = false;
-  protected loadedAllPakageMetadatas = false;
-  protected descriptionQueryPromise: Promise<IComponentDescription[]>;
   constructor(protected packages: Array<IComponentPackage>) { }
 
-  public async queryComponentDescriptions(): Promise<Array<IComponentDescription>> {
-    if (this.loadedAllPakageDescriptions) {
-      return [...this.componentDescriptionMap.values()];
-    }
-
-    const descriptions: IComponentDescription[] = [];
-    if (!this.packages || !this.packages.length) {
-      // console.log(`use cache:`,);
+  public queryComponentDescriptions(): Promise<Array<IComponentDescription>> {
+    return this.shareAndCacheConcurrentRequest('queryComponentDescriptions', async () => {
+      const descriptions: IComponentDescription[] = [];
+      if (!this.packages || !this.packages.length) {
+        return descriptions;
+      }
+      for (let mk of this.packages) {
+        const des = await mk.queryComponentDescriptions();
+        des.forEach(d => {
+          descriptions.push({ ...d, package: mk.name });
+          this.componentTypePackageMap.set(d.type, mk);
+        });
+      }
+      this.loadedAllPakageDescriptions = true;
       return descriptions;
+    });
+  }
+
+  public async queryComponentSlotInfo(): Promise<IComponentSlotInfo> {
+    return this.shareAndCacheConcurrentRequest('queryComponentSlotInfo', async () => {
+      const slotInfo: IComponentSlotInfo = {};
+      if (!this.packages || !this.packages.length) {
+        return slotInfo;
+      }
+
+      for (let mk of this.packages) {
+        if (_.isFunction(mk.queryComponentSlotInfo)) {
+          const info = await mk.queryComponentSlotInfo();
+          if (!info) { continue; }
+          for (const componentType in info) {
+            slotInfo[componentType] = info[componentType];
+          }
+        }
+      }
+
+      return slotInfo;
+    });
+  }
+
+  public async loadComponentRunTimeModule(type: string): Promise<IRunTimePackageModule> {
+    return this.loadModuleFromPackage(type, arguments, pck => pck.loadComponentRunTimeModule);
+  }
+
+  public async loadComponentDesignTimeModule(type: string): Promise<IDesignTimePackageModule> {
+    return this.loadModuleFromPackage(type, arguments, pck => pck.loadComponentDesignTimeModule);
+  }
+
+  public async loadComponentConfigurationModule(type: string): Promise<IConfigurationPackageModule> {
+    return this.loadModuleFromPackage(type, arguments, pck => pck.loadComponentConfigurationModule);
+  }
+
+  private async shareAndCacheConcurrentRequest(requestName: string, requestFn: (...args: Array<any>) => Promise<any>): Promise<any> {
+    let requestStatusKey = `doing_query_status_of_${requestName}`;
+    let requestKey = `doing_query_of_${requestName}`;
+    let hasDoRequestKey = `has_do_query_of_${requestName}`;
+    let requestResultKey = `query_result_of_${requestName}`;
+
+    // 如果有缓存结果,使用缓存
+    if (this[hasDoRequestKey]) {
+      return this[requestResultKey];
     }
-    for (let mk of this.packages) {
-      const des = await mk.queryComponentDescriptions();
-      des.forEach(d => {
-        descriptions.push({ ...d, package: mk.name });
-        this.componentDescriptionMap.set(d.type, d);
-        this.componentTypePackageMap.set(d.type, mk);
-      });
+
+    // 如果有已经发起的请求,共享请求结果
+    if (this[requestStatusKey] === true) {
+      return this[requestKey];
     }
-    this.loadedAllPakageDescriptions = true;
-    // console.log(`query descriptions:`, descriptions);
-    return descriptions;
+    this[requestStatusKey] = true;
+    this[requestKey] = requestFn();
+
+    const result = await this[requestKey];
+    this[requestStatusKey] = false;
+    this[requestKey] = null;
+    this[hasDoRequestKey] = true;
+    this[requestResultKey] = result;
+    return result;
   }
 
-  public async loadComponentRunTimeModule(type: string, platform: string): Promise<IRunTimePackageModule> {
-    const pck = await this.getComponentPackage(type);
-    if (!pck) { return null; }
-    return pck.loadComponentRunTimeModule(type, platform);
-  }
-
-  public async loadComponentDesignTimeModule(type: string, platform: string): Promise<IDesignTimePackageModule> {
-    const pck = await this.getComponentPackage(type);
-    if (!pck) { return null; }
-    return pck.loadComponentDesignTimeModule(type, platform);
-  }
-
-  public async loadComponentConfigurationModule(type: string, platform: string): Promise<IConfigurationPackageModule> {
-    const pck = await this.getComponentPackage(type);
-    if (!pck) { return null; }
-    return pck.loadComponentConfigurationModule(type, platform);
-  }
-
-  private async getComponentPackage(type: string): Promise<IComponentPackage> {
+  private async loadModuleFromPackage(type: string, args: IArguments, loadModuleFn: (pck: IComponentPackage) => Function): Promise<any> {
     if (!this.packages || !this.packages.length) { return null; }
     if (!this.loadedAllPakageDescriptions) {
       await this.queryComponentDescriptions();
     }
-    return this.componentTypePackageMap.get(type);
+
+    const pck = this.componentTypePackageMap.get(type);
+    if (!pck) { return null; }
+
+    const loader = loadModuleFn(pck);
+    return loader(...args);
   }
 
 }

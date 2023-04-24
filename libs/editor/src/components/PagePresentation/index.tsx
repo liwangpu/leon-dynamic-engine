@@ -17,20 +17,27 @@ const DISABLE_COMPONENT_UI_EFFECT = 'disable-component-ui-effect';
 const COMPONENT_CONTAINER_DRAGGING = 'editor-dynamic-component-container--dragging';
 const COMPONENT_HOVER = 'editor-dynamic-component--hover';
 
-const componentFactory: IDynamicComponentFactory = {
-  getDynamicComponentRenderFactory: () => {
-    return DynamicComponent;
-  },
-  getDynamicComponentContainerRenderFactory: () => {
-    return DynamicComponentContainer;
-  },
-};
-
 const PagePresentation: React.FC = observer(() => {
 
-  const { event, dom, slot, store } = useContext(EditorContext);
+  const { event, dom, slot, store, configuration } = useContext(EditorContext);
   const presentationUtil = useMemo(() => new PagePresentationUtilContextProvider(), []);
   const presentationRef = useRef<HTMLDivElement>();
+
+  const componentFactory = useMemo<IDynamicComponentFactory>(() => {
+    return {
+      hierarchyManager: {
+        getParent(id) {
+          return configuration.getParentComponent(id);
+        },
+      },
+      getDynamicComponentFactory: () => {
+        return DynamicComponent;
+      },
+      getDynamicComponentContainerFactory: () => {
+        return DynamicComponentContainer;
+      },
+    };
+  }, []);
 
   useLayoutEffect(() => {
     const subs = new SubSink();

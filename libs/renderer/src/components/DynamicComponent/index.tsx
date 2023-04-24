@@ -1,4 +1,4 @@
-import { ComponentDiscoveryContext, IComponentConfiguration, IDynamicComponentContainerRendererProps, IDynamicComponentContainerRendererRef, IDynamicComponentProps, IDynamicComponentRendererProps, useDataCenter } from '@lowcode-engine/core';
+import { ComponentDiscoveryContext, IComponentConfiguration, IDynamicComponentContainerProps, IDynamicComponentContainerRendererRef, IDynamicComponentProps, useDataCenter } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect, useRef, useState, ComponentType, useImperativeHandle, useMemo, memo, forwardRef } from 'react';
 import { DataStoreContext } from '../../contexts';
@@ -7,7 +7,7 @@ import { useComponentStyle } from '../../hooks';
 import classnames from 'classnames';
 
 
-export const DynamicComponent: React.FC<IDynamicComponentRendererProps> = memo(props => {
+export const DynamicComponent: React.FC<IDynamicComponentProps> = memo(props => {
   const conf = props.configuration;
   const compDiscovery = useContext(ComponentDiscoveryContext);
   const [componentLoaded, setComponentLoaded] = useState(false);
@@ -37,7 +37,7 @@ export const DynamicComponent: React.FC<IDynamicComponentRendererProps> = memo(p
 
 DynamicComponent.displayName = 'DynamicComponent';
 
-export const DynamicComponentContainer = memo(forwardRef<IDynamicComponentContainerRendererRef, IDynamicComponentContainerRendererProps>((props, ref) => {
+export const DynamicComponentContainer = memo(forwardRef<IDynamicComponentContainerRendererRef, IDynamicComponentContainerProps>((props, ref) => {
   const { configuration, children: CustomSlotRenderer, direction, className, dropOnly, slot: slotProperty, style } = props;
   const componentId = configuration.id;
   const horizontal = direction === 'horizontal';

@@ -10,8 +10,8 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
 
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
-  const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
-  const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerRenderFactory();
+  const DynamicComponent = dynamicEngine.getDynamicComponentFactory();
+  const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerFactory();
 
   const features = useMemo(() => {
     const s = new Set<TableFeature>(conf.features || []);

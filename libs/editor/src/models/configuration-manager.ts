@@ -35,6 +35,12 @@ export interface IConfigurationManager {
    */
   getComponent(id: string, withSlot?: boolean): IComponentConfiguration;
   /**
+   * 获取父组件配置
+   * @param id 组件id
+   * @param withSlot 是否附带插槽子组件配置(如果带,只附带子一级)
+   */
+  getParentComponent(id: string, withSlot?: boolean): IComponentConfiguration;
+  /**
    * 获取组件的类型
    * @param id 组件id
    */
@@ -56,7 +62,7 @@ export interface IConfigurationManager {
    * @param index 下标
    * @param slotProperty 组件在父组件里面的插槽属性 
    */
-  addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): Promise<void>;
+  addComponent(conf: Partial<IComponentConfiguration>, parentId: string, index: number, slotProperty: string): Promise<boolean>;
   /**
    * 删除组件
    * @param id 组件id
@@ -84,6 +90,7 @@ export class ConfigurationManager implements IConfigurationManager {
   private readonly selectors = new Map<string, IConfigurationSelector>();
 
   public constructor(protected context: IEditorContext) { }
+
 
   public getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector {
     // 先找最精确匹配的,如果找不到然后逐次降低优先级
@@ -129,6 +136,13 @@ export class ConfigurationManager implements IConfigurationManager {
     return conf;
   }
 
+  public getParentComponent(id: string, withSlot?: boolean): IComponentConfiguration {
+    const parentId = this.getParentId(id);
+    if (!parentId) { return null; }
+
+    return this.getComponent(parentId, withSlot);
+  }
+
   public hasComponent(id: string): boolean {
     if (!id) { return false; }
     return this.context.store.treeStore.trees.has(id);
@@ -146,23 +160,27 @@ export class ConfigurationManager implements IConfigurationManager {
     return this.context.store.treeStore.selectComponentParentId(id);
   }
 
-  public async addComponent(conf: IComponentConfiguration, parentId: string, index: number, slotProperty: string): Promise<void> {
+  public async addComponent(conf: Partial<IComponentConfiguration>, parentId: string, index: number, slotProperty: string): Promise<boolean> {
     if (!conf.id) {
       conf.id = GenerateComponentId(conf.type);
     }
 
     if (this.hasComponent(conf.id)) {
-      return;
+      return false;
     }
     // 新增的组件可能会有插槽组件数据,这里需要解析一下插槽配置
-    const addComponent = async (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {
+    const _addComponent = async (subConf: Partial<IComponentConfiguration>, parentId: string, index: number, slotProperty: string) => {
       const slotProperties = this.context.slot.getSlotProperties(subConf.type);
       const parentConf = this.context.store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
-      subConf = await this.context.configurationAddingHandler.handle({
-        current: subConf,
+      subConf = await this.context.configurationAddingEffect.handleAdd({
+        current: subConf as any,
         parent: parentConf,
         slot: slotProperty,
+        index
       });
+      if (!subConf) {
+        return false;
+      }
       const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
       this.context.store.addComponent(pureConf, parentId, index, slotProperty);
       for (const sp of slotProperties) {
@@ -177,11 +195,19 @@ export class ConfigurationManager implements IConfigurationManager {
         }
         if (!components.length) { continue; }
         for (let idx = 0; idx < components.length; idx++) {
-          await addComponent(components[idx], subConf.id, idx, sp);
+          await _addComponent(components[idx], subConf.id, idx, sp);
         }
       }
+      await this.context.configurationAddingEffect.handleAfterAdd({
+        current: subConf as any,
+        parent: parentConf,
+        slot: slotProperty,
+        index
+      });
+
+      return true;
     };
-    await addComponent(conf, parentId, index, slotProperty);
+    return await _addComponent(conf, parentId, index, slotProperty);
   }
 
   public async deleteComponent(id: string): Promise<boolean> {
@@ -191,7 +217,7 @@ export class ConfigurationManager implements IConfigurationManager {
 
     let parent: IComponentConfiguration = this.getComponent(currentTree.parentId, true);
 
-    const deleteResponse = await this.context.configurationDeleteHandler.handleDelete({
+    const deleteResponse = await this.context.configurationDeleteEffect.handleDelete({
       current,
       parent,
       slot: currentTree.slotProperty
@@ -205,13 +231,13 @@ export class ConfigurationManager implements IConfigurationManager {
       }
       return false;
     }
+
     this.context.store.deleteComponent(id);
-    // this.context.event.emit(EventTopicEnum.componentActiving, this.context.store.interactionStore.activeComponentId);
 
     // 删除后父节点需要重新获取更新后的子节点信息
     parent = this.getComponent(currentTree.parentId, true);
 
-    this.context.configurationDeleteHandler.handleAfterDelete({
+    await this.context.configurationDeleteEffect.handleAfterDelete({
       current,
       parent,
       slot: currentTree.slotProperty
@@ -227,7 +253,7 @@ export class ConfigurationManager implements IConfigurationManager {
     // 检查组件类型是否变更
     if (conf.type && conf.type !== type) {
       const previousConf = this.getComponent(conf.id, true);
-      const transferConf = await this.context.configurationTypeTransferHandler.handle({
+      const transferConf = await this.context.configurationTypeTransferEffect.handle({
         previous: previousConf,
         current: conf as any,
       });
@@ -243,13 +269,14 @@ export class ConfigurationManager implements IConfigurationManager {
         store.configurationStore.resetConfiguration(conf.id);
       }
 
-      const { parentId, slotProperty } = store.treeStore.selectComponentTreeInfo(conf.id);
+      const { parentId, slotProperty, index } = store.treeStore.selectComponentTreeInfo(conf.id);
       const parentConf = this.getComponent(parentId, true);
       // 对于类型转化,其实也是另一种形式的添加组件,所以也需要调用adding effect
-      conf = await this.context.configurationAddingHandler.handle({
+      conf = await this.context.configurationAddingEffect.handleAdd({
         current: conf as any,
         parent: parentConf,
         slot: slotProperty,
+        index
       });
     }
 

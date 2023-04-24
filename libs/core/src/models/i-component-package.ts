@@ -14,6 +14,20 @@ export interface IDynamicComponentProps<T = IComponentConfiguration> {
   disabled?: boolean;
   value?: any;
   onChange?: (val: any) => void;
+  className?: string | Array<string> | { [name: string]: boolean };
+  style?: { [property: string]: any };
+  children?: React.ReactNode | ((conf: IComponentConfiguration) => React.ReactNode);
+  options?: { [key: string]: any };
+}
+
+export interface IDynamicComponentContainerProps {
+  configuration: Partial<IComponentConfiguration> & { id: string };
+  slot: string;
+  direction?: 'horizontal' | 'vertical';
+  dropOnly?: boolean;
+  className?: string | Array<string> | { [name: string]: boolean };
+  style?: { [property: string]: any };
+  children?: (cs: Array<IComponentConfiguration>) => React.ReactNode;
 }
 
 export interface IComponentConfigurationPanelProps<T = IComponentConfiguration> {
@@ -34,11 +48,26 @@ export interface IConfigurationPackageModule {
   default: ComponentType<IComponentConfigurationPanelProps>;
 };
 
+export interface IComponentSlotInfo {
+  [componentType: string]: ISlotPropertyDefinition;
+}
+
+export interface ISlotPropertyMatch {
+  accepts?: Array<string>;
+  rejects?: Array<string>;
+  singleton?: boolean;
+}
+
+export interface ISlotPropertyDefinition {
+  [slotProperty: string]: ISlotPropertyMatch;
+}
+
 
 export interface IComponentPackage {
   name?: string; // 组件包名称
   queryComponentDescriptions(): Array<IComponentDescription> | Promise<Array<IComponentDescription>>;
-  loadComponentRunTimeModule(type: string, platform: string): Promise<IRunTimePackageModule>;
-  loadComponentDesignTimeModule(type: string, platform: string): Promise<IDesignTimePackageModule>;
-  loadComponentConfigurationModule(type: string, platform: string): Promise<IConfigurationPackageModule>;
+  queryComponentSlotInfo?(): IComponentSlotInfo | Promise<IComponentSlotInfo>;
+  loadComponentRunTimeModule(type: string, platform?: string): Promise<IRunTimePackageModule>;
+  loadComponentDesignTimeModule(type: string, platform?: string): Promise<IDesignTimePackageModule>;
+  loadComponentConfigurationModule(type: string, platform?: string): Promise<IConfigurationPackageModule>;
 }

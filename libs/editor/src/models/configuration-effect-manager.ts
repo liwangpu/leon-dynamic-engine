@@ -65,9 +65,7 @@ interface IBaseEffectParam<CurrentComponent = IComponentConfiguration, ParentCom
 class EffectHandlerStorage<Handler extends Function = Function, Filter extends IBaseEffectFilter = IBaseEffectFilter, Context extends IBaseEffectContext = IBaseEffectContext> {
 
   private readonly funcs: Array<[Filter, Handler]> = [];
-  public constructor(protected preCompare?: (filter: Filter, context: Context) => boolean) {
-    //
-  }
+  public constructor(protected preCompare?: (filter: Filter, context: Context) => boolean) { }
 
   public add(filter: Filter, func: Handler) {
     if (!filter || !_.isFunction(func)) { return; }
@@ -134,13 +132,22 @@ export type IConfigurationAddingFilter = IBaseEffectFilter;
 /**
  * 添加组件处理器参数
  */
-export type IConfigurationAddingParam = IBaseEffectParam;
+export interface IConfigurationAddingParam extends IBaseEffectParam {
+  index?: number;
+};
 
 /**
  * 添加组件处理器
  */
 export interface IConfigurationAddingHandler {
-  (param: IConfigurationAddingParam): IComponentConfiguration | Promise<IComponentConfiguration>
+  (param: IConfigurationAddingParam): IComponentConfiguration | Promise<IComponentConfiguration>;
+}
+
+/**
+ * 添加组件后的处理器
+ */
+export interface IConfigurationAfterAddingHandler {
+  (param: IConfigurationAddingParam): void | Promise<void>;
 }
 
 /**
@@ -152,12 +159,17 @@ export interface IConfigurationAddingEffectManager {
    * @param filter 过滤条件
    * @param handler 处理器
    */
-  registerHandler(filter: IConfigurationAddingFilter, handler: IConfigurationAddingHandler): void;
+  registerHandler(filter: IConfigurationAddingFilter, handler: IConfigurationAddingHandler, afterAddingHandler?: IConfigurationAfterAddingHandler): void;
   /**
    * 使用添加组件处理器
    * @param param 处理器参数
    */
-  handle(param: IConfigurationAddingParam): Promise<IComponentConfiguration>;
+  handleAdd(param: IConfigurationAddingParam): Promise<IComponentConfiguration>;
+  /**
+   * 使用添加组件后的处理器
+   * @param param 
+   */
+  handleAfterAdd(param: IConfigurationAddingParam): Promise<void>;
 }
 
 /**
@@ -166,13 +178,15 @@ export interface IConfigurationAddingEffectManager {
 export class ConfigurationAddingEffectManager implements IConfigurationAddingEffectManager {
 
   private readonly addHandlers = new EffectHandlerStorage<IConfigurationAddingHandler, IConfigurationAddingFilter>();
+  private readonly addAfterHandlers = new EffectHandlerStorage<IConfigurationAfterAddingHandler, IConfigurationAddingFilter>();
   public constructor(protected context: IEditorContext) { }
 
-  public registerHandler(filter: IBaseEffectFilter, handler: IConfigurationAddingHandler): void {
+  public registerHandler(filter: IBaseEffectFilter, handler: IConfigurationAddingHandler, afterAddingHandler?: IConfigurationAfterAddingHandler): void {
     this.addHandlers.add(filter, handler);
+    this.addAfterHandlers.add(filter, afterAddingHandler);
   }
 
-  public async handle(param: IConfigurationAddingParam): Promise<IComponentConfiguration> {
+  public async handleAdd(param: IConfigurationAddingParam): Promise<IComponentConfiguration> {
     const handlers = this.addHandlers.get({
       type: param.current.type,
       parentType: param.parent?.type,
@@ -182,9 +196,27 @@ export class ConfigurationAddingEffectManager implements IConfigurationAddingEff
     if (handlers && handlers.length) {
       for (const handler of handlers) {
         param.current = await handler(param);
+        // 如果current为null/undefined那么认为取消此次添加
+        if (!param.current) {
+          return null;
+        }
       }
     }
     return param.current;
+  }
+
+  public async handleAfterAdd(param: IConfigurationAddingParam): Promise<void> {
+    const handlers = this.addAfterHandlers.get({
+      type: param.current.type,
+      parentType: param.parent?.type,
+      slot: param.slot,
+    });
+
+    if (handlers && handlers.length) {
+      for (const handler of handlers) {
+        await handler(param);
+      }
+    }
   }
 
 }
@@ -227,7 +259,7 @@ export interface IConfigurationDeleteHandler {
  * 删除组件后处理器
  */
 export interface IConfigurationAfterDeleteHandler {
-  (param: IConfigurationDeleteParam): void;
+  (param: IConfigurationDeleteParam): void | Promise<void>;
 }
 
 /**

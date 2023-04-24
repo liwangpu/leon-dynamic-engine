@@ -10,7 +10,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
 
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
-  const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
+  const DynamicComponent = dynamicEngine.getDynamicComponentFactory();
   const OperatorColumn = useMemo(() => {
     if (!conf.operatorColumn || !conf.operatorColumn.children) { return null; }
     return conf.operatorColumn.children.map(c => (<Button key={c.id} type="text" size='small'>{c.title}</Button>))

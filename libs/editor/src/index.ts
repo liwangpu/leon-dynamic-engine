@@ -12,6 +12,6 @@ export type { IPlugin, IPluginRegister } from './models/plugin';
 export type { IProjectManager } from './models/project-schema-manager';
 export type { ISkeleton, ISkeletonManager } from './models/skeleton-manager';
 export type { IConfigurationManager } from './models/configuration-manager';
-export type { ISlotPropertyMatch, ISlotPropertyDefinition, ISlotManager } from './models/slot-manager';
+export type { ISlotManager } from './models/slot-manager';
 export type { IConfigurationHandlerFilter, IConfigurationAddingHandler, IConfigurationAddingEffectManager } from './models/configuration-effect-manager';
 export type { EditorStoreModel } from './store';

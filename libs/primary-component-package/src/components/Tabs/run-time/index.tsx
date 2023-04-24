@@ -9,7 +9,7 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
   const conf = props.configuration;
   const children = conf.children || [];
   const dynamicEngine = useDynamicComponentEngine();
-  const DynamicComponent = dynamicEngine.getDynamicComponentRenderFactory();
+  const DynamicComponent = dynamicEngine.getDynamicComponentFactory();
   const isVertical = conf.direction === 'vertical';
 
   const Items = useMemo(() => {

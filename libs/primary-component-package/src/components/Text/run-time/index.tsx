@@ -1,4 +1,4 @@
-import { IDynamicComponentProps } from '@lowcode-engine/core';
+import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { Input } from 'antd';
 import React, { memo } from 'react';
 import { ITextComponentConfiguration } from '../../../models';
@@ -7,6 +7,9 @@ import styles from './index.module.less';
 const Text: React.FC<IDynamicComponentProps<ITextComponentConfiguration>> = memo(props => {
 
   const conf = props.configuration;
+  // const { hierarchyManager } = useDynamicComponentEngine();
+  // const parent = hierarchyManager.getParent(conf.id);
+
   const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
     if (!conf.field) { return; }
     props.onChange(el.target.value);

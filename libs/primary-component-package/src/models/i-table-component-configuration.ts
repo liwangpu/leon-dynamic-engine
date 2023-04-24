@@ -11,12 +11,6 @@ export interface ITableOperatorColumnComponentConfiguration extends IComponentCo
   children?: Array<IComponentConfiguration>;
 }
 
-export interface ISerialNumberColumnComponentConfiguration extends IComponentConfiguration {
-  visible?: boolean;
-  freeze?: boolean;
-  export?: boolean;
-}
-
 export interface ISelectionColumnComponentConfiguration extends IComponentConfiguration {
   selectionMode?: TableSelectionMode;
 }
@@ -26,7 +20,6 @@ export interface ITableComponentConfiguration extends IComponentConfiguration {
   operators?: Array<IComponentConfiguration>;
   operatorColumn?: ITableOperatorColumnComponentConfiguration;
   selectionColumn?: ISelectionColumnComponentConfiguration;
-  serialNumberColumn?: ISerialNumberColumnComponentConfiguration;
   features?: Array<TableFeature>;
   pagination?: IPaginationComponentConfiguration;
 }

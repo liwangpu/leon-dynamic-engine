@@ -1,4 +1,4 @@
-import { ComponentDiscoveryContext, GenerateComponentId, IComponentConfiguration, IDynamicComponentProps, IDynamicComponentContainerRendererRef, IDynamicComponentContainerRendererProps, IDynamicComponentRendererProps } from '@lowcode-engine/core';
+import { ComponentDiscoveryContext, GenerateComponentId, IComponentConfiguration, IDynamicComponentContainerRendererRef, IDynamicComponentContainerProps, IDynamicComponentProps } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect, useRef, useState, ComponentType, useMemo, useLayoutEffect, useImperativeHandle, forwardRef, memo } from 'react';
 import Sortable from 'sortablejs';
@@ -17,12 +17,12 @@ const loadRemoteModule = async (loader: () => Promise<any>) => {
   }
 };
 
-export const DynamicComponent: React.FC<IDynamicComponentRendererProps> = observer(props => {
+export const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props => {
   const conf = props.configuration;
   const CustomRender = props.children;
   const compDiscovery = useContext(ComponentDiscoveryContext);
   const [componentLoaded, setComponentLoaded] = useState(false);
-  const [Component, setComponent] = useState<ComponentType<IDynamicComponentRendererProps>>();
+  const [Component, setComponent] = useState<ComponentType<IDynamicComponentProps>>();
 
   useEffect(() => {
     if (CustomRender) {
@@ -60,11 +60,11 @@ export const DynamicComponent: React.FC<IDynamicComponentRendererProps> = observ
 
 DynamicComponent.displayName = 'DynamicComponent';
 
-export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentContainerRendererRef, IDynamicComponentContainerRendererProps>((props, ref) => {
-  const { configuration, children: CustomSlotRenderer, direction = 'vertical', className, dropOnly, slot: slotProperty, style } = props;
-  const componentId = configuration.id;
+export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentContainerRendererRef, IDynamicComponentContainerProps>((props, ref) => {
+  const { children: CustomSlotRenderer, direction = 'vertical', className, dropOnly, slot: slotProperty, style } = props;
+  const componentId = props.configuration.id;
   const horizontal = direction === 'horizontal';
-  const { store, slot, dom, event, configurationAddingHandler } = useContext(EditorContext);
+  const { store, slot, dom, event, configurationAddingEffect, configuration } = useContext(EditorContext);
   const pagePresentationUtil = useContext(PagePresentationUtilContext);
   const slotRendererRef = useRef<HTMLDivElement>();
   const conf = store.configurationStore.selectComponentConfigurationWithoutChildren(componentId, true);
@@ -210,14 +210,9 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
         // 新增的组件可能会有插槽组件数据,这里需要解析一下插槽配置
         const addComponent = async (subConf: IComponentConfiguration, parentId: string, index: number, slotProperty: string) => {
           const slotProperties = slot.getSlotProperties(subConf.type);
-          const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
-          subConf = await configurationAddingHandler.handle({
-            current: subConf,
-            parent: parentConf,
-            slot: slotProperty,
-          });
           const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
-          store.addComponent(pureConf, parentId, index, slotProperty);
+          const canAdd = await configuration.addComponent(pureConf, parentId, index, slotProperty);
+          if (!canAdd) { return; }
           for (const sp of slotProperties) {
             const singleton = slot.checkSlotSingleton(subConf.type, sp);
             let components: Array<IComponentConfiguration> = [];
@@ -315,7 +310,7 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
 
 DynamicComponentContainer.displayName = 'DynamicComponentContainer';
 
-const ChildrenContentWrapper: React.FC<IDynamicComponentRendererProps> = memo(props => {
+const ChildrenContentWrapper: React.FC<IDynamicComponentProps> = memo(props => {
 
   return (
     <>
@@ -326,7 +321,7 @@ const ChildrenContentWrapper: React.FC<IDynamicComponentRendererProps> = memo(pr
 
 ChildrenContentWrapper.displayName = 'ChildrenContentWrapper';
 
-const ChildSlotProperyPatchWrapper = (Component: ComponentType<IDynamicComponentRendererProps>) => {
+const ChildSlotProperyPatchWrapper = (Component: ComponentType<IDynamicComponentProps>) => {
 
   const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
     const conf = { ...props.configuration };
@@ -357,7 +352,7 @@ const ChildSlotProperyPatchWrapper = (Component: ComponentType<IDynamicComponent
   return wrapper;
 };
 
-const EditorUIEffectWrapper = (Component: ComponentType<IDynamicComponentRendererProps>) => {
+const EditorUIEffectWrapper = (Component: ComponentType<IDynamicComponentProps>) => {
   const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
     const { store, dom, event } = useContext(EditorContext);
     const conf = props.configuration;
