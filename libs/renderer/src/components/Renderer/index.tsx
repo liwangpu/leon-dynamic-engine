@@ -14,16 +14,6 @@ export interface DynamicPageProps extends _RendererProps {
   packages: IComponentPackage[];
 }
 
-// const componentFactory: IDynamicComponentFactory = {
-//   hierarchyManager: null,
-//   getDynamicComponentFactory: () => {
-//     return DynamicComponent;
-//   },
-//   getDynamicComponentContainerFactory: () => {
-//     return DynamicComponentContainer;
-//   },
-// };
-
 export const _Renderer: React.FC<_RendererProps> = memo(props => {
   const engine = useDynamicComponentEngine();
   const DynamicComponent = engine.getDynamicComponentFactory();
@@ -88,54 +78,21 @@ Renderer.displayName = 'Renderer';
 
 class HierarchyManager implements IComponentHierarchyManager {
 
-  private readonly componentConfMap = new Map<string, IComponentConfiguration>();
-  private readonly treeNodeMap = new Map<string, IComponentHierarchyNode>();
-  public constructor(protected discovery: IComponentDiscovery, protected schema: IProjectSchema) {
-
-  }
+  private components = new Map<string, IComponentConfiguration>();
+  private trees = new Map<string, IComponentHierarchyNode>();
+  public constructor(protected discovery: IComponentDiscovery, protected schema: IProjectSchema) { }
 
   public getParent(id: string): IComponentConfiguration {
-    const treeNode = this.treeNodeMap.get(id);
+    const treeNode = this.trees.get(id);
     if (!treeNode || !treeNode.parentId) { return null; }
 
-    return this.componentConfMap.get(treeNode.parentId);
+    return this.components.get(treeNode.parentId);
   }
 
   public async initialize(): Promise<void> {
-    if (!this.schema) { return; }
-    const slotInfoMap = await this.discovery.queryComponentSlotInfo();
-    const traverseComponent = (conf: IComponentConfiguration, parentId?: string, slotProperty?: string) => {
-      /**
-       * 这里遍历项目的schema,主要做以下几件事
-       *  生成扁平组件树节点
-       *  记录下组件配置节点的引用
-       */
-      const treeNode: IComponentHierarchyNode = {
-        id: conf.id,
-        type: conf.type,
-        parentId,
-        slotProperty,
-        slots: {}
-      };
-      this.componentConfMap.set(conf.id, conf);
-      const slotInfo = slotInfoMap[conf.type];
-
-      if (slotInfo) {
-        for (const slot in slotInfo) {
-          const definition = slotInfo[slot];
-          if (!conf[slot]) { continue; }
-          const children: Array<IComponentConfiguration> = definition.singleton ? [conf[slot]] : conf[slot];
-          children.forEach(c => {
-            traverseComponent(c, conf.id, slot);
-          });
-          treeNode.slots[slot] = children.map(c => c.id);
-        }
-      }
-
-      this.treeNodeMap.set(treeNode.id, treeNode);
-    };
-
-    traverseComponent(this.schema);
+    const { configurations, trees } = await this.discovery.analyseSchema(this.schema);
+    this.components = configurations;
+    this.trees = trees;
   }
 
 }

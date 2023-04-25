@@ -13,3 +13,7 @@ export function GenerateComponentId(type: string): string {
 export function GenerateNestedComponentId(parentId: string, componentType: string): string {
   return `${parentId}_${componentType.toUpperCase()}`;
 }
+
+export function GenerateComponentCode(type: string): string {
+  return GenerateShortId(type, 8).toLocaleLowerCase().replace('-', '_');
+};

@@ -27,7 +27,7 @@ const Home: React.FC = memo(() => {
 
   return (
     <div className='app-home'>
-      <div className="animation-container">
+      {/* <div className="animation-container">
         <div className="lightning-container">
           <div className="lightning white"></div>
           <div className="lightning red"></div>
@@ -45,7 +45,7 @@ const Home: React.FC = memo(() => {
           <div className="shape disc white"></div>
           <div className="shape triangle blue"></div>
         </div>
-      </div>
+      </div> */}
       <div className="header">
         <p className="title">动态引擎演示</p>
       </div>

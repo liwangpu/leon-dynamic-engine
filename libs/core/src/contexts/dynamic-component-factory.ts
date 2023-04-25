@@ -11,6 +11,7 @@ export interface IComponentHierarchyNode {
   type: string;
   parentId?: string;
   slotProperty?: string;
+  slotIndex?: number;
   slots?: { [slotProperty: string]: Array<string> };
 }
 

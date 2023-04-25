@@ -11,7 +11,7 @@ const customConfiguration = {
 
 export class ComponentPackage implements IComponentPackage {
 
-  name = 'PrimaryComponentPackage';
+  public readonly name = 'PrimaryComponentPackage';
   private static _instance: ComponentPackage;
   private constructor() {
     //
@@ -32,15 +32,15 @@ export class ComponentPackage implements IComponentPackage {
     return ComponentSlotInfo;
   }
 
-  public async loadComponentRunTimeModule(type: ComponentTypes, platform: string): Promise<IRunTimePackageModule> {
+  public loadComponentRunTimeModule(type: ComponentTypes): Promise<IRunTimePackageModule> {
     return import(`./components/${pascalFormat(type)}/run-time`);
   }
 
-  public async loadComponentDesignTimeModule(type: ComponentTypes, platform: string): Promise<IDesignTimePackageModule> {
+  public loadComponentDesignTimeModule(type: ComponentTypes): Promise<IDesignTimePackageModule> {
     return import(`./components/${pascalFormat(type)}/design-time`);
   }
 
-  public async loadComponentConfigurationModule(type: ComponentTypes, platform: string): Promise<IConfigurationPackageModule> {
+  public loadComponentConfigurationModule(type: ComponentTypes): Promise<IConfigurationPackageModule> {
     return DynamicConfigPanelLoader(
       customConfiguration[type] ? customConfiguration[type] : () => import(`./components/${pascalFormat(type)}/configuration`)
     );

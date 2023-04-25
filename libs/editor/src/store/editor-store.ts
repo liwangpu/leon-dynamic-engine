@@ -53,14 +53,14 @@ const EditorStore = types.model({
       // 设置一些基础信息
       // 理论上说,state一般是没有interaction数据的,但是不排除一种,如果是快照类型的state,那么包含这部分的信息
       // 如果没有pageComponentId,可以断定就是没有interaction数据的
-      if (!self.interactionStore.pageComponentId) {
+      if (!self.interactionStore.rootId) {
         const components = self.treeStore.selectTreeComponents();
-        const pageTree = components.find(t => !t.parentId);
-        if (pageTree) {
-          const pageId = pageTree.id;
-          self.interactionStore.pageComponentId = pageId;
-          self.interactionStore.activeComponentId = pageId;
-          self.interactionStore.editingComponentIds.push(pageId);
+        const rootTree = components.find(t => !t.parentId);
+        if (rootTree) {
+          const rootId = rootTree.id;
+          self.interactionStore.rootId = rootId;
+          self.interactionStore.activeComponentId = rootId;
+          self.interactionStore.editingComponentIds.push(rootId);
         }
       }
     },

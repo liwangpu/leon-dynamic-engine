@@ -2,7 +2,7 @@ import { types } from "mobx-state-tree";
 import * as _ from 'lodash';
 
 export const InteractionStore = types.model({
-  pageComponentId: types.maybeNull(types.string),
+  rootId: types.maybeNull(types.string),
   activeComponentId: types.maybeNull(types.string),
   editingComponentIds: types.optional(types.array(types.string), [])
 })

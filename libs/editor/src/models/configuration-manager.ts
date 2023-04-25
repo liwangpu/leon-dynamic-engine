@@ -40,13 +40,14 @@ export interface IConfigurationManager {
    * @param withSlot 是否附带插槽子组件配置(如果带,只附带子一级)
    */
   getParentComponent(id: string, withSlot?: boolean): IComponentConfiguration;
+  getComponentPath(id: string): Array<IComponentConfiguration>;
   /**
    * 获取组件的类型
    * @param id 组件id
    */
   getComponentType(id: string): string;
   /**
-   * 获取组件的父组件id
+   * 获取组件的父组件id 
    * @param id 父组件id
    */
   getParentId(id: string): string;
@@ -90,7 +91,6 @@ export class ConfigurationManager implements IConfigurationManager {
   private readonly selectors = new Map<string, IConfigurationSelector>();
 
   public constructor(protected context: IEditorContext) { }
-
 
   public getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector {
     // 先找最精确匹配的,如果找不到然后逐次降低优先级
@@ -143,6 +143,11 @@ export class ConfigurationManager implements IConfigurationManager {
     return this.getComponent(parentId, withSlot);
   }
 
+  public getComponentPath(id: string): Array<IComponentConfiguration> {
+    const pathInfo = this.context.store.selectHierarchyList(id);
+    return pathInfo.map(p => this.getComponent(p.id, true));
+  }
+
   public hasComponent(id: string): boolean {
     if (!id) { return false; }
     return this.context.store.treeStore.trees.has(id);
@@ -172,15 +177,18 @@ export class ConfigurationManager implements IConfigurationManager {
     const _addComponent = async (subConf: Partial<IComponentConfiguration>, parentId: string, index: number, slotProperty: string) => {
       const slotProperties = this.context.slot.getSlotProperties(subConf.type);
       const parentConf = this.context.store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
+      const componentPath = this.getComponentPath(parentId);
       subConf = await this.context.configurationAddingEffect.handleAdd({
         current: subConf as any,
         parent: parentConf,
         slot: slotProperty,
-        index
+        index,
+        path: componentPath,
       });
       if (!subConf) {
         return false;
       }
+
       const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
       this.context.store.addComponent(pureConf, parentId, index, slotProperty);
       for (const sp of slotProperties) {
@@ -202,7 +210,8 @@ export class ConfigurationManager implements IConfigurationManager {
         current: subConf as any,
         parent: parentConf,
         slot: slotProperty,
-        index
+        index,
+        path: componentPath,
       });
 
       return true;
@@ -271,12 +280,14 @@ export class ConfigurationManager implements IConfigurationManager {
 
       const { parentId, slotProperty, index } = store.treeStore.selectComponentTreeInfo(conf.id);
       const parentConf = this.getComponent(parentId, true);
+      const componentPath = this.getComponentPath(conf.id);
       // 对于类型转化,其实也是另一种形式的添加组件,所以也需要调用adding effect
       conf = await this.context.configurationAddingEffect.handleAdd({
         current: conf as any,
         parent: parentConf,
         slot: slotProperty,
-        index
+        index,
+        path: componentPath,
       });
     }
 

@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { ComponentTypes, TableFeature, TableSelectionMode } from '@lowcode-engine/primary-component-package';
 import { StoreContext } from '../../contexts';
 import { useParams } from 'react-router-dom';
-import { GenerateComponentId, GenerateNestedComponentId, GenerateShortId, IComponentConfiguration } from '@lowcode-engine/core';
+import { GenerateComponentId, GenerateNestedComponentId, IComponentConfiguration } from '@lowcode-engine/core';
 import { getSnapshot } from 'mobx-state-tree';
 import { IBusinessModel } from '@lowcode-engine/primary-plugin';
 

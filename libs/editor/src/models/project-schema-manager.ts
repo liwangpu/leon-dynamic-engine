@@ -23,7 +23,7 @@ export class ProjectSchemaManager implements IProjectManager {
     const slotSingletonMap = this.context.slot.getAllSlotSingletonMap();
     const state = generateDesignState(schema, slotPropertyMap, slotSingletonMap);
     this.context.store.setState(state);
-    this.context.event.emit(EventTopicEnum.importSchema, { pageComponentId: state.interactionStore.pageComponentId });
+    this.context.event.emit(EventTopicEnum.importSchema, { rootId: state.interactionStore.rootId });
   }
 
   public export(): IProjectSchema {
@@ -36,7 +36,8 @@ export class ProjectSchemaManager implements IProjectManager {
   public monitorSchema(onChange: (schema: IProjectSchema) => void): IDisposer {
     if (!_.isFunction(onChange)) { return; }
     const slotPropertyMap = this.context.slot.getAllSlotProperties();
-    const schema = nestComponentTree(getSnapshot(this.context.store), slotPropertyMap);
+    const slotSingletonMap = this.context.slot.getAllSlotSingletonMap();
+    const schema = nestComponentTree(getSnapshot(this.context.store), slotPropertyMap, slotSingletonMap);
     onChange(schema);
     return onAction(this.context.store, act => {
       // console.log(`path:`, act.path, act.name);

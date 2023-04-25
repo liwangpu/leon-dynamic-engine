@@ -28,9 +28,9 @@ export function generateDesignState(metadata: IComponentConfiguration, slotMap: 
   const componentTrees: { [id: string]: SnapshotIn<ComponentTreeModel> } = {};
   const componentConfigurations: { [id: string]: SnapshotIn<ConfigurationModel> } = {};
 
-  const generateComponentMetadataAndTree = (md: IComponentConfiguration, parentId?: string, slotProperty?: string) => {
+  const generateComponentMetadataAndTree = (md: IComponentConfiguration, parentId?: string, slotProperty?: string, singleton?: boolean) => {
     const id: string = md.id!;
-    const ctree: SnapshotIn<ComponentTreeModel> = { id, type: md.type };
+    const ctree: SnapshotIn<ComponentTreeModel> = { id, type: md.type, singleton: !!singleton };
     if (parentId) {
       ctree.parentId = parentId;
     }
@@ -46,8 +46,9 @@ export function generateDesignState(metadata: IComponentConfiguration, slotMap: 
     for (let property of properties) {
       let childrenMetadatas = [];
       const k = getSingletonMapKey(md.type, property);
+      const isSingleton = singletonMap[k];
       if (md[property]) {
-        if (singletonMap[k]) {
+        if (isSingleton) {
           childrenMetadatas.push(md[property]);
         } else {
           childrenMetadatas = md[property];
@@ -62,7 +63,7 @@ export function generateDesignState(metadata: IComponentConfiguration, slotMap: 
           ctree.slots = slots;
         }
         childrenMetadatas.forEach(cmd => {
-          generateComponentMetadataAndTree(cmd, id, property);
+          generateComponentMetadataAndTree(cmd, id, property, isSingleton);
         });
       }
       delete md[property];
@@ -105,7 +106,8 @@ export function nestComponentTree(state: SnapshotIn<EditorStoreModel>, slotMap: 
       let propertyIds: Array<string> = tree.slots[property] as any || [];
       if (propertyIds.length) {
         const singletonMapKey = getSingletonMapKey(conf.type, property);
-        if (singletonMap[singletonMapKey]) {
+        const isSingleton = singletonMap[singletonMapKey];
+        if (isSingleton) {
           conf[property] = componentConfMap.get(propertyIds[0]);
         } else {
           conf[property] = propertyIds.map(cid => componentConfMap.get(cid));
@@ -116,8 +118,8 @@ export function nestComponentTree(state: SnapshotIn<EditorStoreModel>, slotMap: 
     }
   };
 
-  const pageId = state.interactionStore.pageComponentId;
-  supplementChildrenConfig(pageId);
+  const rootId = state.interactionStore.rootId;
+  supplementChildrenConfig(rootId);
 
-  return componentConfMap.get(pageId);
+  return componentConfMap.get(rootId);
 }

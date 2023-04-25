@@ -1,13 +1,17 @@
 import styles from './index.module.less';
-import { IDynamicComponentProps, useEventCenter } from '@lowcode-engine/core';
+import { IDynamicComponentProps, useDynamicComponentEngine, useEventCenter } from '@lowcode-engine/core';
 import React, { memo, useRef } from 'react';
 import { IVideoPlayerComponentConfiguration } from '../../../models';
 
 const VideoPlayer: React.FC<IDynamicComponentProps<IVideoPlayerComponentConfiguration>> = memo(props => {
 
-  const { title, vedioUrl, showControl } = props.configuration;
+  const { id, title, vedioUrl, showControl } = props.configuration;
   const { registerAction } = useEventCenter(props.configuration);
   const videoPlayerRef = useRef<any>();
+
+  const { hierarchyManager } = useDynamicComponentEngine();
+  const parent = hierarchyManager.getParent(id);
+  console.log(`video parent:`, parent);
 
   registerAction('start', async () => {
 

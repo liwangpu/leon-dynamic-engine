@@ -302,7 +302,7 @@ PagePresentation.displayName = 'PagePresentation';
 
 const RendererImplement: React.FC = observer(() => {
   const { store } = useContext(EditorContext);
-  const schema = store.configurationStore.selectComponentConfigurationWithoutChildren(store.interactionStore.pageComponentId);
+  const schema = store.configurationStore.selectComponentConfigurationWithoutChildren(store.interactionStore.rootId);
 
   return (
     <Renderer schema={schema} />

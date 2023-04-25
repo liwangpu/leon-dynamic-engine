@@ -21,7 +21,7 @@ export interface IDynamicComponentProps<T = IComponentConfiguration> {
 }
 
 export interface IDynamicComponentContainerProps {
-  configuration: Partial<IComponentConfiguration> & { id: string };
+  configuration: Partial<IComponentConfiguration>;
   slot: string;
   direction?: 'horizontal' | 'vertical';
   dropOnly?: boolean;

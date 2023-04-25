@@ -7,6 +7,7 @@ const ComponentTree = types.model({
   id: types.string,
   type: types.string,
   parentId: types.maybeNull(types.string),
+  singleton: types.maybeNull(types.boolean),
   slotProperty: types.maybeNull(types.string),
   slots: types.map(types.array(types.string))
 }).views(self => ({

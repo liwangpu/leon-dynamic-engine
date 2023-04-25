@@ -4,46 +4,21 @@ import { useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Editor, IEditorRef, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
 import { ComponentGalleryPluginRegister, ComponentToolBarRegister, HierarchyIndicatorRegister, IBusinessModel, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
 import { ComponentPackageContext } from '../../contexts';
-import { ButtonUIType, ComponentTypes, IButtonComponentConfiguration, RegisterSetter as RegisterPrimarySetter, GridSystemSection, ITabsComponentConfiguration, ITabComponentConfiguration, ITableComponentConfiguration, TableFeature, TableSelectionMode } from '@lowcode-engine/primary-component-package';
+import { ComponentTypes, RegisterSetter as RegisterPrimarySetter, GridSystemSection, ITabsComponentConfiguration, ITabComponentConfiguration, ITableComponentConfiguration, TableFeature, TableSelectionMode } from '@lowcode-engine/primary-component-package';
 import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/component-configuration-shared';
 import { Button, Modal, notification } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined, ClearOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
-import { GenerateComponentId, GenerateNestedComponentId, GenerateShortId, IProjectSchema } from '@lowcode-engine/core';
+import { GenerateComponentCode, GenerateComponentId, GenerateNestedComponentId, GenerateShortId, IComponentConfiguration, IProjectSchema } from '@lowcode-engine/core';
 import { ModelRepository, PageRepository } from '../../models';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
 import { IVideoPlayerComponentConfiguration } from '../../video-player';
+import { buttonGroupTypes, ComponentIndexTitleIncludeGroupTypes, FormInputGroupTypes, selfSlotGroupTypes } from '../../consts';
 
 const { confirm } = Modal;
 
 RegisterPrimarySetter();
 RegisterSharedSetter();
-
-const buttonTypes: Array<ComponentTypes> = [
-  ComponentTypes.button,
-  ComponentTypes.buttonGroup
-];
-
-const selfSlotTypes: Array<ComponentTypes> = [
-  ComponentTypes.tab
-];
-
-const formInputTypes: Array<ComponentTypes> = [
-  ComponentTypes.text,
-  ComponentTypes.textarea,
-  ComponentTypes.number
-];
-
-const ComponentIndexTitleIncludeTypes = new Set<string>([
-  ComponentTypes.block,
-  ComponentTypes.table,
-  ComponentTypes.button,
-  ComponentTypes.buttonGroup,
-]);
-
-const GenerateComponentCode = (type: string) => {
-  return GenerateShortId(type, 8).toLocaleLowerCase().replace('-', '_');
-}
 
 const PageEditor: React.FC = memo(() => {
 
@@ -132,23 +107,23 @@ const PageEditor: React.FC = memo(() => {
             slot.registerMap({
               [ComponentTypes.detailPage]: {
                 children: {
-                  rejects: [...buttonTypes, ...formInputTypes, ...selfSlotTypes]
+                  rejects: [...buttonGroupTypes, ...FormInputGroupTypes, ...selfSlotGroupTypes]
                 },
                 operators: {
-                  accepts: [...buttonTypes]
+                  accepts: [...buttonGroupTypes]
                 }
               },
               [ComponentTypes.listPage]: {
                 children: {
-                  rejects: [...buttonTypes, ...formInputTypes, ...selfSlotTypes]
+                  rejects: [...buttonGroupTypes, ...FormInputGroupTypes, ...selfSlotGroupTypes]
                 },
                 operators: {
-                  accepts: [...buttonTypes]
+                  accepts: [...buttonGroupTypes]
                 }
               },
               [ComponentTypes.block]: {
                 children: {
-                  rejects: [...buttonTypes, ...selfSlotTypes]
+                  rejects: [...buttonGroupTypes, ...selfSlotGroupTypes]
                 }
               },
               [ComponentTypes.buttonGroup]: {
@@ -163,16 +138,16 @@ const PageEditor: React.FC = memo(() => {
               },
               [ComponentTypes.tab]: {
                 children: {
-                  rejects: [...buttonTypes, ...selfSlotTypes]
+                  rejects: [...buttonGroupTypes, ...selfSlotGroupTypes]
                 }
               },
               [ComponentTypes.table]: {
                 operators: {
-                  accepts: [...buttonTypes]
+                  accepts: [...buttonGroupTypes]
                 },
                 columns: {
-                  accepts: [...formInputTypes],
-                  rejects: [...buttonTypes]
+                  accepts: [...FormInputGroupTypes],
+                  rejects: [...buttonGroupTypes]
                 },
                 operatorColumn: {
                   singleton: true
@@ -200,8 +175,9 @@ const PageEditor: React.FC = memo(() => {
       ({ configurationAddingEffect, configurationDeleteEffect, configurationTypeTransferEffect, configuration }) => {
         return {
           init() {
-            // 添加组件副作用
-            configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, type: [ComponentTypes.text, ComponentTypes.number] }, ({ current }) => {
+            /********************************组件添加副作用********************************/
+
+            configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, type: FormInputGroupTypes }, ({ current }) => {
               // eslint-disable-next-line no-param-reassign
               current.gridColumnSpan = GridSystemSection['1/2'];
               return current;
@@ -209,28 +185,23 @@ const PageEditor: React.FC = memo(() => {
 
             configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, type: ComponentTypes.textarea }, ({ current }) => {
               // eslint-disable-next-line no-param-reassign
-              current.gridColumnSpan = GridSystemSection['1/2'];
               current.gridRowSpan = 3;
               return current;
             });
 
-            configurationAddingEffect.registerHandler(
-              {
-                type: ComponentTypes.table,
-              },
-              ({ current }: { current: ITableComponentConfiguration }) => {
-                // 添加表格默认支持操作列和分页
-                current.features = [
-                  TableFeature.selectionColumn,
-                  TableFeature.operationColumn,
-                  TableFeature.pagination,
-                ];
-                current.pagination = { id: GenerateNestedComponentId(current.id, ComponentTypes.pagination), type: ComponentTypes.pagination, title: '分页器', pageSize: 20 };
-                current.selectionColumn = { id: GenerateNestedComponentId(current.id, ComponentTypes.tableSelectionColumn), type: ComponentTypes.tableSelectionColumn, selectionMode: TableSelectionMode.multiple };
-                current.operatorColumn = { id: GenerateNestedComponentId(current.id, ComponentTypes.tableOperatorColumn), type: ComponentTypes.tableOperatorColumn, title: '操作列', visible: true, tileButtonCount: 3 };
+            configurationAddingEffect.registerHandler({ type: ComponentTypes.table, }, ({ current }: { current: ITableComponentConfiguration }) => {
+              // 添加表格默认支持操作列和分页
+              current.features = [
+                TableFeature.selectionColumn,
+                TableFeature.operationColumn,
+                TableFeature.pagination,
+              ];
+              current.pagination = { id: GenerateNestedComponentId(current.id, ComponentTypes.pagination), type: ComponentTypes.pagination, title: '分页器', pageSize: 20 };
+              current.selectionColumn = { id: GenerateNestedComponentId(current.id, ComponentTypes.tableSelectionColumn), type: ComponentTypes.tableSelectionColumn, selectionMode: TableSelectionMode.multiple };
+              current.operatorColumn = { id: GenerateNestedComponentId(current.id, ComponentTypes.tableOperatorColumn), type: ComponentTypes.tableOperatorColumn, title: '操作列', visible: true, tileButtonCount: 3 };
 
-                return current;
-              }
+              return current;
+            }
             );
 
             configurationAddingEffect.registerHandler({ type: ComponentTypes.tabs }, ({ current }: { current: ITabsComponentConfiguration }) => {
@@ -270,7 +241,7 @@ const PageEditor: React.FC = memo(() => {
               if (!current.code) {
                 current.code = GenerateComponentCode(current.type);
               }
-              if (ComponentIndexTitleIncludeTypes.has(current.type)) {
+              if (ComponentIndexTitleIncludeGroupTypes.has(current.type)) {
                 if (current.title) {
                   // 取出组件标题,如果后面一位不是数字,加上数字标识
                   const lastChar = current.title[current.title.length - 1];
@@ -283,18 +254,23 @@ const PageEditor: React.FC = memo(() => {
               return current;
             });
 
-            // 删除组件
-            configurationDeleteEffect.registerHandler(
-              { type: ComponentTypes.tab },
-              ({ current, parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
-                // 如果当前的页签已经已经是最后一个,那么不允许删除
-                if (parent.children.length === 1) {
-                  return {
-                    canDelete: false,
-                    message: '已经是最后一个页签了,不能执行删除',
-                  };
-                }
-              },
+            configurationAddingEffect.registerHandler({ type: ComponentTypes.block }, ({ current, path }: { current: IVideoPlayerComponentConfiguration, path: Array<IComponentConfiguration> }) => {
+              // current.vedioUrl = 'https://www.runoob.com/try/demo_source/movie.ogg';
+              // return current;
+              console.log(`add block path:`, path);
+              return current;
+            });
+
+            /********************************组件删除副作用********************************/
+            configurationDeleteEffect.registerHandler({ type: ComponentTypes.tab }, ({ parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
+              // 如果当前的页签已经已经是最后一个,那么不允许删除
+              if (parent.children.length === 1) {
+                return {
+                  canDelete: false,
+                  message: '已经是最后一个页签了,不能执行删除',
+                };
+              }
+            },
               ({ current, parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
                 // 如果当前的页签是默认页签,那么需要把多页签组件默认页签信息更新
                 if (current.isDefault) {
@@ -318,11 +294,9 @@ const PageEditor: React.FC = memo(() => {
             //   };
             // });
 
-            configurationTypeTransferEffect.registerHandler({
-              destType: VideoPlayerComponentTypes.videoPlayer,
-            }, ({ current }: { current: IVideoPlayerComponentConfiguration }) => {
+            /********************************组件转化类型副作用********************************/
+            configurationTypeTransferEffect.registerHandler({ destType: VideoPlayerComponentTypes.videoPlayer }, ({ current }: { current: IVideoPlayerComponentConfiguration }) => {
               current.vedioUrl = 'https://www.runoob.com/try/demo_source/movie.ogg';
-              // return { vedioUrl: 'https://www.runoob.com/try/demo_source/movie.ogg' };
               return current;
             });
 
@@ -401,7 +375,7 @@ const PageEditor: React.FC = memo(() => {
       // 模型库注册插件
       ModelGalleryPluginRegister(businessModel, async id => {
         return ModelRepository.getInstance().get(id);
-      }, async data => {
+      }, data => {
         return { type: 'text', title: data.name };
       }),
       // schema源码插件

@@ -21,7 +21,7 @@ export const ComponentDescriptions: IComponentDescription[] = [
 
 export class ComponentPackage implements IComponentPackage {
 
-  readonly name = 'VideoPlayerComponentPackage';
+  public readonly name = 'VideoPlayerComponentPackage';
   private static _instance: ComponentPackage;
   private constructor() {
     //
@@ -34,7 +34,7 @@ export class ComponentPackage implements IComponentPackage {
     return this._instance;
   }
 
-  queryComponentDescriptions(): Array<IComponentDescription> {
+  public queryComponentDescriptions(): Array<IComponentDescription> {
     return ComponentDescriptions;
   }
 
@@ -43,7 +43,7 @@ export class ComponentPackage implements IComponentPackage {
    * @param type - 组件类型
    * @param platform - 平台
    */
-  async loadComponentRunTimeModule(type: ComponentTypes, platform: string): Promise<IRunTimePackageModule> {
+  public loadComponentRunTimeModule(type: ComponentTypes): Promise<IRunTimePackageModule> {
     return import(`./components/${pascalFormat(type)}/run-time`);
   }
 
@@ -52,7 +52,7 @@ export class ComponentPackage implements IComponentPackage {
    * @param type - 组件类型
    * @param platform - 平台
    */
-  async loadComponentDesignTimeModule(type: ComponentTypes, platform: string): Promise<IDesignTimePackageModule> {
+  public loadComponentDesignTimeModule(type: ComponentTypes): Promise<IDesignTimePackageModule> {
     return null;
   }
 
@@ -61,7 +61,7 @@ export class ComponentPackage implements IComponentPackage {
    * @param type - 组件类型
    * @param platform - 平台
    */
-  async loadComponentConfigurationModule(type: ComponentTypes, platform: string): Promise<IConfigurationPackageModule> {
+  public loadComponentConfigurationModule(type: ComponentTypes): Promise<IConfigurationPackageModule> {
     return DynamicConfigPanelLoader(() => import(`./components/${pascalFormat(type)}/configuration`));
   }
 

@@ -1,8 +1,8 @@
 import styles from './index.module.less';
 import { Outlet } from "react-router-dom";
 import { memo } from 'react';
-import { ComponentPackageContext } from './contexts';
-import { IComponentPackage } from '@lowcode-engine/core';
+import { ComponentPackageContext, SchemaDataProcessorContext } from './contexts';
+import { IComponentPackage, SchemaDataProcessor } from '@lowcode-engine/core';
 import { DataStoreCollocationContext, EditorStoreModel, IDataStoreCollocation } from '@lowcode-engine/editor';
 import { ComponentPackage as PrimaryComponentPackage } from '@lowcode-engine/primary-component-package';
 import { ComponentPackage as VideoPlayerComponentPackage } from './video-player';
@@ -21,14 +21,20 @@ const dataStoreCollocation: IDataStoreCollocation = {
   },
 };
 
+const schemaDataProcessor = new SchemaDataProcessor(packages);
+
 const App: React.FC = memo(() => {
+
+
   return (
     <DataStoreCollocationContext.Provider value={dataStoreCollocation}>
-      <ComponentPackageContext.Provider value={packages}>
-        <div className={styles['app']}>
-          <Outlet />
-        </div>
-      </ComponentPackageContext.Provider>
+      <SchemaDataProcessorContext.Provider value={schemaDataProcessor}>
+        <ComponentPackageContext.Provider value={packages}>
+          <div className={styles['app']}>
+            <Outlet />
+          </div>
+        </ComponentPackageContext.Provider>
+      </SchemaDataProcessorContext.Provider>
     </DataStoreCollocationContext.Provider>
   );
 });
