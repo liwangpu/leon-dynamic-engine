@@ -42,6 +42,7 @@ export class ComponentPackage implements IComponentPackage {
 
   public loadComponentConfigurationModule(type: ComponentTypes): Promise<IConfigurationPackageModule> {
     return DynamicConfigPanelLoader(
+      type,
       customConfiguration[type] ? customConfiguration[type] : () => import(`./components/${pascalFormat(type)}/configuration`)
     );
   }

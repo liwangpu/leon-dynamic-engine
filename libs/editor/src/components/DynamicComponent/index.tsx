@@ -277,7 +277,7 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
           cancelRemove();
           itemEl.style.display = 'none';
         }
-        store.treeStore.moveComponent(conf.id, parentId, evt.newIndex, slotProperty);
+        configuration.moveComponent(conf.id, parentId, slotProperty, evt.newIndex);
       },
     });
     slotHost['sortableInstance'] = instance;

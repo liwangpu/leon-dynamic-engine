@@ -17,6 +17,7 @@ export interface IComponentHierarchyNode {
 
 export interface IComponentHierarchyManager {
   getParent(id: string): IComponentConfiguration;
+  getComponentPath(id: string): Array<IComponentConfiguration>;
 }
 
 export interface IDynamicComponentFactory {

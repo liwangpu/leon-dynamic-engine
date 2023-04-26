@@ -18,7 +18,7 @@ export class SchemaDataProcessor {
   private readonly temporaryStore = new Map<string, any>();
   private readonly discovery: IComponentDiscovery;
   private readonly handlers = new EffectHandlerStorage<ISchemaDataProcessorHandler, ISchemaDataProcessorFilter>();
-  constructor(protected packages: Array<IComponentPackage>) {
+  public constructor(protected packages: Array<IComponentPackage>) {
     this.discovery = new ComponentDiscoveryProvider(packages);
   }
 

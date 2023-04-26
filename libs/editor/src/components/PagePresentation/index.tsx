@@ -29,6 +29,10 @@ const PagePresentation: React.FC = observer(() => {
         getParent(id) {
           return configuration.getParentComponent(id);
         },
+        getComponentPath(id) {
+          const confs = configuration.getComponentPath(id);
+          return confs.splice(0, confs.length - 1);
+        },
       },
       getDynamicComponentFactory: () => {
         return DynamicComponent;

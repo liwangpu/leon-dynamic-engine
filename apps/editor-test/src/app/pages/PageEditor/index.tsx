@@ -9,7 +9,7 @@ import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/componen
 import { Button, Modal, notification } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined, ClearOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
-import { GenerateComponentCode, GenerateComponentId, GenerateNestedComponentId, GenerateShortId, IComponentConfiguration, IProjectSchema } from '@lowcode-engine/core';
+import { GenerateComponentCode, GenerateComponentId, GenerateNestedComponentId, IComponentConfiguration, IProjectSchema } from '@lowcode-engine/core';
 import { ModelRepository, PageRepository } from '../../models';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
 import { IVideoPlayerComponentConfiguration } from '../../video-player';
@@ -265,11 +265,10 @@ const PageEditor: React.FC = memo(() => {
             configurationDeleteEffect.registerHandler({ type: ComponentTypes.tab }, ({ parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
               // 如果当前的页签已经已经是最后一个,那么不允许删除
               if (parent.children.length === 1) {
-                return {
-                  canDelete: false,
-                  message: '已经是最后一个页签了,不能执行删除',
-                };
+                return false;
               }
+
+              return true;
             },
               ({ current, parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
                 // 如果当前的页签是默认页签,那么需要把多页签组件默认页签信息更新
@@ -282,17 +281,6 @@ const PageEditor: React.FC = memo(() => {
                   ]);
                 }
               });
-
-            // configurationDeleteEffect.registerHandler({
-            //   type: ComponentTypes.block,
-            //   parentType: ComponentTypes.block,
-            // }, ({ current, parent }) => {
-
-            //   return {
-            //     canDelete: false,
-            //     message: '不想给你删除',
-            //   };
-            // });
 
             /********************************组件转化类型副作用********************************/
             configurationTypeTransferEffect.registerHandler({ destType: VideoPlayerComponentTypes.videoPlayer }, ({ current }: { current: IVideoPlayerComponentConfiguration }) => {
@@ -373,7 +361,7 @@ const PageEditor: React.FC = memo(() => {
         }
       ]),
       // 模型库注册插件
-      ModelGalleryPluginRegister(businessModel, async id => {
+      ModelGalleryPluginRegister(businessModel, id => {
         return ModelRepository.getInstance().get(id);
       }, data => {
         return { type: 'text', title: data.name };

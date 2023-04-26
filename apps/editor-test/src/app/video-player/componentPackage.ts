@@ -62,7 +62,7 @@ export class ComponentPackage implements IComponentPackage {
    * @param platform - 平台
    */
   public loadComponentConfigurationModule(type: ComponentTypes): Promise<IConfigurationPackageModule> {
-    return DynamicConfigPanelLoader(() => import(`./components/${pascalFormat(type)}/configuration`));
+    return DynamicConfigPanelLoader(type, () => import(`./components/${pascalFormat(type)}/configuration`));
   }
 
 

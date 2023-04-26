@@ -18,7 +18,7 @@ function getMetadataRegeditKey(context: ISetterPanelContext) {
   return key;
 };
 
-export async function DynamicConfigPanelLoader(loader: () => Promise<{ default: IMetadataRegister }>) {
+export async function DynamicConfigPanelLoader(type: string, loader: () => Promise<{ default: IMetadataRegister }>) {
 
   const metadataRegistry = new Map<string, IFormMetadataGenerator>();
   const register = (context: ISetterPanelContext, generator: IFormMetadataGenerator) => {

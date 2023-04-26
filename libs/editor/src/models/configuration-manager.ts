@@ -79,6 +79,7 @@ export interface IConfigurationManager {
    * @param confs 组件配置 
    */
   updateComponents(confs: Array<Partial<IComponentConfiguration>>): Promise<void>;
+  moveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<void>;
   /**
    * 激活组件
    * @param id 组件id
@@ -92,6 +93,7 @@ export class ConfigurationManager implements IConfigurationManager {
 
   public constructor(protected context: IEditorContext) { }
 
+
   public getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector {
     // 先找最精确匹配的,如果找不到然后逐次降低优先级
     const matchedFilters = [
@@ -101,7 +103,7 @@ export class ConfigurationManager implements IConfigurationManager {
       { type: filter.type },
     ];
 
-    for (let f of matchedFilters) {
+    for (const f of matchedFilters) {
       const key = ConfigurationManager.generateFilterKey(f);
       if (this.selectors.has(key)) {
         return this.selectors.get(key);
@@ -226,18 +228,13 @@ export class ConfigurationManager implements IConfigurationManager {
 
     let parent: IComponentConfiguration = this.getComponent(currentTree.parentId, true);
 
-    const deleteResponse = await this.context.configurationDeleteEffect.handleDelete({
+    const canDelete = await this.context.configurationDeleteEffect.handleDelete({
       current,
       parent,
       slot: currentTree.slotProperty
     });
 
-    const canDelete = deleteResponse ? deleteResponse.canDelete : true;
-    const deleteMessage = deleteResponse ? deleteResponse.message : '因为不满足删除条件,所以删除失败!';
     if (!canDelete) {
-      if (deleteMessage) {
-        console.log(`删除提示:`, deleteMessage);
-      }
       return false;
     }
 
@@ -341,6 +338,10 @@ export class ConfigurationManager implements IConfigurationManager {
         await this.updateComponent(c);
       }
     }
+  }
+
+  public async moveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<void> {
+    this.context.store.treeStore.moveComponent(id, parentId, index, slotProperty);
   }
 
   public activeComponent(id: string): void {

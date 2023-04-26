@@ -89,6 +89,21 @@ class HierarchyManager implements IComponentHierarchyManager {
     return this.components.get(treeNode.parentId);
   }
 
+  public getComponentPath(id: string): Array<IComponentConfiguration> {
+    const confs: Array<IComponentConfiguration> = [];
+    const loop = (subId: string) => {
+      confs.push(this.components.get(subId));
+      const tree = this.trees.get(subId);
+      if (tree.parentId) {
+        loop(tree.parentId);
+      }
+    };
+    loop(id);
+    // 当前组件就不用放进去了,这个运行时和设计时统一
+    confs.splice(0, 1);
+    return confs.reverse();
+  }
+
   public async initialize(): Promise<void> {
     const { configurations, trees } = await this.discovery.analyseSchema(this.schema);
     this.components = configurations;

@@ -115,25 +115,10 @@ export type IConfigurationDeleteFilter = IBaseEffectFilter;
 export type IConfigurationDeleteParam = IBaseEffectParam;
 
 /**
- * 删除组件消息提示
- */
-export interface IConfigurationDeleteHandlerResponse {
-  /**
-   * 可以删除
-   */
-  canDelete: boolean;
-  /**
-   * 消息提示
-   * 用于不能删除的时候,给定的提示信息
-   */
-  message?: string;
-}
-
-/**
  * 删除组件处理器
  */
 export interface IConfigurationDeleteHandler {
-  (param: IConfigurationDeleteParam): (IConfigurationDeleteHandlerResponse | void) | Promise<IConfigurationDeleteHandlerResponse | void>
+  (param: IConfigurationDeleteParam): boolean | Promise<boolean>
 }
 
 /**
@@ -158,7 +143,7 @@ export interface IConfigurationDeleteEffectManager {
    * 使用删除组件处理器
    * @param param 处理器参数
    */
-  handleDelete(param: IConfigurationDeleteParam): Promise<IConfigurationDeleteHandlerResponse | void>;
+  handleDelete(param: IConfigurationDeleteParam): Promise<boolean>;
   /**
    * 使用删除组件后处理器
    * @param param 处理器参数
@@ -181,7 +166,7 @@ export class ConfigurationDeleteEffectManager implements IConfigurationDeleteEff
     this.deleteAfterHandlers.add(filter, afterDeleteHandler);
   }
 
-  public async handleDelete(param: IConfigurationDeleteParam): Promise<void | IConfigurationDeleteHandlerResponse> {
+  public async handleDelete(param: IConfigurationDeleteParam): Promise<boolean> {
     const handlers = this.deleteHandlers.get({
       type: param.current.type,
       parentType: param.parent?.type,
@@ -193,7 +178,7 @@ export class ConfigurationDeleteEffectManager implements IConfigurationDeleteEff
         return await handler(param);
       }
     }
-
+    return true;
   }
 
   public async handleAfterDelete(param: IConfigurationDeleteParam): Promise<void> {
@@ -211,7 +196,6 @@ export class ConfigurationDeleteEffectManager implements IConfigurationDeleteEff
   }
 
 }
-
 
 // ------------------------------转换组件类型副作用------------------------------ //
 
