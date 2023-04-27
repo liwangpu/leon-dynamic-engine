@@ -4,6 +4,7 @@ import { ComponentPackageContext } from '../../contexts';
 import * as _ from 'lodash';
 import styles from './index.module.less';
 import schema from './schema';
+import { FormInputGroupTypes } from '../../consts';
 
 const Page: React.FC = memo(() => {
 
@@ -14,11 +15,21 @@ const Page: React.FC = memo(() => {
       // console.log(`schema:`, schema);
       const processor = new SchemaDataProcessor(packages);
 
-      // processor.registerHandler({ type: 'block', parentType: 'block' }, ({ current, self }) => {
+      const formFields = [];
+      // 生成头部表单field
+      // processor.registerHandler({ parentType: 'block', type: FormInputGroupTypes }, ({ current, parent, self }) => {
 
-      //   console.log(`block work`);
+      //   // console.log(`block inners:`, current.type);
+
       //   return current;
       // });
+
+      // 生成表格
+      processor.registerHandler({ parentType: 'table', slot: 'columns' }, ({ current, parent, path }) => {
+
+        console.log(`table columns:`, current);
+        return current;
+      });
 
       // processor.registerHandler({ type: 'table', parentType: 'block' }, ({ current, self }) => {
 

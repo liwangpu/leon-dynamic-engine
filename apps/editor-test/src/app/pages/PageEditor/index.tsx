@@ -177,6 +177,11 @@ const PageEditor: React.FC = memo(() => {
           init() {
             /********************************组件添加副作用********************************/
 
+            configurationAddingEffect.registerHandler({ type: ComponentTypes.block, first: true }, ({ current }) => {
+              console.log(`first block:`,);
+              return current;
+            });
+
             configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, type: FormInputGroupTypes }, ({ current }) => {
               // eslint-disable-next-line no-param-reassign
               current.gridColumnSpan = GridSystemSection['1/2'];

@@ -1,28 +1,70 @@
 import { IComponentConfiguration } from '../models';
 import * as _ from 'lodash';
 
+type FilterItem = string | Array<string>;
+
+interface IPlacement {
+  /**
+   * 第一个
+   */
+  first?: boolean;
+  /**
+   * 最后一个
+   */
+  last?: boolean;
+  /**
+   * 下标
+   */
+  index?: number;
+  /**
+   * 下标为偶数
+   */
+  even?: boolean;
+  /**
+   * 下标为基数
+   */
+  odd?: boolean
+}
+
+const contextItemMatchFilterItem = (filterItem: FilterItem, contextItem: string) => {
+  let result = true;
+  if (filterItem) {
+    if (contextItem) {
+      if (_.isArray(filterItem)) {
+        result = (filterItem as Array<string>).some(t => t === contextItem);
+      } else {
+        result = (filterItem as string) === contextItem;
+      }
+    } else {
+      result = false;
+    }
+  }
+
+  return result;
+};
+
 /**
  * 副作用基础过滤条件
  */
-export interface IBaseEffectFilter {
+export interface IBaseEffectFilter extends IPlacement {
   /**
    * 组件类型
    */
-  type?: string | Array<string>;
+  type?: FilterItem;
   /**
    * 父组件类型
    */
-  parentType?: string | Array<string>;
+  parentType?: FilterItem;
   /**
    * 插槽属性
    */
-  slot?: string | Array<string>;
+  slot?: FilterItem;
 }
 
 /**
  * 基础副作用处理器执行所处的组件环境
  */
-export interface IBaseEffectContext {
+export interface IBaseEffectContext extends IPlacement {
   type: string;
   /**
    * 父组件类型
@@ -34,10 +76,10 @@ export interface IBaseEffectContext {
   slot?: string;
 }
 
-/**
+/** z
  * 基础副作用执行器参数
  */
-export interface IBaseEffectParam<CurrentComponent = IComponentConfiguration, ParentComponent = IComponentConfiguration> {
+export interface IBaseEffectParam<CurrentComponent = IComponentConfiguration, ParentComponent = IComponentConfiguration> extends IPlacement {
   /**
  * 当前组件配置
  */
@@ -47,8 +89,8 @@ export interface IBaseEffectParam<CurrentComponent = IComponentConfiguration, Pa
    */
   parent?: ParentComponent;
   /**
-   * 插槽属性
-   */
+ * 插槽属性
+ */
   slot?: string;
 }
 
@@ -73,35 +115,9 @@ export class EffectHandlerStorage<Handler = (...args) => any, Filter extends IBa
           continue;
         }
       }
-
-      let parentTypeMatched = true;
-
-      if (filter.parentType && context.parentType) {
-        if (_.isArray(filter.parentType)) {
-          parentTypeMatched = (filter.parentType as Array<string>).some(t => t === context.parentType);
-        } else {
-          parentTypeMatched = (filter.parentType as string) === context.parentType;
-        }
-      }
-
-      let slotMatched = true;
-      if (filter.slot && context.slot) {
-        if (_.isArray(filter.slot)) {
-          slotMatched = (filter.slot as Array<string>).some(t => t === context.slot);
-        } else {
-          slotMatched = (filter.slot as string) === context.slot;
-        }
-      }
-
-      let currentTypeMatched = true;
-      if (filter.type && context.type) {
-        if (_.isArray(filter.type)) {
-          currentTypeMatched = (filter.type as Array<string>).some(t => t === context.type);
-        } else {
-          currentTypeMatched = (filter.type as string) === context.type;
-        }
-      }
-
+      let parentTypeMatched = contextItemMatchFilterItem(filter.parentType, context.parentType);
+      let slotMatched = contextItemMatchFilterItem(filter.slot, context.slot);
+      let currentTypeMatched = contextItemMatchFilterItem(filter.type, context.type);
       if (parentTypeMatched && slotMatched && currentTypeMatched) {
         matchedHandlers.push(handler);
       }

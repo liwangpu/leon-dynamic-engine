@@ -1,28 +1,41 @@
 import { ComponentDiscoveryProvider, IComponentConfiguration, IComponentDiscovery, IComponentPackage, IProjectSchema } from '../models';
 import { IBaseEffectFilter, IBaseEffectParam, EffectHandlerStorage } from './effect-handler-storage';
+import * as _ from 'lodash';
 
 export type ISchemaDataProcessorFilter = IBaseEffectFilter;
 
-export interface ISchemaDataProcessorParam extends IBaseEffectParam {
-  self: SchemaDataProcessor;
+export interface ISchemaDataProcessorParam<Variable = any> extends IBaseEffectParam {
   path: Array<IComponentConfiguration>;
   index?: number;
+  /**
+   * 处理管道中的中间变量
+   */
+  variables?: Variable;
 }
 
-export interface ISchemaDataProcessorHandler {
-  (param: ISchemaDataProcessorParam): IComponentConfiguration | Promise<IComponentConfiguration>;
+export interface ISchemaDataProcessorHandler<Variable> {
+  (param: ISchemaDataProcessorParam<Variable>): IComponentConfiguration | Promise<IComponentConfiguration>;
 }
 
-export class SchemaDataProcessor {
+export interface ISchemaDataProcessorVariableHandler<Variable> {
+  (): Variable | Promise<Variable>;
+}
 
-  private readonly temporaryStore = new Map<string, any>();
+export class SchemaDataProcessor<Variable = any> {
+
   private readonly discovery: IComponentDiscovery;
-  private readonly handlers = new EffectHandlerStorage<ISchemaDataProcessorHandler, ISchemaDataProcessorFilter>();
+  private readonly handlers = new EffectHandlerStorage<ISchemaDataProcessorHandler<Variable>, ISchemaDataProcessorFilter>();
+  private variableHandler: ISchemaDataProcessorVariableHandler<Variable>;
+  private variables: Variable;
   public constructor(protected packages: Array<IComponentPackage>) {
     this.discovery = new ComponentDiscoveryProvider(packages);
   }
 
-  public registerHandler(filter: IBaseEffectFilter, handler: ISchemaDataProcessorHandler) {
+  public registerHandlerVariables(handler: ISchemaDataProcessorVariableHandler<Variable>): void {
+    this.variableHandler = handler;
+  }
+
+  public registerHandler(filter: IBaseEffectFilter, handler: ISchemaDataProcessorHandler<Variable>) {
     this.handlers.add(filter, handler);
   }
 
@@ -30,9 +43,11 @@ export class SchemaDataProcessor {
     return this.handlers.getAll();
   }
 
-  public async handle(schema?: IProjectSchema): Promise<any> {
-    this.temporaryStore.clear();
+  public async handle(schema?: IProjectSchema): Promise<IProjectSchema> {
     const slotInfoMap = await this.discovery.queryComponentSlotInfo();
+    if (_.isFunction(this.variableHandler)) {
+      this.variables = await this.variableHandler();
+    }
 
     const traverseComponent = async (path: Array<IComponentConfiguration>, current: IComponentConfiguration, parent?: IComponentConfiguration, slotProperty?: string, index?: number) => {
       const slotInfo = slotInfoMap[current.type];
@@ -44,7 +59,7 @@ export class SchemaDataProcessor {
 
       if (handlers && handlers.length) {
         for (const handler of handlers) {
-          current = await handler({ current, parent, slot: slotProperty, self: this, path, index }) as any;
+          current = await handler({ current, parent, slot: slotProperty, variables: this.variables, path, index }) as any;
           if (!current) {
             return null;
           }
@@ -85,20 +100,12 @@ export class SchemaDataProcessor {
     return traverseComponent([], schema);
   }
 
-  public setTemporaryValue(key: string, val: any) {
-    this.temporaryStore.set(key, val);
+  public getVariables(): Variable {
+    return this.variables;
   }
 
-  public deleteTemporaryValue(key: string) {
-    this.temporaryStore.delete(key);
-  }
-
-  public getTemporaryValue(key: string): any {
-    return this.temporaryStore.get(key);
-  }
-
-  public getAllTemporaryValue(): Map<string, any> {
-    return this.temporaryStore;
+  public clearVariables(): void {
+    this.variables = null;
   }
 
 }
