@@ -84,11 +84,6 @@ export interface IConfigurationManager {
    */
   updateComponents(confs: Array<Partial<IComponentConfiguration>>): Promise<void>;
   /**
-   * 激活组件
-   * @param id 组件id
-   */
-  activeComponent(id: string): void;
-  /**
    * 移动组件
    * @param id 组件id
    * @param parentId 父组件id
@@ -96,6 +91,11 @@ export interface IConfigurationManager {
    * @param index 位置下标
    */
   moveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<boolean>;
+  /**
+   * 激活组件
+   * @param id 组件id
+   */
+  activeComponent(id: string): void;
 }
 
 export class ConfigurationManager implements IConfigurationManager {
@@ -234,25 +234,16 @@ export class ConfigurationManager implements IConfigurationManager {
   }
 
   public async deleteComponent(id: string): Promise<boolean> {
+    const canDelete = await this.canDeleteComponent(id);
+    if (!canDelete) {
+      return false;
+    }
     const current = this.getComponent(id, true);
     const currentTree = this.context.store.treeStore.trees.get(id);
     if (!currentTree) { return false; }
 
     let parent: IComponentConfiguration = this.getComponent(currentTree.parentId, true);
-
     const placement = this.calculateComponentPlacement(id);
-
-    const canDelete = await this.context.configurationDeleteEffect.handleDelete({
-      current,
-      parent,
-      slot: currentTree.slotProperty,
-      ...placement
-    });
-
-    if (!canDelete) {
-      return false;
-    }
-
     this.context.store.deleteComponent(id);
 
     // 删除后父节点需要重新获取更新后的子节点信息
@@ -275,7 +266,7 @@ export class ConfigurationManager implements IConfigurationManager {
     // 检查组件类型是否变更
     if (conf.type && conf.type !== type) {
       const previousConf = this.getComponent(conf.id, true);
-      const transferConf = await this.context.configurationTypeTransferEffect.handle({
+      conf = await this.context.configurationTypeTransferEffect.handle({
         previous: previousConf,
         current: conf as any,
       });
@@ -284,12 +275,7 @@ export class ConfigurationManager implements IConfigurationManager {
        * 一般来讲,转化后的conf是不可能为空的,如果有,说明转化处理器肯定有问题,那么这次转化没有意义
        * 转化组件的id是不能变的
        */
-      if (transferConf) {
-        conf = transferConf;
-        store.clearSlotComponents(conf.id);
-        store.treeStore.changeComponentType(conf.id, conf.type);
-        store.configurationStore.resetConfiguration(conf.id);
-      }
+      if (!conf) { return; }
 
       const { parentId, slotProperty, index } = store.treeStore.selectComponentTreeInfo(conf.id);
       const parentConf = this.getComponent(parentId, true);
@@ -303,6 +289,14 @@ export class ConfigurationManager implements IConfigurationManager {
         path: componentPath,
         ...placement,
       });
+
+      if (!conf) {
+        return;
+      } else {
+        store.clearSlotComponents(conf.id);
+        store.treeStore.changeComponentType(conf.id, conf.type);
+        store.configurationStore.resetConfiguration(conf.id);
+      }
     }
 
     const maintainSlot = async (subConf: Partial<IComponentConfiguration>) => {
@@ -377,8 +371,9 @@ export class ConfigurationManager implements IConfigurationManager {
     if (parentId === originTreeInfo.parentId && slotProperty === originTreeInfo.slotProperty && index === originTreeInfo.index) {
       return false;
     }
+
     /**
-     * 移动组件在另一种形式上,对于新插槽来说,是新增,所以需要调用add判断一下能否移动
+     * 移动组件在另一种形式上,对于插槽来说,是新增,所以需要调用add判断一下能否移动
      */
 
     const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
@@ -386,15 +381,61 @@ export class ConfigurationManager implements IConfigurationManager {
 
     // 对于拖动,仅仅判断当前是不够的,因为如果是原来节点移动位置,同层级可能会触发不满足的条件,所以也需要把同层级的hanlder重新再走一遍
     // 这里需要模拟如果当前节点移动导致同层级节点下标改变的情况
-    const sameLevelChildIds = store.treeStore.selectSlotChildrenIds(parentId, slotProperty);
 
+    return this.mockValidatePlacementChange(id, parentId, slotProperty, index);
+    // const sameLevelChildIds = store.treeStore.selectSlotChildrenIds(parentId, slotProperty);
+
+    // if (sameLevelChildIds.some(sid => sid === id)) {
+    //   const fromIndex = sameLevelChildIds.indexOf(id);
+    //   sameLevelChildIds.splice(index, 0, sameLevelChildIds.splice(fromIndex, 1)[0]);
+    // } else {
+    //   sameLevelChildIds.splice(index, 0, id);
+    // }
+
+    // for (let idx = 0; idx < sameLevelChildIds.length; idx++) {
+    //   const sid = sameLevelChildIds[idx];
+    //   const sconf = this.getComponent(sid, false);
+    //   const p = this.calculateComponentPlacement(sid, parentId, slotProperty, idx);
+    //   if (!await this.context.configurationAddingEffect.handleAdd({
+    //     current: sconf,
+    //     parent: parentConf,
+    //     slot: slotProperty,
+    //     path: componentPath,
+    //     ...p,
+    //   })) {
+    //     return false;
+    //   }
+    // }
+
+    return true;
+  }
+
+  private async canDeleteComponent(id: string): Promise<boolean> {
+    const treeInfo = this.context.store.treeStore.selectComponentTreeInfo(id);
+    return this.mockValidatePlacementChange(id, treeInfo.parentId, treeInfo.slotProperty, -1);
+  }
+
+  private async mockValidatePlacementChange(id: string, parentId: string, slotProperty: string, index: number): Promise<boolean> {
+    const store = this.context.store;
+    const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
+    const componentPath = this.getComponentPath(parentId);
+
+    // 对于拖动,仅仅判断当前是不够的,因为如果是原来节点移动位置,同层级可能会触发不满足的条件,所以也需要把同层级的hanlder重新再走一遍
+    // 这里需要模拟如果当前节点移动导致同层级节点下标改变的情况
+    const sameLevelChildIds = store.treeStore.selectSlotChildrenIds(parentId, slotProperty);
+    // console.log(`origin:`, sameLevelChildIds);
     if (sameLevelChildIds.some(sid => sid === id)) {
       const fromIndex = sameLevelChildIds.indexOf(id);
-      sameLevelChildIds.splice(index, 0, sameLevelChildIds.splice(fromIndex, 1)[0]);
+      // 如果index是-1是想删除
+      if (index > -1) {
+        sameLevelChildIds.splice(index, 0, sameLevelChildIds.splice(fromIndex, 1)[0]);
+      } else {
+        sameLevelChildIds.splice(fromIndex, 1);
+      }
     } else {
       sameLevelChildIds.splice(index, 0, id);
     }
-
+    // console.log(`after:`, sameLevelChildIds);
     for (let idx = 0; idx < sameLevelChildIds.length; idx++) {
       const sid = sameLevelChildIds[idx];
       const sconf = this.getComponent(sid, false);
@@ -409,7 +450,6 @@ export class ConfigurationManager implements IConfigurationManager {
         return false;
       }
     }
-
     return true;
   }
 

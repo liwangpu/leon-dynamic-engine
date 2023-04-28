@@ -266,6 +266,9 @@ export class ConfigurationTypeTransferEffectManager implements IConfigurationTyp
     if (handlers && handlers.length) {
       for (const handler of handlers) {
         const conf = await handler(param) as any;
+        if (!conf) {
+          return null;
+        }
         // 维持id,type怕万一handler里面忘记转过来
         conf.id = current.id;
         conf.type = current.type;

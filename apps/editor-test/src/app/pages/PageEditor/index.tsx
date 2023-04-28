@@ -178,7 +178,7 @@ const PageEditor: React.FC = memo(() => {
             /********************************组件添加副作用********************************/
             // configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, first: true }, ({ current, first, last, index, even, odd, count }) => {
             //   console.log(`--------------------- block 1 ---------------------`);
-            //   console.log(`title:`, current.title);
+            //   console.log(`title:`, current.title, current.type);
             //   console.log(`first:`, first);
             //   console.log(`last:`, last);
             //   console.log(`even:`, even);
