@@ -40,6 +40,10 @@ export interface IConfigurationManager {
    * @param withSlot 是否附带插槽子组件配置(如果带,只附带子一级)
    */
   getParentComponent(id: string, withSlot?: boolean): IComponentConfiguration;
+  /**
+   * 获取组件的层级路径
+   * @param id 组件id
+   */
   getComponentPath(id: string): Array<IComponentConfiguration>;
   /**
    * 获取组件的类型
@@ -79,12 +83,19 @@ export interface IConfigurationManager {
    * @param confs 组件配置 
    */
   updateComponents(confs: Array<Partial<IComponentConfiguration>>): Promise<void>;
-  moveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<boolean>;
   /**
    * 激活组件
    * @param id 组件id
    */
   activeComponent(id: string): void;
+  /**
+   * 移动组件
+   * @param id 组件id
+   * @param parentId 父组件id
+   * @param slotProperty 插槽属性
+   * @param index 位置下标
+   */
+  moveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<boolean>;
 }
 
 export class ConfigurationManager implements IConfigurationManager {
@@ -92,7 +103,6 @@ export class ConfigurationManager implements IConfigurationManager {
   private readonly selectors = new Map<string, IConfigurationSelector>();
 
   public constructor(protected context: IEditorContext) { }
-
 
   public getConfigurationSelector(filter: ISetterPanelContext): IConfigurationSelector {
     // 先找最精确匹配的,如果找不到然后逐次降低优先级
@@ -347,43 +357,100 @@ export class ConfigurationManager implements IConfigurationManager {
     }
   }
 
-  public async moveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<boolean> {
-    /**
-     * 移动组件在另一种形式上,对于新插槽来说,是新增,所以需要调用add判断一下能否移动
-     */
-    const store = this.context.store;
-    let currentConf = this.getComponent(id, false);
-    const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
-    const componentPath = this.getComponentPath(parentId);
-    const placement = this.calculateComponentPlacement(currentConf.id, parentId, slotProperty, index);
-    currentConf = await this.context.configurationAddingEffect.handleAdd({
-      current: currentConf,
-      parent: parentConf,
-      slot: slotProperty,
-      path: componentPath,
-      ...placement,
-      index,
-    });
-    if (!currentConf) {
-      return false;
-    }
-
-    store.treeStore.moveComponent(id, parentId, index, slotProperty);
-    return true;
-  }
-
   public activeComponent(id: string): void {
     this.context.store.interactionStore.activeComponent(id);
   }
 
+  public async moveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<boolean> {
+    const canMove = await this.canMoveComponent(id, parentId, slotProperty, index);
+    if (!canMove) { return false; }
+
+    const store = this.context.store;
+    store.treeStore.moveComponent(id, parentId, index, slotProperty);
+    return true;
+  }
+
+  private async canMoveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<boolean> {
+    const store = this.context.store;
+    // 先判定是否是不是原地移动
+    const originTreeInfo = store.treeStore.selectComponentTreeInfo(id);
+    if (parentId === originTreeInfo.parentId && slotProperty === originTreeInfo.slotProperty && index === originTreeInfo.index) {
+      return false;
+    }
+    /**
+     * 移动组件在另一种形式上,对于新插槽来说,是新增,所以需要调用add判断一下能否移动
+     */
+
+    const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
+    const componentPath = this.getComponentPath(parentId);
+
+    // 对于拖动,仅仅判断当前是不够的,因为如果是原来节点移动位置,同层级可能会触发不满足的条件,所以也需要把同层级的hanlder重新再走一遍
+    // 这里需要模拟如果当前节点移动导致同层级节点下标改变的情况
+    const sameLevelChildIds = store.treeStore.selectSlotChildrenIds(parentId, slotProperty);
+
+    if (sameLevelChildIds.some(sid => sid === id)) {
+      const fromIndex = sameLevelChildIds.indexOf(id);
+      sameLevelChildIds.splice(index, 0, sameLevelChildIds.splice(fromIndex, 1)[0]);
+    } else {
+      sameLevelChildIds.splice(index, 0, id);
+    }
+
+    for (let idx = 0; idx < sameLevelChildIds.length; idx++) {
+      const sid = sameLevelChildIds[idx];
+      const sconf = this.getComponent(sid, false);
+      const p = this.calculateComponentPlacement(sid, parentId, slotProperty, idx);
+      if (!await this.context.configurationAddingEffect.handleAdd({
+        current: sconf,
+        parent: parentConf,
+        slot: slotProperty,
+        path: componentPath,
+        ...p,
+      })) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   private calculateComponentPlacement(id: string, parentId?: string, slotProperty?: string, index?: number): IBaseEffectPlacement {
     /**
-     * 这里有两种情况
-     * >如果是已有组件,那么直接取,但是需要判定是否是同一个parentId,因为如果是组件移动,那么已有组件的位置是没有意义的
-     * >如果是新增组件,那么它还没有放置到相应的节点位置,所以它的位置可以用欲放置插槽位置的最后一个节点来推算
-     *  
+     * 调用该方法的主要是拿来判定组件的位置信息
+     * 而这个位置可能是既有的位置,也有可能是要放置的位置
      */
+
     const store = this.context.store;
+    // 如果只传递了id,没有传递parentId,slotProperty和index,那么是拿来查看当前的位置信息
+    if (_.isNil(parentId) && _.isNil(slotProperty) && _.isNil(index)) {
+      return store.treeStore.selectComponentTreeInfo(id);
+    }
+
+    const generatePlacement = (idx: number, count: number) => {
+      const even = (idx + 1) % 2 === 0;
+      return { index: idx, count, first: idx === 0, last: idx === count - 1, even, odd: !even };
+    };
+
+    index = index || 0;
+    let count: number = store.treeStore.selectSlotChildrenCount(parentId, slotProperty);
+    // 先查看是不是新增到组件树的节点,如果是,那么查看它要放置的插槽位置
+    const created = !store.treeStore.trees.has(id);
+    if (created) {
+      // 如果是新增的节点,那么count要在原来数量上+1
+      return generatePlacement(index, count + 1);
+    }
+
+
+    let treeInfo = store.treeStore.selectComponentTreeInfo(id);
+    // 如果是已有节点,那么判断它是不是同插槽移动
+    if (parentId && treeInfo.parentId === parentId) {
+      return generatePlacement(index, count);
+    } else {
+      return generatePlacement(index, count + 1);
+    }
+
+
+
+
     const getPlacement = (info: { [key: string]: any }) => {
       if (!info) { return null; }
       return _.pick(info, ['first', 'last', 'index', 'count', 'even', 'odd']);
@@ -395,13 +462,18 @@ export class ConfigurationManager implements IConfigurationManager {
     };
 
     let sameLevelChildTreeInfo: ReturnType<typeof getSameLevelChildTreeInfo>;
-    let treeInfo = store.treeStore.selectComponentTreeInfo(id);
-    // 第一种情况
+
+    // let treeInfo = store.treeStore.selectComponentTreeInfo(id);
+
+
+
+
+    // 第一种情况 
     if (treeInfo) {
-      // 这里需要判定父容器,因为需要判定是否是移动
+      // 这里需要判定父容器,因为如果是移动,那么它之前的位置信息是不能用的
       if (parentId && treeInfo.parentId !== parentId) {
         sameLevelChildTreeInfo = getSameLevelChildTreeInfo();
-        index = index || sameLevelChildTreeInfo.index + 1;
+        index = index || (sameLevelChildTreeInfo ? sameLevelChildTreeInfo.index + 1 : 0);
         const even = (index + 1) % 2 === 0;
         return { index, count: sameLevelChildTreeInfo.count + 1, first: index === 0, last: index === sameLevelChildTreeInfo.count - 1, even, odd: !even };
       }
