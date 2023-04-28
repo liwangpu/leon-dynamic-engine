@@ -1,65 +1,58 @@
 import { ComponentDiscoveryProvider, IComponentConfiguration, IComponentDiscovery, IComponentPackage, IProjectSchema } from '../models';
-import { IBaseEffectFilter, IBaseEffectParam, EffectHandlerStorage } from './effect-handler-storage';
+import { IBaseEffectFilter, IBaseEffectParam, EffectHandlerStorage, IBaseEffectPlacement } from './effect-handler-storage';
 import * as _ from 'lodash';
 
 export type ISchemaDataProcessorFilter = IBaseEffectFilter;
 
-export interface ISchemaDataProcessorParam<Variable = any> extends IBaseEffectParam {
+export interface ISchemaDataProcessorParam<VariableType = any> extends IBaseEffectParam {
   path: Array<IComponentConfiguration>;
-  index?: number;
   /**
    * 处理管道中的中间变量
    */
-  variables?: Variable;
+  variables?: VariableType;
 }
 
-export interface ISchemaDataProcessorHandler<Variable> {
-  (param: ISchemaDataProcessorParam<Variable>): IComponentConfiguration | Promise<IComponentConfiguration>;
+export interface ISchemaDataProcessorHandler<VariableType> {
+  (param: ISchemaDataProcessorParam<VariableType>): IComponentConfiguration | Promise<IComponentConfiguration>;
 }
 
-export interface ISchemaDataProcessorVariableHandler<Variable> {
-  (): Variable | Promise<Variable>;
+export interface ISchemaDataProcessorVariableHandler<VariableType> {
+  (): VariableType | Promise<VariableType>;
 }
 
-export class SchemaDataProcessor<Variable = any> {
+export class SchemaDataProcessor<VariableType = any> {
 
   private readonly discovery: IComponentDiscovery;
-  private readonly handlers = new EffectHandlerStorage<ISchemaDataProcessorHandler<Variable>, ISchemaDataProcessorFilter>();
-  private variableHandler: ISchemaDataProcessorVariableHandler<Variable>;
-  private variables: Variable;
+  private readonly handlers = new EffectHandlerStorage<ISchemaDataProcessorHandler<VariableType>, ISchemaDataProcessorFilter>();
   public constructor(protected packages: Array<IComponentPackage>) {
     this.discovery = new ComponentDiscoveryProvider(packages);
   }
 
-  public registerHandlerVariables(handler: ISchemaDataProcessorVariableHandler<Variable>): void {
-    this.variableHandler = handler;
-  }
-
-  public registerHandler(filter: IBaseEffectFilter, handler: ISchemaDataProcessorHandler<Variable>) {
+  public registerHandler(filter: IBaseEffectFilter, handler: ISchemaDataProcessorHandler<VariableType>) {
     this.handlers.add(filter, handler);
   }
 
-  public getAllHandlers() {
-    return this.handlers.getAll();
-  }
 
-  public async handle(schema?: IProjectSchema): Promise<IProjectSchema> {
+  public async handle(schema: IProjectSchema, variableInitialize?: () => VariableType, postHandle?: (variables: VariableType) => void): Promise<IProjectSchema> {
+    if (!schema) { return; }
     const slotInfoMap = await this.discovery.queryComponentSlotInfo();
-    if (_.isFunction(this.variableHandler)) {
-      this.variables = await this.variableHandler();
+    let variables: VariableType;
+    if (_.isFunction(variableInitialize)) {
+      variables = variableInitialize();
     }
 
-    const traverseComponent = async (path: Array<IComponentConfiguration>, current: IComponentConfiguration, parent?: IComponentConfiguration, slotProperty?: string, index?: number) => {
+    const traverseComponent = async (path: Array<IComponentConfiguration>, current: IComponentConfiguration, parent?: IComponentConfiguration, slotProperty?: string, placement: IBaseEffectPlacement = {}) => {
       const slotInfo = slotInfoMap[current.type];
       const handlers = this.handlers.get({
-        type: current.type,
-        parentType: parent?.type,
-        slot: slotProperty
+        current,
+        parent,
+        slot: slotProperty,
+        ...placement
       });
 
       if (handlers && handlers.length) {
         for (const handler of handlers) {
-          current = await handler({ current, parent, slot: slotProperty, variables: this.variables, path, index }) as any;
+          current = await handler({ current, parent, slot: slotProperty, variables, path, ...placement }) as any;
           if (!current) {
             return null;
           }
@@ -74,9 +67,12 @@ export class SchemaDataProcessor<Variable = any> {
           if (!current[slot]) { continue; }
           const children: Array<IComponentConfiguration> = definition.singleton ? [current[slot]] : current[slot];
           let i = children.length;
+          const count = i;
           while (i--) {
             let subConf = children[i];
-            subConf = await traverseComponent([...path], subConf, current, slot, i);
+            const even = (i + 1) % 2 === 0;
+            let placement: IBaseEffectPlacement = { index: i, count, last: i === count - 1, first: i === 0, even, odd: !even };
+            subConf = await traverseComponent([...path], subConf, current, slot, placement);
             if (!subConf) {
               children.splice(i, 1);
             }
@@ -97,15 +93,13 @@ export class SchemaDataProcessor<Variable = any> {
 
       return current;
     };
-    return traverseComponent([], schema);
-  }
 
-  public getVariables(): Variable {
-    return this.variables;
-  }
+    const result = await traverseComponent([], schema);
+    if (_.isFunction(postHandle)) {
+      postHandle(variables);
+    }
 
-  public clearVariables(): void {
-    this.variables = null;
+    return result;
   }
 
 }

@@ -241,7 +241,7 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
         const itemEl = evt.item;
         itemEl.classList.add('dragging');
       },
-      onEnd: (evt: Sortable.SortableEvent) => {
+      onEnd: async (evt: Sortable.SortableEvent) => {
         const eventData: IDynamicContainerDragDropEventData = {
           conf: currentConf,
           dragItem: evt.item,
@@ -273,11 +273,15 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
           cancelRemove();
           return;
         }
+
+        const canMove = await configuration.moveComponent(conf.id, parentId, slotProperty, evt.newIndex);
         if (evt.from !== evt.to) {
           cancelRemove();
+        }
+
+        if (canMove) {
           itemEl.style.display = 'none';
         }
-        configuration.moveComponent(conf.id, parentId, slotProperty, evt.newIndex);
       },
     });
     slotHost['sortableInstance'] = instance;

@@ -1,7 +1,7 @@
 import { Instance, types } from "mobx-state-tree";
 import * as _ from 'lodash';
 import { values } from 'mobx';
-import { IComponentConfiguration } from '@lowcode-engine/core';
+import { IBaseEffectPlacement, IComponentConfiguration } from '@lowcode-engine/core';
 
 const ComponentTree = types.model({
   id: types.string,
@@ -89,20 +89,37 @@ export const TreeStore = types.model({
     },
     selectComponentTreeInfo: (id: string) => {
       if (!self.trees.has(id)) { return null; }
-      const info: { parentId?: string; parentType?: string; slotProperty?: string; index?: number; } = {};
+      const info: { parentId?: string; parentType?: string; slotProperty?: string; } & IBaseEffectPlacement = { index: 0, count: 0, first: true, last: true };
 
       const current = self.trees.get(id);
       info.slotProperty = current.slotProperty;
       if (current.parentId) {
         const parent = self.trees.get(current.parentId);
         if (parent) {
-          info.index = parent.slots.get(current.slotProperty).findIndex(t => t === id);
+          const slots = parent.slots.get(current.slotProperty);
+          info.index = slots.findIndex(t => t === id);
           info.parentId = parent.id;
-          info.parentType = parent.type
+          info.parentType = parent.type;
+          info.count = slots.length;
+          info.first = info.index === 0;
+          info.last = info.index === info.count - 1;
+          info.even = (info.index + 1) % 2 === 0;
+          info.odd = !info.even;
         }
-
       }
       return info;
+    },
+  }))
+  .views(self => ({
+    selectSlotLastChildrenId: (id: string, slotProperty: string) => {
+      const childrenIds = self.selectSlotChildrenIds(id, slotProperty);
+      if (!childrenIds) { return null; }
+      return childrenIds[childrenIds.length - 1];
+    },
+    selectSlotFirstChildrenId: (id: string, slotProperty: string) => {
+      const childrenIds = self.selectSlotChildrenIds(id, slotProperty);
+      if (!childrenIds) { return null; }
+      return childrenIds[0];
     },
   }))
   .actions(self => ({

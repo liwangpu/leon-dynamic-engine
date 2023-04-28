@@ -9,7 +9,7 @@ import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/componen
 import { Button, Modal, notification } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined, ClearOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
-import { GenerateComponentCode, GenerateComponentId, GenerateNestedComponentId, IComponentConfiguration, IProjectSchema } from '@lowcode-engine/core';
+import { GenerateComponentCode, GenerateComponentId, GenerateNestedComponentId, IProjectSchema } from '@lowcode-engine/core';
 import { ModelRepository, PageRepository } from '../../models';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
 import { IVideoPlayerComponentConfiguration } from '../../video-player';
@@ -176,12 +176,6 @@ const PageEditor: React.FC = memo(() => {
         return {
           init() {
             /********************************组件添加副作用********************************/
-
-            configurationAddingEffect.registerHandler({ type: ComponentTypes.block, first: true }, ({ current }) => {
-              console.log(`first block:`,);
-              return current;
-            });
-
             configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, type: FormInputGroupTypes }, ({ current }) => {
               // eslint-disable-next-line no-param-reassign
               current.gridColumnSpan = GridSystemSection['1/2'];
@@ -259,21 +253,15 @@ const PageEditor: React.FC = memo(() => {
               return current;
             });
 
-            configurationAddingEffect.registerHandler({ type: ComponentTypes.block }, ({ current, path }: { current: IVideoPlayerComponentConfiguration, path: Array<IComponentConfiguration> }) => {
-              // current.vedioUrl = 'https://www.runoob.com/try/demo_source/movie.ogg';
-              // return current;
-              console.log(`add block path:`, path);
-              return current;
-            });
-
             /********************************组件删除副作用********************************/
-            configurationDeleteEffect.registerHandler({ type: ComponentTypes.tab }, ({ parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
-              // 如果当前的页签已经已经是最后一个,那么不允许删除
-              if (parent.children.length === 1) {
-                return false;
-              }
-
-              return true;
+            configurationDeleteEffect.registerHandler({ type: ComponentTypes.tab, count: 1 }, ({ }: { current: ITabComponentConfiguration }) => {
+              notification.open({
+                message: '温馨提示',
+                description: '最后一个页签不能删除',
+                placement: 'bottomRight',
+                duration: 2.5
+              });
+              return false;
             },
               ({ current, parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
                 // 如果当前的页签是默认页签,那么需要把多页签组件默认页签信息更新

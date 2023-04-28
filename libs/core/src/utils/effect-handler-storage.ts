@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 
 type FilterItem = string | Array<string>;
 
-interface IPlacement {
+export interface IBaseEffectPlacement {
   /**
    * 第一个
    */
@@ -16,6 +16,10 @@ interface IPlacement {
    * 下标
    */
   index?: number;
+  /**
+   * 同级节点数量
+   */
+  count?: number;
   /**
    * 下标为偶数
    */
@@ -43,10 +47,16 @@ const contextItemMatchFilterItem = (filterItem: FilterItem, contextItem: string)
   return result;
 };
 
+const placementMatch = (filterPlace?: boolean | number, contextPlace?: boolean | number) => {
+  if (_.isNil(filterPlace)) { return true; }
+
+  return filterPlace === contextPlace;
+};
+
 /**
  * 副作用基础过滤条件
  */
-export interface IBaseEffectFilter extends IPlacement {
+export interface IBaseEffectFilter extends IBaseEffectPlacement {
   /**
    * 组件类型
    */
@@ -62,24 +72,9 @@ export interface IBaseEffectFilter extends IPlacement {
 }
 
 /**
- * 基础副作用处理器执行所处的组件环境
- */
-export interface IBaseEffectContext extends IPlacement {
-  type: string;
-  /**
-   * 父组件类型
-   */
-  parentType?: string;
-  /**
-   * 插槽属性
-   */
-  slot?: string;
-}
-
-/** z
  * 基础副作用执行器参数
  */
-export interface IBaseEffectParam<CurrentComponent = IComponentConfiguration, ParentComponent = IComponentConfiguration> extends IPlacement {
+export interface IBaseEffectParam<CurrentComponent = IComponentConfiguration, ParentComponent = IComponentConfiguration> extends IBaseEffectPlacement {
   /**
  * 当前组件配置
  */
@@ -94,7 +89,7 @@ export interface IBaseEffectParam<CurrentComponent = IComponentConfiguration, Pa
   slot?: string;
 }
 
-export class EffectHandlerStorage<Handler = (...args) => any, Filter extends IBaseEffectFilter = IBaseEffectFilter, Context extends IBaseEffectContext = IBaseEffectContext> {
+export class EffectHandlerStorage<Handler = (...args) => any, Filter extends IBaseEffectFilter = IBaseEffectFilter, Context extends IBaseEffectParam = IBaseEffectParam> {
 
   private readonly funcs: Array<[Filter, Handler]> = [];
   public constructor(protected preCompare?: (filter: Filter, context: Context) => boolean) { }
@@ -107,18 +102,39 @@ export class EffectHandlerStorage<Handler = (...args) => any, Filter extends IBa
 
   public get(context: Context): Array<Handler> {
     if (!context) { return []; }
-
+    const parentType = context.parent?.type;
+    const currentType = context.current?.type;
     const matchedHandlers: Array<Handler> = [];
     for (const [filter, handler] of this.funcs) {
-      if (_.isFunction(this.preCompare)) {
-        if (!this.preCompare(filter, context)) {
-          continue;
+      let matched = true;
+
+      const matchConditions = [
+        () => {
+          if (_.isFunction(this.preCompare)) {
+            return this.preCompare(filter, context);
+          }
+          return true;
+        },
+        () => placementMatch(filter.first, context.first),
+        () => placementMatch(filter.last, context.last),
+        () => placementMatch(filter.even, context.even),
+        () => placementMatch(filter.odd, context.odd),
+        () => placementMatch(filter.index, context.index),
+        () => placementMatch(filter.count, context.count),
+        () => contextItemMatchFilterItem(filter.parentType, parentType),
+        () => contextItemMatchFilterItem(filter.slot, context.slot),
+        () => contextItemMatchFilterItem(filter.type, currentType),
+      ];
+
+      for (const condition of matchConditions) {
+        const r = condition();
+        if (!r) {
+          matched = false;
+          break;
         }
       }
-      let parentTypeMatched = contextItemMatchFilterItem(filter.parentType, context.parentType);
-      let slotMatched = contextItemMatchFilterItem(filter.slot, context.slot);
-      let currentTypeMatched = contextItemMatchFilterItem(filter.type, context.type);
-      if (parentTypeMatched && slotMatched && currentTypeMatched) {
+
+      if (matched) {
         matchedHandlers.push(handler);
       }
     }

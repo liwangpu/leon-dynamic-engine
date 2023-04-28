@@ -1,4 +1,4 @@
-import { GenerateComponentId, IComponentConfiguration } from '@lowcode-engine/core';
+import { GenerateComponentId, IBaseEffectPlacement, IComponentConfiguration } from '@lowcode-engine/core';
 import { ISetterPanelContext } from '../contexts';
 import { IEditorContext } from './editor-manager';
 import * as _ from 'lodash';
@@ -79,7 +79,7 @@ export interface IConfigurationManager {
    * @param confs 组件配置 
    */
   updateComponents(confs: Array<Partial<IComponentConfiguration>>): Promise<void>;
-  moveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<void>;
+  moveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<boolean>;
   /**
    * 激活组件
    * @param id 组件id
@@ -175,24 +175,26 @@ export class ConfigurationManager implements IConfigurationManager {
     if (this.hasComponent(conf.id)) {
       return false;
     }
+    const store = this.context.store;
     // 新增的组件可能会有插槽组件数据,这里需要解析一下插槽配置
     const _addComponent = async (subConf: Partial<IComponentConfiguration>, parentId: string, index: number, slotProperty: string) => {
       const slotProperties = this.context.slot.getSlotProperties(subConf.type);
-      const parentConf = this.context.store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
+      const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
       const componentPath = this.getComponentPath(parentId);
+      const placement = this.calculateComponentPlacement(subConf.id, parentId, slotProperty, index);
       subConf = await this.context.configurationAddingEffect.handleAdd({
         current: subConf as any,
         parent: parentConf,
         slot: slotProperty,
-        index,
         path: componentPath,
+        ...placement,
       });
       if (!subConf) {
         return false;
       }
 
       const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
-      this.context.store.addComponent(pureConf, parentId, index, slotProperty);
+      store.addComponent(pureConf, parentId, index, slotProperty);
       for (const sp of slotProperties) {
         const singleton = this.context.slot.checkSlotSingleton(subConf.type, sp);
         let components: Array<IComponentConfiguration> = [];
@@ -212,8 +214,8 @@ export class ConfigurationManager implements IConfigurationManager {
         current: subConf as any,
         parent: parentConf,
         slot: slotProperty,
-        index,
         path: componentPath,
+        ...placement,
       });
 
       return true;
@@ -228,10 +230,13 @@ export class ConfigurationManager implements IConfigurationManager {
 
     let parent: IComponentConfiguration = this.getComponent(currentTree.parentId, true);
 
+    const placement = this.calculateComponentPlacement(id);
+
     const canDelete = await this.context.configurationDeleteEffect.handleDelete({
       current,
       parent,
-      slot: currentTree.slotProperty
+      slot: currentTree.slotProperty,
+      ...placement
     });
 
     if (!canDelete) {
@@ -246,7 +251,8 @@ export class ConfigurationManager implements IConfigurationManager {
     await this.context.configurationDeleteEffect.handleAfterDelete({
       current,
       parent,
-      slot: currentTree.slotProperty
+      slot: currentTree.slotProperty,
+      ...placement
     });
 
     return true;
@@ -278,13 +284,14 @@ export class ConfigurationManager implements IConfigurationManager {
       const { parentId, slotProperty, index } = store.treeStore.selectComponentTreeInfo(conf.id);
       const parentConf = this.getComponent(parentId, true);
       const componentPath = this.getComponentPath(conf.id);
+      const placement = this.calculateComponentPlacement(conf.id, parentId, slotProperty, index);
       // 对于类型转化,其实也是另一种形式的添加组件,所以也需要调用adding effect
       conf = await this.context.configurationAddingEffect.handleAdd({
         current: conf as any,
         parent: parentConf,
         slot: slotProperty,
-        index,
         path: componentPath,
+        ...placement,
       });
     }
 
@@ -340,12 +347,85 @@ export class ConfigurationManager implements IConfigurationManager {
     }
   }
 
-  public async moveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<void> {
-    this.context.store.treeStore.moveComponent(id, parentId, index, slotProperty);
+  public async moveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<boolean> {
+    /**
+     * 移动组件在另一种形式上,对于新插槽来说,是新增,所以需要调用add判断一下能否移动
+     */
+    const store = this.context.store;
+    let currentConf = this.getComponent(id, false);
+    const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
+    const componentPath = this.getComponentPath(parentId);
+    const placement = this.calculateComponentPlacement(currentConf.id, parentId, slotProperty, index);
+    currentConf = await this.context.configurationAddingEffect.handleAdd({
+      current: currentConf,
+      parent: parentConf,
+      slot: slotProperty,
+      path: componentPath,
+      ...placement,
+      index,
+    });
+    if (!currentConf) {
+      return false;
+    }
+
+    store.treeStore.moveComponent(id, parentId, index, slotProperty);
+    return true;
   }
 
   public activeComponent(id: string): void {
     this.context.store.interactionStore.activeComponent(id);
+  }
+
+  private calculateComponentPlacement(id: string, parentId?: string, slotProperty?: string, index?: number): IBaseEffectPlacement {
+    /**
+     * 这里有两种情况
+     * >如果是已有组件,那么直接取,但是需要判定是否是同一个parentId,因为如果是组件移动,那么已有组件的位置是没有意义的
+     * >如果是新增组件,那么它还没有放置到相应的节点位置,所以它的位置可以用欲放置插槽位置的最后一个节点来推算
+     *  
+     */
+    const store = this.context.store;
+    const getPlacement = (info: { [key: string]: any }) => {
+      if (!info) { return null; }
+      return _.pick(info, ['first', 'last', 'index', 'count', 'even', 'odd']);
+    };
+
+    const getSameLevelChildTreeInfo = () => {
+      const sameLevelChildId = store.treeStore.selectSlotLastChildrenId(parentId, slotProperty);
+      return store.treeStore.selectComponentTreeInfo(sameLevelChildId);
+    };
+
+    let sameLevelChildTreeInfo: ReturnType<typeof getSameLevelChildTreeInfo>;
+    let treeInfo = store.treeStore.selectComponentTreeInfo(id);
+    // 第一种情况
+    if (treeInfo) {
+      // 这里需要判定父容器,因为需要判定是否是移动
+      if (parentId && treeInfo.parentId !== parentId) {
+        sameLevelChildTreeInfo = getSameLevelChildTreeInfo();
+        index = index || sameLevelChildTreeInfo.index + 1;
+        const even = (index + 1) % 2 === 0;
+        return { index, count: sameLevelChildTreeInfo.count + 1, first: index === 0, last: index === sameLevelChildTreeInfo.count - 1, even, odd: !even };
+      }
+      const p = getPlacement(treeInfo);
+      return { ...p, index: index || p.index };
+    }
+
+    // 第二种情况
+    sameLevelChildTreeInfo = getSameLevelChildTreeInfo();
+    // 如果同级节点也没有,那么位置就显然而知了
+    if (sameLevelChildTreeInfo) {
+      index = index || sameLevelChildTreeInfo.index + 1;
+      const even = (index + 1) % 2 === 0;
+      return { index, count: sameLevelChildTreeInfo.count + 1, first: index === 0, last: index === sameLevelChildTreeInfo.count - 1, even, odd: !even };
+    } else {
+      return {
+        index: 0,
+        count: 1,
+        first: true,
+        last: true,
+        even: false,
+        odd: true
+      };
+    }
   }
 
   private static generateFilterKey(filter: ISetterPanelContext) {

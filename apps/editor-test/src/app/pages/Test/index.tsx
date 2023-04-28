@@ -13,21 +13,21 @@ const Page: React.FC = memo(() => {
   useEffect(() => {
     (async () => {
       // console.log(`schema:`, schema);
-      const processor = new SchemaDataProcessor(packages);
+      const processor = new SchemaDataProcessor<{ task: number }>(packages);
 
       const formFields = [];
-      // 生成头部表单field
-      // processor.registerHandler({ parentType: 'block', type: FormInputGroupTypes }, ({ current, parent, self }) => {
 
-      //   // console.log(`block inners:`, current.type);
+      processor.registerHandler({ parentType: 'table', slot: 'columns', first: true }, ({ current, variables, first, last, even, odd, index, count }) => {
 
-      //   return current;
-      // });
+        console.log(`---------------  table work  ---------------`);
+        console.log(`first:`, first);
+        console.log(`last:`, last);
+        console.log(`even:`, even);
+        console.log(`odd:`, odd);
+        console.log(`index:`, index);
+        console.log(`count:`, count);
 
-      // 生成表格
-      processor.registerHandler({ parentType: 'table', slot: 'columns' }, ({ current, parent, path }) => {
 
-        console.log(`table columns:`, current);
         return current;
       });
 

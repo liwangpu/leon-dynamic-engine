@@ -1,4 +1,4 @@
-import { EffectHandlerStorage, IBaseEffectContext, IBaseEffectFilter, IBaseEffectParam, IComponentConfiguration } from '@lowcode-engine/core';
+import { EffectHandlerStorage, IBaseEffectFilter, IBaseEffectParam, IComponentConfiguration } from '@lowcode-engine/core';
 import { IEditorContext } from './editor-manager';
 import * as _ from 'lodash';
 
@@ -68,11 +68,7 @@ export class ConfigurationAddingEffectManager implements IConfigurationAddingEff
   }
 
   public async handleAdd(param: IConfigurationAddingParam): Promise<IComponentConfiguration> {
-    const handlers = this.addHandlers.get({
-      type: param.current.type,
-      parentType: param.parent?.type,
-      slot: param.slot,
-    });
+    const handlers = this.addHandlers.get(param);
 
     if (handlers && handlers.length) {
       for (const handler of handlers) {
@@ -87,11 +83,7 @@ export class ConfigurationAddingEffectManager implements IConfigurationAddingEff
   }
 
   public async handleAfterAdd(param: IConfigurationAddingParam): Promise<void> {
-    const handlers = this.addAfterHandlers.get({
-      type: param.current.type,
-      parentType: param.parent?.type,
-      slot: param.slot,
-    });
+    const handlers = this.addAfterHandlers.get(param);
 
     if (handlers && handlers.length) {
       for (const handler of handlers) {
@@ -167,11 +159,7 @@ export class ConfigurationDeleteEffectManager implements IConfigurationDeleteEff
   }
 
   public async handleDelete(param: IConfigurationDeleteParam): Promise<boolean> {
-    const handlers = this.deleteHandlers.get({
-      type: param.current.type,
-      parentType: param.parent?.type,
-      slot: param.slot,
-    });
+    const handlers = this.deleteHandlers.get(param);
 
     if (handlers && handlers.length) {
       for (const handler of handlers) {
@@ -182,11 +170,7 @@ export class ConfigurationDeleteEffectManager implements IConfigurationDeleteEff
   }
 
   public async handleAfterDelete(param: IConfigurationDeleteParam): Promise<void> {
-    const handlers = this.deleteAfterHandlers.get({
-      type: param.current.type,
-      parentType: param.parent?.type,
-      slot: param.slot,
-    });
+    const handlers = this.deleteAfterHandlers.get(param);
 
     if (handlers && handlers.length) {
       for (const handler of handlers) {
@@ -226,7 +210,7 @@ export interface ITypeTransferParam extends IBaseEffectParam {
 /**
  * 
  */
-export interface ITypeTransferContext extends IBaseEffectContext {
+export interface ITypeTransferContext extends IBaseEffectParam {
   /**
    * 目标组件类型
    */
@@ -277,12 +261,7 @@ export class ConfigurationTypeTransferEffectManager implements IConfigurationTyp
 
   public async handle(param: ITypeTransferParam): Promise<IComponentConfiguration> {
     const current: IComponentConfiguration = { ...param.current };
-    const handlers = this.handlers.get({
-      type: param.previous.type,
-      parentType: param.parent?.type,
-      slot: param.slot,
-      destType: param.current.type,
-    });
+    const handlers = this.handlers.get({ ...param, destType: param.current.type });
 
     if (handlers && handlers.length) {
       for (const handler of handlers) {
