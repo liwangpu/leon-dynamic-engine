@@ -32,7 +32,6 @@ export class SchemaDataProcessor<VariableType = any> {
     this.handlers.add(filter, handler);
   }
 
-
   public async handle(schema: IProjectSchema, variableInitialize?: () => VariableType, postHandle?: (variables: VariableType) => void): Promise<IProjectSchema> {
     if (!schema) { return; }
     const slotInfoMap = await this.discovery.queryComponentSlotInfo();

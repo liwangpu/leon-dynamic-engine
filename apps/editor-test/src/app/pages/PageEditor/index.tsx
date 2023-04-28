@@ -254,7 +254,7 @@ const PageEditor: React.FC = memo(() => {
             });
 
             /********************************组件删除副作用********************************/
-            configurationDeleteEffect.registerHandler({ type: ComponentTypes.tab, count: 1 }, ({ }: { current: ITabComponentConfiguration }) => {
+            configurationDeleteEffect.registerHandler({ type: ComponentTypes.tab, count: 1 }, () => {
               notification.open({
                 message: '温馨提示',
                 description: '最后一个页签不能删除',
