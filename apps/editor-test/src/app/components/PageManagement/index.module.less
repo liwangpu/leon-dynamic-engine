@@ -132,14 +132,17 @@
 .tool-button {
   margin-left: 4px;
 
+  &--edit,
+  &--preview {
+    &:hover {
+      color: var(--lce-primary-color) !important;
+    }
+  }
+
   &--deleted {
     &:hover {
       color: red !important;
     }
-  }
-
-  &:hover {
-    color: var(--lce-primary-color);
   }
 
 }

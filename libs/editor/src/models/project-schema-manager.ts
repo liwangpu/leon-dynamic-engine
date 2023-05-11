@@ -42,7 +42,7 @@ export class ProjectSchemaManager implements IProjectManager {
     return onAction(this.context.store, act => {
       // console.log(`path:`, act.path, act.name);
       if (!(listenPaths.some(p => p === act.path) || listenActions.some(n => n === act.name))) { return; }
-      const s = nestComponentTree(getSnapshot(this.context.store), slotPropertyMap);
+      const s = nestComponentTree(getSnapshot(this.context.store), slotPropertyMap, slotSingletonMap);
       onChange(s);
     }, true);
   }

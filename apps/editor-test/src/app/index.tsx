@@ -15,8 +15,8 @@ const packages: Array<IComponentPackage> = [
   // componentPackageRemoteLoader(() => import('primary-component-package/componentPackage') as any)
 ];
 
-const MONITOR_STORE = RENDERER_STORE_NAME;
-// const MONITOR_STORE = EDITOR_STORE_NAME;
+// const MONITOR_STORE = RENDERER_STORE_NAME;
+const MONITOR_STORE = EDITOR_STORE_NAME;
 
 const dataStoreCollocation: IStoreMonitor = {
   hosting: (name: string, store: any) => {

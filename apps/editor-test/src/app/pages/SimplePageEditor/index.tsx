@@ -8,7 +8,7 @@ import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/componen
 import * as _ from 'lodash';
 import { IProjectSchema } from '@lowcode-engine/core';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
-import { generateListPageConfig } from '../../utils';
+// import { generateListPageConfig } from '../../utils';
 
 RegisterPrimarySetter();
 RegisterSharedSetter();
@@ -23,7 +23,7 @@ const PageEditorComponent: React.FC = memo(() => {
       ({ project }) => {
         return {
           init() {
-            project.import(SimpleSchemaStore.query());
+            // project.import(SimpleSchemaStore.query());
             // console.log(`title:`,SimpleSchemaStore.query());
           }
         };
@@ -92,24 +92,24 @@ PageEditorComponent.displayName = 'SimplePageEditorComponent';
 
 export default PageEditorComponent;
 
-const SimpleSchemaStore = (() => {
+// const SimpleSchemaStore = (() => {
 
-  const STORAGE_KEY = 'simple-page-editor-schema';
+//   const STORAGE_KEY = 'simple-page-editor-schema';
 
-  const INITIAL_SCHEMA: IProjectSchema = generateListPageConfig();
+//   // const INITIAL_SCHEMA: IProjectSchema = generateListPageConfig();
 
-  return {
-    query() {
-      const str = localStorage.getItem(STORAGE_KEY);
-      if (str) {
-        return JSON.parse(str);
-      }
+//   return {
+//     query() {
+//       const str = localStorage.getItem(STORAGE_KEY);
+//       if (str) {
+//         return JSON.parse(str);
+//       }
 
-      return INITIAL_SCHEMA;
-    },
-    save(schema: IProjectSchema) {
-      if (!schema) { return; }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(schema))
-    }
-  };
-})();
+//       return INITIAL_SCHEMA;
+//     },
+//     save(schema: IProjectSchema) {
+//       if (!schema) { return; }
+//       localStorage.setItem(STORAGE_KEY, JSON.stringify(schema))
+//     }
+//   };
+// })();

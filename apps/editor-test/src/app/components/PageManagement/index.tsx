@@ -80,14 +80,18 @@ const PageManagement: React.FC = observer(() => {
                 <p className={styles['page__info']}>编码：{p.id}</p>
                 <p className={styles['page__info']}>主业务对象</p>
                 <div className={styles['page__tools']}>
-                  <Button type="text" size='small' shape="circle" className={styles['tool-button']
-                  } icon={<EyeOutlined />} onClick={() => onPreviewPage(p.id)} />
-                  <Button type="text" size='small' shape="circle" className={styles['tool-button']
-                  } icon={<EditOutlined />} onClick={() => onEditPage(p.id, g.type)} />
+                  <Button type="text" size='small' shape="circle" className={classnames(
+                    styles['tool-button'],
+                    styles['tool-button--preview'],
+                  )} icon={<EyeOutlined />} onClick={() => onPreviewPage(p.id)} />
+                  <Button type="text" size='small' shape="circle" className={classnames(
+                    styles['tool-button'],
+                    styles['tool-button--edit'],
+                  )} icon={<EditOutlined />} onClick={() => onEditPage(p.id, g.type)} />
                   <Button type="text" size='small' shape="circle" className={
                     classnames(
                       styles['tool-button'],
-                      styles['tool-button--deleted']
+                      styles['tool-button--deleted'],
                     )} icon={<DeleteOutlined />} onClick={() => onDeletePage(p.id)} />
                 </div>
               </div>

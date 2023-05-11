@@ -53,7 +53,7 @@ const PageDetail: React.FC<PageDetailProps> = observer(props => {
       businessModel,
       type: props.pageType,
       code,
-      title: code,
+      title: code.toUpperCase(),
       layout: PageLayoutType.blank,
     };
   }, [businessModel, props.pageType]);
