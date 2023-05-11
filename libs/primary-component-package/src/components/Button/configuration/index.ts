@@ -47,6 +47,26 @@ const registerMetadata: IMetadataRegister = register => {
                     },
                   ],
                 },
+                {
+                  key: 'button-setting',
+                  setter: SetterType.primaryHeading,
+                  label: '按钮设置',
+                  children: [
+                    {
+                      key: 'enableBindTabs',
+                      setter: SetterType.boolean,
+                      name: 'enableBindTabs',
+                      label: '绑定多页签',
+                    },
+                    {
+                      key: 'bindTabs',
+                      setter: PrimarySetterType.tabSelect,
+                      name: 'bindTabs',
+                      label: '页签',
+                      multiple: true,
+                    },
+                  ],
+                },
               ],
             },
             {

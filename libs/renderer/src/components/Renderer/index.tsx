@@ -1,10 +1,12 @@
 import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
-import { ComponentDiscoveryContext, ComponentDiscoveryProvider, DataCenterEngineContext, DynamicComponentFactoryContext, IComponentConfiguration, IComponentDiscovery, IComponentHierarchyManager, IComponentHierarchyNode, IComponentPackage, IDataCenterEngine, IDynamicComponentContainerProps, IDynamicComponentContainerRendererRef, IDynamicComponentFactory, IDynamicComponentProps, IProjectSchema, useDynamicComponentEngine } from '@lowcode-engine/core';
+import { ComponentDiscoveryContext, ComponentDiscoveryProvider, DataCenterEngineContext, DynamicComponentFactoryContext, IComponentConfiguration, IComponentDiscovery, IComponentHierarchyManager, IComponentHierarchyNode, IComponentPackage, IDataCenterEngine, IDynamicComponentContainerProps, IDynamicComponentContainerRendererRef, IDynamicComponentFactory, IDynamicComponentProps, IProjectSchema, useDynamicComponentEngine, useStoreMonitorHosting } from '@lowcode-engine/core';
 import { createStore } from '../../store';
-import { DataStoreCollocationContext, DataStoreContext } from '../../contexts';
 import * as _ from 'lodash';
 import './index.less';
 import { DynamicComponent, DynamicComponentContainer } from '../DynamicComponent';
+import { STORE_NAME } from '../../consts';
+import { IRendererContext, RendererManager } from '../../models';
+import { ExpressionMonitorRegisterContext, RendererContext } from '../../contexts';
 
 export interface _RendererProps {
   schema: IProjectSchema;
@@ -15,16 +17,43 @@ export interface DynamicPageProps extends _RendererProps {
 }
 
 export const _Renderer: React.FC<_RendererProps> = memo(props => {
+
   const engine = useDynamicComponentEngine();
   const DynamicComponent = engine.getDynamicComponentFactory();
   const validatedSchema = !!(props.schema && props.schema.id && props.schema.type);
-  const onChange = (val: any) => {
-    //
-  };
+  const store = useMemo(() => createStore(), []);
+  useStoreMonitorHosting(STORE_NAME, store);
+
+  const expressionMonitorRegister = useContext(ExpressionMonitorRegisterContext);
+
+  const rendererContext = useMemo<IRendererContext>(() => {
+    const ctx = new RendererManager();
+    if (_.isArray(expressionMonitorRegister)) {
+      for (const register of expressionMonitorRegister) {
+        const r = register();
+        if (_.isArray(r)) {
+          ctx.expressionMonitor.registerMonitor(...r);
+        }
+      }
+    }
+    return ctx;
+  }, []);
+
+  const dataCenterEngine = useMemo<IDataCenterEngine>(() => ({
+    setData(field, val) {
+      store.setData(field, val);
+    },
+    setState(componentId, property, data) {
+      store.setState(componentId, property, data);
+    },
+  }), []);
+
   return (
-    <>
-      {validatedSchema && <DynamicComponent configuration={props.schema} />}
-    </>
+    <RendererContext.Provider value={rendererContext}>
+      <DataCenterEngineContext.Provider value={dataCenterEngine}>
+        {validatedSchema && <DynamicComponent configuration={props.schema} />}
+      </DataCenterEngineContext.Provider>
+    </RendererContext.Provider>
   );
 });
 
@@ -32,21 +61,8 @@ _Renderer.displayName = '_Renderer';
 
 export const Renderer: React.FC<DynamicPageProps> = memo(props => {
   const componentDiscovery = useMemo(() => new ComponentDiscoveryProvider(props.packages), [props.packages]);
-  const collocationContext = useContext(DataStoreCollocationContext);
+
   const [componentFactory, setComponentFactory] = useState<IDynamicComponentFactory>();
-
-  const store = useMemo(() => createStore(), []);
-  const dataCenterEngine = useMemo<IDataCenterEngine>(() => ({
-    setData: (field, val) => {
-      store.setData(field, val);
-    }
-  }), []);
-
-  useEffect(() => {
-    if (collocationContext) {
-      collocationContext.hosting(store);
-    }
-  }, []);
 
   useEffect(() => {
     (async () => {
@@ -62,11 +78,7 @@ export const Renderer: React.FC<DynamicPageProps> = memo(props => {
       {
         componentFactory && (
           <DynamicComponentFactoryContext.Provider value={componentFactory}>
-            <DataStoreContext.Provider value={store}>
-              <DataCenterEngineContext.Provider value={dataCenterEngine}>
-                <_Renderer schema={props.schema} />
-              </DataCenterEngineContext.Provider>
-            </DataStoreContext.Provider>
+            <_Renderer schema={props.schema} />
           </DynamicComponentFactoryContext.Provider>
         )
       }
@@ -102,6 +114,18 @@ class HierarchyManager implements IComponentHierarchyManager {
     // 当前组件就不用放进去了,这个运行时和设计时统一
     confs.splice(0, 1);
     return confs.reverse();
+  }
+
+  public getTreeInfo(id: string): { parent?: IComponentConfiguration, slot?: string, index?: number } {
+    const treeNode = this.trees.get(id);
+    if (!treeNode) { return null; }
+
+    return {
+      parent: treeNode.parentId ? this.components.get(treeNode.parentId) : null,
+      slot: treeNode.slotProperty,
+      index: treeNode.slotIndex,
+    };
+
   }
 
   public async initialize(): Promise<void> {

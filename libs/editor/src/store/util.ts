@@ -99,6 +99,7 @@ export function nestComponentTree(state: SnapshotIn<EditorStoreModel>, slotMap: 
   });
 
   const supplementChildrenConfig = (componentId: string) => {
+    if (!componentId) { return; }
     const tree = getTree(componentId);
     const conf = componentConfMap.get(componentId);
     const properties = getHierarchyProperties(slotMap, conf.type);

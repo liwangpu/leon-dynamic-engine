@@ -29,7 +29,7 @@ const registerMetadata: IMetadataRegister = register => {
                       setter: SharedSetterType.componentType,
                       name: 'type',
                       label: '组件类型',
-                      disabled: true,
+                      // disabled: true,
                     },
                     {
                       key: 'title',
@@ -79,7 +79,7 @@ const registerMetadata: IMetadataRegister = register => {
                       setter: SharedSetterType.componentType,
                       name: 'type',
                       label: '组件类型',
-                      // disabled: true,
+                      disabled: true,
                     },
                     {
                       key: 'title',

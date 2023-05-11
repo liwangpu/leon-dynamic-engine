@@ -36,5 +36,6 @@ export const ComponentIndexTitleIncludeGroupTypes = new Set<string>([
   ComponentTypes.block,
   ComponentTypes.table,
   ComponentTypes.button,
+  ComponentTypes.tabs,
   ComponentTypes.buttonGroup,
 ]);

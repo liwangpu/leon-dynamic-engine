@@ -64,7 +64,7 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
   const { children: CustomSlotRenderer, direction = 'vertical', className, dropOnly, slot: slotProperty, style } = props;
   const componentId = props.configuration.id;
   const horizontal = direction === 'horizontal';
-  const { store, slot, dom, event, configurationAddingEffect, configuration } = useContext(EditorContext);
+  const { store, slot, dom, event, configuration } = useContext(EditorContext);
   const pagePresentationUtil = useContext(PagePresentationUtilContext);
   const slotRendererRef = useRef<HTMLDivElement>();
   const conf = store.configurationStore.selectComponentConfigurationWithoutChildren(componentId, true);
@@ -252,7 +252,8 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
         currentConf = null;
         const itemEl = evt.item;
         itemEl.classList.remove('dragging');
-
+        const from = evt.oldIndex;
+        const to = evt.newIndex;
         const parentId = evt.to.getAttribute('data-dynamic-container-owner');
         if (!parentId) { return; }
         const containerDom: HTMLElement = evt.to as any;
@@ -262,26 +263,34 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
         if (!confStr) { return; }
         const conf: IComponentConfiguration = JSON.parse(confStr);
         if (!conf.id) { return; }
-        const getMatchedSlotProperties = slot.getMatchedSlotProperties(conf.type);
-        const container2SlotProperty = dom.getSlotDomProperty(evt.to);
+
         const cancelRemove = () => {
-          itemEl.parentElement.removeChild(itemEl);
-          evt.from.appendChild(itemEl);
+          // 注意,取消跨容器拖动和同容器拖动是不一样的
+
+          if (evt.from !== evt.to) {
+            // 取消跨容器拖动
+            itemEl.parentElement.removeChild(itemEl);
+            evt.from.appendChild(itemEl);
+          } else {
+            // 取消同容器拖动
+
+            // 注意,这里的children是拖动后的元素顺序了
+            const children = (evt.from as HTMLDivElement).children;
+            const originItemEl = children[to];
+            // 小序号往大序号拖动,取拖动前下一个元素,before把元素还原回原来位置
+            if (from < to) {
+              const nextDom = children[from];
+              nextDom.before(originItemEl);
+            } else {
+              // 大序号往小序号拖动,取拖动前的上一个元素,after把元素还原回原来位置
+              const previousDom = children[from];
+              previousDom.after(originItemEl);
+            }
+          }
         };
-
-        if (!getMatchedSlotProperties.some(p => p === container2SlotProperty)) {
-          cancelRemove();
-          return;
-        }
-
-        const canMove = await configuration.moveComponent(conf.id, parentId, slotProperty, evt.newIndex);
-        if (evt.from !== evt.to) {
-          cancelRemove();
-        }
-
-        if (canMove) {
-          itemEl.style.display = 'none';
-        }
+        
+        cancelRemove();
+        await configuration.moveComponent(conf.id, parentId, slotProperty, evt.newIndex);
       },
     });
     slotHost['sortableInstance'] = instance;

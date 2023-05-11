@@ -1,14 +1,15 @@
-import { forwardRef, memo, useContext, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import styles from './index.module.less';
 import * as _ from 'lodash';
 import { EditorContextManager, IEditorContext, IPlugin, IPluginRegister } from '../../models';
-import { DataStoreCollocationContext, EditorContext } from '../../contexts';
+import { EditorContext } from '../../contexts';
 import Banner from '../Banner';
 import PluginPanel from '../PluginPanel';
 import PagePresentation from '../PagePresentation';
-import { ComponentDiscoveryContext, IComponentPackage } from '@lowcode-engine/core';
+import { ComponentDiscoveryContext, IComponentPackage, useStoreMonitorHosting } from '@lowcode-engine/core';
 import ComponentSettingPanel from '../ComponentSettingPanel';
 import { PagePresentationFooterAreaPanel } from '../PagePresentationFooterAreaPanel';
+import { STORE_NAME } from '../../consts';
 
 export interface IEditorProps {
   packages: Array<IComponentPackage>;
@@ -22,9 +23,8 @@ export interface IEditorRef {
 export const Editor = memo(forwardRef<IEditorRef, IEditorProps>((props, ref) => {
 
   const [initialized, setInitialized] = useState(false);
-  const collocationContext = useContext(DataStoreCollocationContext);
   const editor = useMemo<IEditorContext>(() => new EditorContextManager(props.packages), [props.plugins]);
-
+  useStoreMonitorHosting(STORE_NAME, editor.store);
   useImperativeHandle(ref, () => ({
     getContext() {
       return editor;
@@ -32,9 +32,6 @@ export const Editor = memo(forwardRef<IEditorRef, IEditorProps>((props, ref) => 
   }), [editor]);
 
   useEffect(() => {
-    if (collocationContext) {
-      collocationContext.hosting(editor.store);
-    }
     const plugins: Array<IPlugin> = [];
     for (const pluginRegister of props.plugins) {
       const plugin = pluginRegister(editor);

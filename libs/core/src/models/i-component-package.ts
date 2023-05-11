@@ -27,7 +27,7 @@ export interface IDynamicComponentContainerProps {
   dropOnly?: boolean;
   className?: string | Array<string> | { [name: string]: boolean };
   style?: { [property: string]: any };
-  children?: (cs: Array<IComponentConfiguration>) => React.ReactNode;
+  children?: (confs: Array<IComponentConfiguration>) => React.ReactNode;
 }
 
 export interface IComponentConfigurationPanelProps<T = IComponentConfiguration> {

@@ -121,6 +121,10 @@ export const TreeStore = types.model({
       if (!childrenIds) { return null; }
       return childrenIds[0];
     },
+    selectSlotChildrenCount: (id: string, slotProperty: string) => {
+      const childrenIds = self.selectSlotChildrenIds(id, slotProperty);
+      return childrenIds ? childrenIds.length : 0;
+    },
   }))
   .actions(self => ({
     moveComponent: (id: string, parentId: string, index: number, slotProperty: string) => {

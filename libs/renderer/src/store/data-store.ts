@@ -1,7 +1,10 @@
 import { Instance, types, applySnapshot } from "mobx-state-tree";
 
+
+
 const DataStore = types.model({
   data: types.map(types.frozen()),
+  state: types.map(types.map(types.frozen())),
   visibility: types.map(types.boolean),
   disabled: types.map(types.boolean)
 })
@@ -29,7 +32,17 @@ const DataStore = types.model({
     },
     setDisabled: (field: string, disabled: boolean) => {
       self.disabled.set(field, disabled);
-    }
+    },
+    setState: (componentId: string, property: string, data?: any) => {
+      console.log(`store  set state:`, componentId, property, data);
+
+      if (!self.state.has(componentId)) {
+        self.state.set(componentId, {})
+      }
+      let m = self.state.get(componentId);
+      m.set(property, data);
+
+    },
   }));
 
 export type DataStoreModel = Instance<typeof DataStore>;
@@ -38,7 +51,7 @@ export const createStore = () => {
   return DataStore.create({
     data: {
       age: 18,
-      height:200
+      height: 200
     }
   });
 }

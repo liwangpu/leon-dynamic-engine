@@ -3,19 +3,14 @@ import styles from './index.module.less';
 import { Button, Form, Input, Radio, Select } from 'antd';
 import { observer } from 'mobx-react-lite';
 import classNames from 'classnames';
-import { ComponentTypes, TableFeature, TableSelectionMode } from '@lowcode-engine/primary-component-package';
+import { ComponentTypes } from '@lowcode-engine/primary-component-package';
 import { StoreContext } from '../../contexts';
 import { useParams } from 'react-router-dom';
-import { GenerateComponentId, GenerateNestedComponentId, IComponentConfiguration } from '@lowcode-engine/core';
+import { GenerateComponentCode } from '@lowcode-engine/core';
 import { getSnapshot } from 'mobx-state-tree';
 import { IBusinessModel } from '@lowcode-engine/primary-plugin';
-
-enum LayoutType {
-  list = 'List',
-  detail = 'detail',
-  blank = 'blank',
-  form = 'form'
-}
+import { PageLayoutType } from '../../enums';
+import { usePageSchemaGenerator } from '../../hooks';
 
 interface PageDetailProps {
   pageType: string;
@@ -25,7 +20,7 @@ interface PageDetailProps {
 
 interface IFormValue {
   type: string;
-  layout: LayoutType;
+  layout: PageLayoutType;
   title: string;
   code: string;
   businessModel: string;
@@ -33,10 +28,10 @@ interface IFormValue {
 }
 
 const AllLayouts = {
-  [LayoutType.list]: { layout: LayoutType.list, title: '列表' },
-  [LayoutType.detail]: { layout: LayoutType.detail, title: '行编辑表' },
-  [LayoutType.blank]: { layout: LayoutType.blank, title: '空白页' },
-  [LayoutType.form]: { layout: LayoutType.form, title: '表单' },
+  [PageLayoutType.list]: { layout: PageLayoutType.list, title: '列表' },
+  [PageLayoutType.detail]: { layout: PageLayoutType.detail, title: '行编辑表' },
+  [PageLayoutType.blank]: { layout: PageLayoutType.blank, title: '空白页' },
+  [PageLayoutType.form]: { layout: PageLayoutType.form, title: '表单' },
 };
 
 const PageDetail: React.FC<PageDetailProps> = observer(props => {
@@ -45,18 +40,29 @@ const PageDetail: React.FC<PageDetailProps> = observer(props => {
   const [form] = Form.useForm<{ title: string }>();
   const [step, setStep] = useState(0);
   const { businessModel } = useParams();
+  const pageSchemaGenerator = usePageSchemaGenerator();
   const businessModels: Array<IBusinessModel> = useMemo(() => {
     // 防止mst引用被其他地方使用
     const modelsMap = getSnapshot(store.modelStore.models);
     const modelKeys = Object.keys(modelsMap);
     return modelKeys.map(k => modelsMap[k]);
   }, [store.modelStore.models]);
+  const formInitialValue = useMemo(() => {
+    const code = GenerateComponentCode(props.pageType);
+    return {
+      businessModel,
+      type: props.pageType,
+      code,
+      title: code,
+      layout: PageLayoutType.blank,
+    };
+  }, [businessModel, props.pageType]);
   const limitedLayouts = useMemo(() => {
     switch (props.pageType) {
       case ComponentTypes.listPage:
-        return [LayoutType.list, LayoutType.blank];
+        return [PageLayoutType.list, PageLayoutType.blank];
       case ComponentTypes.detailPage:
-        return [LayoutType.form, LayoutType.blank];
+        return [PageLayoutType.form, PageLayoutType.blank];
       default:
         return [];
     }
@@ -64,8 +70,10 @@ const PageDetail: React.FC<PageDetailProps> = observer(props => {
 
   const onSave = useCallback(async () => {
     const formValue: IFormValue = form.getFieldsValue() as any;
-    const configuration = await generatePageConfiguration(formValue, businessModels);
-    props.onConfirm(configuration);
+    const schema = await pageSchemaGenerator(formValue.type, formValue.businessModel, formValue.layout);
+    // 不需要id
+    delete schema.id;
+    props.onConfirm({ ...schema, title: formValue.title, code: formValue.code, businessModel: formValue.businessModel });
   }, []);
 
   const BusinessModelSelection = useMemo(() => {
@@ -104,7 +112,7 @@ const PageDetail: React.FC<PageDetailProps> = observer(props => {
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 16 }}
         validateTrigger='onChange'
-        initialValues={{ businessModel, type: props.pageType }}
+        initialValues={formInitialValue}
         autoComplete="off"
         onFinish={onSave}
       >
@@ -207,72 +215,3 @@ const PageDetail: React.FC<PageDetailProps> = observer(props => {
 PageDetail.displayName = 'PageDetail';
 
 export default PageDetail;
-
-async function generatePageConfiguration(formValue: IFormValue, models: Array<IBusinessModel>): Promise<Partial<IComponentConfiguration>> {
-  const conf: Partial<IComponentConfiguration> = {
-    ...formValue,
-    width: '100%',
-    height: '100%',
-    children: []
-  };
-  const businessModel = models.find(b => b.id === formValue.businessModel);
-  delete conf['layout'];
-  switch (formValue.layout) {
-    case LayoutType.list:
-      // eslint-disable-next-line no-case-declarations
-      const tableId = GenerateComponentId(ComponentTypes.table);
-      conf.children = [
-        {
-          id: tableId,
-          type: ComponentTypes.table,
-          title: '列表',
-          features: [
-            TableFeature.selectionColumn,
-            TableFeature.operationColumn,
-            TableFeature.pagination,
-          ],
-          columns: businessModel.fields.map(f => ({
-            id: GenerateComponentId(ComponentTypes.text),
-            type: ComponentTypes.text,
-            title: f.name
-          })),
-          selectionColumn: {
-            id: GenerateNestedComponentId(tableId, ComponentTypes.tableSelectionColumn),
-            type: ComponentTypes.tableSelectionColumn,
-            selectionMode: TableSelectionMode.multiple,
-          },
-          operatorColumn: {
-            id: GenerateNestedComponentId(tableId, ComponentTypes.tableOperatorColumn),
-            type: ComponentTypes.tableOperatorColumn,
-            visible: true,
-            tileButtonCount: 3,
-            title: '操作列',
-          },
-          pagination: {
-            id: GenerateNestedComponentId(tableId, ComponentTypes.pagination),
-            type: ComponentTypes.pagination,
-            title: '分页器',
-            pageSize: 20,
-          },
-        }
-      ];
-      break;
-    case LayoutType.form:
-      conf.children = [
-        {
-          id: GenerateComponentId(ComponentTypes.block),
-          type: ComponentTypes.block,
-          title: '基础信息',
-          children: businessModel.fields.map(f => ({
-            id: GenerateComponentId(ComponentTypes.text),
-            type: ComponentTypes.text,
-            title: f.name
-          }))
-        }
-      ];
-      break;
-    default:
-      break;
-  }
-  return conf;
-}

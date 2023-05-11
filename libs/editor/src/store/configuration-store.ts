@@ -87,22 +87,55 @@ export const ConfigurationStore = types.model({
       if (!tree) { return null; }
       return tree.type;
     },
-    selectAllComponentBasicInfo: () => {
+    selectAllComponentBasicInfo: (types?: Array<string>) => {
       const parent: EditorStoreModel = getParent(self);
-      const trees = parent.treeStore.trees;
+      const { trees } = parent.treeStore;
       const componentIds = trees.keys();
-      const infos: Array<{ id: string, type: string, title: string }> = [];
+      const infos: Array<{ id: string, type: string, title: string, parentId: string }> = [];
       for (const id of componentIds) {
         const tree = trees.get(id);
+        if (_.isArray(types) && types.length) {
+          if (!types.some(t => t === tree.type)) { continue; }
+        }
         const conf = self.configurations.get(id);
         infos.push({
           id,
           type: tree.type,
-          title: conf ? conf.title : '组件'
+          title: conf ? conf.title : '组件',
+          parentId: tree.parentId
         });
       }
       return infos;
-    }
+    },
+    selectComponentPartialConfiguration: (id: string, properties: Array<string>) => {
+      if (!id || !self.configurations.has(id) || !_.isArray(properties) || !properties.length) { return null; }
+      const conf = self.configurations.get(id).toData(true);
+      const config: { [key: string]: any } = { id, type: conf.type };
+      for (const p of properties) {
+        config[p] = conf[p];
+      }
+      return config;
+    },
+    selectComponentPartialConfigurationByTypes: (types: Array<string>, properties: Array<string>) => {
+      if (!_.isArray(types) || !types.length || !_.isArray(properties) || !properties.length) { return []; }
+      const parent: EditorStoreModel = getParent(self);
+      const { trees } = parent.treeStore;
+      const componentIds = trees.keys();
+      const infos: Array<{ [key: string]: any }> = [];
+      for (const id of componentIds) {
+        const tree = trees.get(id);
+        if (_.isArray(types) && types.length) {
+          if (!types.some(t => t === tree.type)) { continue; }
+        }
+        const conf = self.configurations.get(id);
+        const config = { id, type: conf.type, title: conf.title };
+        for (const p of properties) {
+          config[p] = conf[p];
+        }
+        infos.push(config);
+      }
+      return infos;
+    },
   }))
   .actions(self => ({
     updateComponentConfiguration: (config: Partial<IComponentConfiguration>) => {

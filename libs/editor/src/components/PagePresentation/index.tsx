@@ -33,6 +33,9 @@ const PagePresentation: React.FC = observer(() => {
           const confs = configuration.getComponentPath(id);
           return confs.splice(0, confs.length - 1);
         },
+        getTreeInfo(id) {
+          return null;
+        },
       },
       getDynamicComponentFactory: () => {
         return DynamicComponent;

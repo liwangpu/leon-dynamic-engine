@@ -1,6 +1,6 @@
 import { ComponentDiscoveryProvider, IComponentDiscovery, IComponentPackage } from '@lowcode-engine/core';
 import { createStore, EditorStoreModel } from '../store';
-import { ConfigurationAddingEffectManager, IConfigurationAddingEffectManager, IConfigurationDeleteEffectManager, IConfigurationTypeTransferEffectManager, ConfigurationTypeTransferEffectManager, ConfigurationDeleteEffectManager } from './configuration-effect-manager';
+import { ConfigurationAddingEffectManager, IConfigurationAddingEffectManager, IConfigurationDeleteEffectManager, IConfigurationTypeTransferEffectManager, ConfigurationTypeTransferEffectManager, ConfigurationDeleteEffectManager, IConfigurationMoveEffectManager, ConfigurationMoveEffectManager } from './configuration-effect-manager';
 import { ConfigurationManager, IConfigurationManager } from './configuration-manager';
 import { DomManager, IDomManager } from './dom-manager';
 import { EditorStorage, IEditorStorage } from './editor-storage';
@@ -36,6 +36,7 @@ export interface IEditorContext {
   configuration: IConfigurationManager;
   configurationAddingEffect: IConfigurationAddingEffectManager;
   configurationDeleteEffect: IConfigurationDeleteEffectManager;
+  configurationMoveEffect: IConfigurationMoveEffectManager;
   configurationTypeTransferEffect: IConfigurationTypeTransferEffectManager;
   // 组件dom管理器
   dom: IDomManager;
@@ -52,6 +53,7 @@ export class EditorContextManager implements IEditorContext {
   public readonly slot = new SlotManager(this);
   public readonly configurationAddingEffect = new ConfigurationAddingEffectManager(this);
   public readonly configurationDeleteEffect = new ConfigurationDeleteEffectManager(this);
+  public readonly configurationMoveEffect = new ConfigurationMoveEffectManager(this);
   public readonly configurationTypeTransferEffect = new ConfigurationTypeTransferEffectManager(this);
   public readonly storage = new EditorStorage(this);
   public readonly configuration = new ConfigurationManager(this);

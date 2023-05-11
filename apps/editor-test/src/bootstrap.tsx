@@ -19,6 +19,7 @@ const store = createStore();
 const Home = React.lazy(() => import('./app/pages/Home'));
 const BusinessDetail = React.lazy(() => import('./app/pages/BusinessDetail'));
 const PageEditor = React.lazy(() => import('./app/pages/PageEditor'));
+const SimplePageEditor = React.lazy(() => import('./app/pages/SimplePageEditor'));
 const PagePreview = React.lazy(() => import('./app/pages/PagePreview'));
 const EditorPluginTest = React.lazy(() => import('./app/pages/EditorPluginTest'));
 const ComponentGalleryTest = React.lazy(() => import('./app/pages/ComponentGalleryTest'));
@@ -88,6 +89,10 @@ const router = createBrowserRouter([
       {
         path: 'test',
         element: WrapperSuspense(Test),
+      },
+      {
+        path: 'simple-page-editor',
+        element: WrapperSuspense(SimplePageEditor),
       },
       {
         index: true,

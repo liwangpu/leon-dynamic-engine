@@ -251,9 +251,7 @@ export class ConfigurationTypeTransferEffectManager implements IConfigurationTyp
     return filter.destType === context.destType;
   });
 
-  public constructor(protected context: IEditorContext) {
-
-  }
+  public constructor(protected context: IEditorContext) { }
 
   public registerHandler(filter: ITypeTransferFilter, handler: ITypeTransferHandler): void {
     this.handlers.add(filter, handler);
@@ -266,6 +264,9 @@ export class ConfigurationTypeTransferEffectManager implements IConfigurationTyp
     if (handlers && handlers.length) {
       for (const handler of handlers) {
         const conf = await handler(param) as any;
+        if (!conf) {
+          return null;
+        }
         // 维持id,type怕万一handler里面忘记转过来
         conf.id = current.id;
         conf.type = current.type;
@@ -274,6 +275,69 @@ export class ConfigurationTypeTransferEffectManager implements IConfigurationTyp
     }
 
     return param.current;
+  }
+
+}
+
+// ------------------------------移动组件类型副作用------------------------------ //
+
+export interface IConfigurationMoveFilter {
+  from?: IBaseEffectFilter;
+  to?: IBaseEffectFilter;
+  sameContainer?: boolean;
+}
+
+export interface IConfigurationMoveContext {
+  from: IBaseEffectParam;
+  to: IBaseEffectParam;
+};
+
+export type IConfigurationMoveParam = IBaseEffectParam;
+
+export interface IConfigurationMoveHandler {
+  (param: IConfigurationMoveParam): void | Promise<void>
+}
+
+export interface IConfigurationMoveEffectManager {
+  registerHandler(filter: IConfigurationMoveFilter, handler: IConfigurationMoveHandler): void;
+  getHandlers(context: IConfigurationMoveContext): Array<IConfigurationMoveHandler>;
+  handleMove(param: IConfigurationMoveParam): Promise<IComponentConfiguration>;
+}
+
+export class ConfigurationMoveEffectManager implements IConfigurationMoveEffectManager {
+
+  private readonly handlers: Array<[IConfigurationMoveFilter, IConfigurationMoveHandler]> = [];
+  public constructor(protected context: IEditorContext) { }
+
+  public registerHandler(filter: IConfigurationMoveFilter, handler: IConfigurationMoveHandler): void {
+    if (!filter || !_.isFunction(handler)) { return; }
+
+    this.handlers.push([filter, handler]);
+  }
+
+  public async handleMove(param: IConfigurationMoveParam): Promise<IComponentConfiguration> {
+    // const hs = this.getHandlers(param);
+
+    // console.log(`move handlers:`, hs);
+
+    return param.current;
+  }
+
+  public getHandlers(context: IConfigurationMoveContext): Array<IConfigurationMoveHandler> {
+    const hs: Array<IConfigurationMoveHandler> = [];
+    // const fromParentType = context.to?.parent?.type;
+    // const fromCurrentType = context.to?.current?.type;
+    // const fromCurrentType = context.to?.current?.type;
+    // const fromParentType = context.to?.parent?.type;
+    // const fromCurrentType = context.to?.current?.type;
+
+    for (const [filter, handler] of this.handlers) {
+
+ 
+    }
+
+    console.log(`move handlers:`, hs);
+    return hs;
   }
 
 }

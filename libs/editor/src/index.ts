@@ -1,9 +1,9 @@
 export * from './components/Editor';
 export * from './enums/skeleton-area';
 export * from './enums/event-topic';
-export * from './contexts/data-store-collocation';
 export * from './contexts/component-setter-panel';
 export * from './contexts/editor';
+export * from './consts';
 export * from './contexts/left-area-plugin';
 export type { IEventMessage, IEventManager } from './models/event-manager';
 export type { IEditorContext } from './models/editor-manager';

@@ -11,18 +11,29 @@ const Home: React.FC = memo(() => {
     navigate(`/app/business-detail/${businessModel}`);
   }, []);
 
+  const gotoSimplePageEditor = useCallback(() => {
+    navigate(`/app/simple-page-editor`);
+  }, []);
+
   const gotoEditorPluginTest = useCallback(() => {
     navigate(`/app/editor-plugin-test`);
   }, []);
 
   const settingItems = useMemo<MenuProps['items']>(() => ([
     {
-      key: 'editor-plugin-test',
+      key: 'simple-page-editor',
       label: (
-        <span>设计器插件测试</span>
+        <span>简易页面设计器</span>
       ),
-      onClick: gotoEditorPluginTest
+      onClick: gotoSimplePageEditor
     },
+    // {
+    //   key: 'editor-plugin-test',
+    //   label: (
+    //     <span>设计器插件测试</span>
+    //   ),
+    //   onClick: gotoEditorPluginTest
+    // },
   ]), []);
 
   return (

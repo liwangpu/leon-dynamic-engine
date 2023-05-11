@@ -89,23 +89,37 @@ export interface IBaseEffectParam<CurrentComponent = IComponentConfiguration, Pa
   slot?: string;
 }
 
+/**
+ * 组件配置副作用处理器仓库
+ */
 export class EffectHandlerStorage<Handler = (...args) => any, Filter extends IBaseEffectFilter = IBaseEffectFilter, Context extends IBaseEffectParam = IBaseEffectParam> {
 
-  private readonly funcs: Array<[Filter, Handler]> = [];
+  private readonly handlers: Array<[Filter, Handler]> = [];
   public constructor(protected preCompare?: (filter: Filter, context: Context) => boolean) { }
 
-  public add(filter: Filter, func: Handler) {
-    if (!filter || !_.isFunction(func)) { return; }
+  /**
+   * 添加处理器
+   * @param filter 处理器筛选条件
+   * @param handler 副作用处理器
+   * @returns void
+   */
+  public add(filter: Filter, handler: Handler) {
+    if (!filter || !_.isFunction(handler)) { return; }
 
-    this.funcs.push([filter, func]);
+    this.handlers.push([filter, handler]);
   }
 
+  /**
+   * 根据上下文获取副作用处理器
+   * @param context 上下文
+   * @returns 
+   */
   public get(context: Context): Array<Handler> {
     if (!context) { return []; }
     const parentType = context.parent?.type;
     const currentType = context.current?.type;
     const matchedHandlers: Array<Handler> = [];
-    for (const [filter, handler] of this.funcs) {
+    for (const [filter, handler] of this.handlers) {
       let matched = true;
 
       const matchConditions = [
@@ -142,8 +156,12 @@ export class EffectHandlerStorage<Handler = (...args) => any, Filter extends IBa
     return matchedHandlers;
   }
 
+  /**
+   * 获取所有副作用处理器
+   * @returns 
+   */
   public getAll(): Array<[Filter, Handler]> {
-    return this.funcs;
+    return this.handlers;
   }
 
 }

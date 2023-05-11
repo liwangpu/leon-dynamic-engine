@@ -1,11 +1,11 @@
-import { ComponentDiscoveryContext, IComponentConfiguration, IDynamicComponentContainerProps, IDynamicComponentContainerRendererRef, IDynamicComponentProps, useDataCenter } from '@lowcode-engine/core';
+import { ComponentDiscoveryContext, IComponentConfiguration, IDynamicComponentContainerProps, IDynamicComponentContainerRendererRef, IDynamicComponentProps, useDataCenter, useDynamicComponentEngine } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
 import React, { useContext, useEffect, useRef, useState, ComponentType, useImperativeHandle, useMemo, memo, forwardRef } from 'react';
-import { DataStoreContext } from '../../contexts';
 import * as _ from 'lodash';
 import { useComponentStyle } from '../../hooks';
 import classnames from 'classnames';
-
+import { RendererContext } from '../../contexts';
+import { IExpressionParam } from '../../models';
 
 export const DynamicComponent: React.FC<IDynamicComponentProps> = memo(props => {
   const conf = props.configuration;
@@ -113,14 +113,34 @@ DynamicComponentContainer.displayName = 'DynamicComponentContainer';
 const DataCenterDetectorWrapper = (Component: ComponentType<IDynamicComponentProps>) => {
 
   const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
-    const store = useContext(DataStoreContext);
+    // const store = useContext(DataStoreContext);
     const conf = props.configuration;
-    const { setData } = useDataCenter();
+    const { setData } = useDataCenter(conf);
     const style = useComponentStyle(conf);
+    const dynamicEngine = useDynamicComponentEngine();
     const field = _.get(props, 'configuration.field');
-    const value = store.data.get(field);
-    const visible = store.getFieldVisible(field);
-    const disabled = store.getFieldDisabled(field);
+    const { expressionMonitor } = useContext(RendererContext);
+    // 
+    // const value = store.data.get(field);
+    // const visible = store.getFieldVisible(field);
+    // const disabled = store.getFieldDisabled(field);
+    // const p=
+    // console.log(`path:`, conf.id, dynamicEngine.hierarchyManager.getTreeInfo(conf.id));
+    const treeInfo = dynamicEngine.hierarchyManager.getTreeInfo(conf.id) || {};
+    const param: IExpressionParam = { current: conf, ...treeInfo };
+    const expressionHandlers = expressionMonitor.getHandler(param);
+    if (_.isArray(expressionHandlers) && expressionHandlers.length) {
+      // console.log(`expressionHandlers:`, expressionHandlers);
+      for (const handler of expressionHandlers) {
+        const effects = handler(param);
+        console.log(`effects:`,effects);
+      }
+
+    }
+
+    const value = null;
+    const visible = true;
+    const disabled = false;
 
     const onChange = (val: any) => {
       if (!field) { return; }

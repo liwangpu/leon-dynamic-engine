@@ -176,6 +176,36 @@ const PageEditor: React.FC = memo(() => {
         return {
           init() {
             /********************************组件添加副作用********************************/
+            // configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, first: true }, ({ current, first, last, index, even, odd, count }) => {
+            //   console.log(`--------------------- block 1 ---------------------`);
+            //   console.log(`title:`, current.title, current.type);
+            //   console.log(`first:`, first);
+            //   console.log(`last:`, last);
+            //   console.log(`even:`, even);
+            //   console.log(`odd:`, odd);
+            //   console.log(`index:`, index);
+            //   console.log(`count:`, count);
+            //   if (current.type === ComponentTypes.number) {
+            //     showMessage('区块里面的第一个不能是数字输入框');
+            //     return null;
+            //   }
+            //   // showMessage('区块里面的内容不能超过3个');
+            //   return current;
+            // });
+
+            // configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, count: 4 }, ({ current, first, last, index, even, odd, count }) => {
+            //   console.log(`--------------------- block 2 ---------------------`);
+            //   // console.log(`title:`, current.title);
+            //   // console.log(`first:`, first);
+            //   // console.log(`last:`, last);
+            //   // console.log(`even:`, even);
+            //   // console.log(`odd:`, odd);
+            //   // console.log(`index:`, index);
+            //   // console.log(`count:`, count);
+            //   showMessage('区块里面的内容不能超过3个');
+            //   return null;
+            // });
+
             configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, type: FormInputGroupTypes }, ({ current }) => {
               // eslint-disable-next-line no-param-reassign
               current.gridColumnSpan = GridSystemSection['1/2'];
@@ -254,13 +284,8 @@ const PageEditor: React.FC = memo(() => {
             });
 
             /********************************组件删除副作用********************************/
-            configurationDeleteEffect.registerHandler({ type: ComponentTypes.tab, count: 1 }, ({ }: { current: ITabComponentConfiguration }) => {
-              notification.open({
-                message: '温馨提示',
-                description: '最后一个页签不能删除',
-                placement: 'bottomRight',
-                duration: 2.5
-              });
+            configurationDeleteEffect.registerHandler({ type: ComponentTypes.tab, count: 1 }, () => {
+              showMessage('最后一个页签不能删除');
               return false;
             },
               ({ current, parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
@@ -328,7 +353,6 @@ const PageEditor: React.FC = memo(() => {
           title: '数据容器',
           components: [
             ComponentTypes.table,
-            // ComponentTypes.form
           ]
         },
         {

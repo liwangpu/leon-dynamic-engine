@@ -19,7 +19,6 @@ const Block: React.FC<IDynamicComponentProps<IBlockComponentConfiguration>> = me
   const [rowCollapsed, setRowCollapsed] = useState<boolean>(false);
   const blockContentRef = useRef<HTMLDivElement>();
 
-
   const handleCollapse = (e: MouseEvent) => {
     if (!conf.enableCollapse) { return; }
     setCollapsed(!collapsed);

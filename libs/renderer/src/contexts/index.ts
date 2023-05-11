@@ -1,1 +1,1 @@
-export * from './data-store';
+export * from './renderer';
