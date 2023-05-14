@@ -37,12 +37,17 @@ export class ProjectSchemaManager implements IProjectManager {
     if (!_.isFunction(onChange)) { return; }
     const slotPropertyMap = this.context.slot.getAllSlotProperties();
     const slotSingletonMap = this.context.slot.getAllSlotSingletonMap();
-    const schema = nestComponentTree(getSnapshot(this.context.store), slotPropertyMap, slotSingletonMap);
+
+    const generateSchema = () => {
+      return nestComponentTree(getSnapshot(this.context.store), slotPropertyMap, slotSingletonMap);
+    };
+
+    const schema = generateSchema();
     onChange(schema);
     return onAction(this.context.store, act => {
       // console.log(`path:`, act.path, act.name);
       if (!(listenPaths.some(p => p === act.path) || listenActions.some(n => n === act.name))) { return; }
-      const s = nestComponentTree(getSnapshot(this.context.store), slotPropertyMap, slotSingletonMap);
+      const s = generateSchema();;
       onChange(s);
     }, true);
   }

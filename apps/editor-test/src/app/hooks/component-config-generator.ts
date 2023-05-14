@@ -1,4 +1,4 @@
-import { GenerateComponentId, GenerateNestedComponentId } from '@lowcode-engine/core';
+import { GenerateComponentCode, GenerateComponentId, GenerateNestedComponentId } from '@lowcode-engine/core';
 import { ComponentTypes, GridSystemSection, IBlockComponentConfiguration, IPageComponentConfiguration, ITableComponentConfiguration, TableFeature, TableSelectionMode } from '@lowcode-engine/primary-component-package';
 import { IBusinessModel } from '@lowcode-engine/primary-plugin';
 import { useMemo } from 'react';
@@ -47,6 +47,7 @@ export function useComponentConfigGenerator() {
         id: tableId,
         type: ComponentTypes.table,
         title: '列表',
+        code: GenerateComponentCode(ComponentTypes.table),
         features: [
           TableFeature.selectionColumn,
           TableFeature.operationColumn,
@@ -55,7 +56,8 @@ export function useComponentConfigGenerator() {
         columns: model ? model.fields.map(f => ({
           id: GenerateComponentId(ComponentTypes.text),
           type: ComponentTypes.text,
-          title: f.name
+          title: f.name,
+          code: GenerateComponentCode(ComponentTypes.text),
         })) : [],
         selectionColumn: {
           id: GenerateNestedComponentId(tableId, ComponentTypes.tableSelectionColumn),
@@ -81,6 +83,7 @@ export function useComponentConfigGenerator() {
       const block: IBlockComponentConfiguration = {
         id: GenerateComponentId(ComponentTypes.block),
         type: ComponentTypes.block,
+        code: GenerateComponentCode(ComponentTypes.block),
       };
 
       const model: IBusinessModel = await getBusinessModel(businessModelKey);
@@ -89,6 +92,7 @@ export function useComponentConfigGenerator() {
           id: GenerateComponentId(ComponentTypes.text),
           type: ComponentTypes.text,
           title: f.name,
+          code: GenerateComponentCode(ComponentTypes.text),
           gridColumnSpan: GridSystemSection['1/2'],
         }))
       }
