@@ -109,6 +109,9 @@ export const TreeStore = types.model({
       }
       return info;
     },
+    checkIsComponent: (id: string) => {
+      return self.trees.has(id);
+    },
   }))
   .views(self => ({
     selectSlotLastChildrenId: (id: string, slotProperty: string) => {

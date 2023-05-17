@@ -1,4 +1,4 @@
-import { GenerateComponentId, IDynamicComponentContainerRendererRef, IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
+import { GenerateComponentId, IDynamicComponentContainerRendererRef, IDynamicComponentProps, useDataCenter, useDynamicComponentEngine } from '@lowcode-engine/core';
 import React, { memo, useState, MouseEvent, useContext, useRef, useMemo, useEffect } from 'react';
 import classnames from 'classnames';
 import { ITabComponentConfiguration, ITabsComponentConfiguration } from '../../../models';
@@ -12,6 +12,7 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
 
   const conf = props.configuration;
   const children = conf.children || [];
+  const { setState } = useDataCenter(conf);
   const dynamicEngine = useDynamicComponentEngine();
   const DynamicComponent = dynamicEngine.getDynamicComponentFactory();
   const DynamicComponentContainer = dynamicEngine.getDynamicComponentContainerFactory();
@@ -30,6 +31,10 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
     lastDefaultTabRef.current = conf.defaultActiveTab;
   }, [conf.defaultActiveTab]);
 
+  useEffect(() => {
+    setState('activeKey', conf.defaultActiveTab);
+  }, []);
+
   const activeTabConf = useMemo(() => {
     return {
       id: activeTabId
@@ -38,6 +43,7 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
 
   const activeTab = (tab: ITabComponentConfiguration) => {
     setActiveTabId(tab.id);
+    setState('activeKey', tab.id);
   };
 
   const addTab = async (e: MouseEvent) => {

@@ -1,5 +1,5 @@
 import { IDynamicComponentProps, useDataCenter, useDynamicComponentEngine } from '@lowcode-engine/core';
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 import { Tabs as AntdTabs } from 'antd';
 import styles from './index.module.less';
 import { ITabsComponentConfiguration } from '../../../models';
@@ -29,10 +29,12 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
   }, [children]);
 
   const onTabChange = (tabId: string) => {
-    // console.log(`tab:`, e);
-    // setState('activeKey', tabId);
     setState('activeKey', tabId);
   };
+
+  useEffect(() => {
+    setState('activeKey', conf.defaultActiveTab);
+  }, []);
 
   return (
     <div className={styles['tabs']}>

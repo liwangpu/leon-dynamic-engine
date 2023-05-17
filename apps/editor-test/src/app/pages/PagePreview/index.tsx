@@ -2,25 +2,13 @@ import React, { useCallback, useContext, useMemo } from 'react';
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ComponentPackageContext, StoreContext } from '../../contexts';
-import { ExpressionMonitorRegisterContext, IExpressionEffect, IExpressionMonitorRegister, Renderer } from '@lowcode-engine/renderer';
-import { CommonSlot, ComponentTypes, INavigationBackContext, NavigationBackContext } from '@lowcode-engine/primary-component-package';
+import { StoreContext } from '../../contexts';
+import { Renderer } from '@lowcode-engine/renderer';
+import { INavigationBackContext, NavigationBackContext } from '@lowcode-engine/primary-component-package';
 import { Button } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { EventActionType, EventCenterEngineContext, IEventCenterEngineContext, IOpenUrlEventAction } from '@lowcode-engine/core';
-
-const expressionMonitorRegister: Array<IExpressionMonitorRegister> = [
-  () => [
-    { type: ComponentTypes.button, parentType: [ComponentTypes.listPage, ComponentTypes.detailPage], slot: CommonSlot.operators },
-    (param) => {
-      console.log(`param:`, param);
-      const effects: Array<IExpressionEffect> = [];
-
-
-      return effects;
-    }
-  ],
-];
+import LowcodeInfrastructureComponent from '../../components/LowcodeInfrastructure';
 
 const PagePreview: React.FC = observer(() => {
 
@@ -28,7 +16,7 @@ const PagePreview: React.FC = observer(() => {
   const { pageId, businessModel } = useParams();
   const [search] = useSearchParams();
   const store = useContext(StoreContext);
-  const packages = useContext(ComponentPackageContext);
+
   const schema = store.pageStore.editingPage(pageId);
   const showNavigation = !!search.get('showNav');
   const navigationBackContext = useMemo<INavigationBackContext>(() => ({
@@ -86,9 +74,9 @@ const PagePreview: React.FC = observer(() => {
     <div className={styles['page-preview']}>
       <EventCenterEngineContext.Provider value={eventEngineContext}>
         <NavigationBackContext.Provider value={navigationBackContext}>
-          <ExpressionMonitorRegisterContext.Provider value={expressionMonitorRegister}>
-            {schema && <Renderer schema={schema} packages={packages} />}
-          </ExpressionMonitorRegisterContext.Provider>
+          <LowcodeInfrastructureComponent>
+            {({ packages }) => (<Renderer schema={schema} packages={packages} />)}
+          </LowcodeInfrastructureComponent>
         </NavigationBackContext.Provider>
       </EventCenterEngineContext.Provider>
     </div>

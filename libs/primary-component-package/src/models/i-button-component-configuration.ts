@@ -11,6 +11,8 @@ export enum ButtonUIType {
 
 export interface IButtonComponentConfiguration extends IComponentConfiguration {
   uiType?: ButtonUIType;
+  enableBindTabs?: boolean;
+  bindTabs?: Array<any>;
   event: {
     [ButtonEventType.click]: IEvent;
   };

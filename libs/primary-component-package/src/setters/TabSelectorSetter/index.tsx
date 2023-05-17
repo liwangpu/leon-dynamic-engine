@@ -17,8 +17,9 @@ const SelectorWrapper: React.FC<{ value?: string, onChange?: (val: string) => vo
 
   const { store } = useContext(EditorContext);
   const infos = store.configurationStore.selectAllComponentBasicInfo([ComponentTypes.tab, ComponentTypes.tabs]);
-  console.log(`infos:`, infos);
+  // console.log(`infos:`, infos);
   // console.log(`tabsGroupEnabledInfos:`, tabsGroupEnabledInfos);
+
   const components = useMemo<Array<{ value: string; label: string }>>(() => {
     return infos
       .filter(f => f.type === ComponentTypes.tab)

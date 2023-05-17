@@ -7,9 +7,11 @@ export type IExpressionParam = IBaseEffectParam;
 
 export interface IExpressionEffect {
   key: string;
+  componentId: string;
   expression: string;
   target: string;
   property: string;
+  rank: number;
 }
 
 export interface IExpressionMonitorHandler {
@@ -17,7 +19,7 @@ export interface IExpressionMonitorHandler {
 }
 
 export interface IExpressionMonitorRegister {
-  (): [IExpressionFilter, IExpressionMonitorHandler];
+  (renderer: IRendererContext): [IExpressionFilter, IExpressionMonitorHandler];
 }
 
 export interface IExpressionMonitorManager {

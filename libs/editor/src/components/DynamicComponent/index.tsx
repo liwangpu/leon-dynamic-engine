@@ -5,7 +5,7 @@ import Sortable from 'sortablejs';
 import { EditorContext, PagePresentationUtilContext } from '../../contexts';
 import { EventTopicEnum } from '../../enums';
 import * as _ from 'lodash';
-import { useComponentStyle } from '@lowcode-engine/renderer';
+import { DataCenterDetectorWrapper, useComponentStyle } from '@lowcode-engine/renderer';
 import classnames from 'classnames';
 import { IDynamicContainerDragDropEventData } from '../../models';
 
@@ -17,33 +17,40 @@ const loadRemoteModule = async (loader: () => Promise<any>) => {
   }
 };
 
+const componentEditorWrapper = (Component: ComponentType<IDynamicComponentProps>) => {
+  return DynamicComponentValidate(DataCenterDetectorWrapper(EditorUIEffectWrapper(ChildSlotProperyPatchWrapper(Component))));
+};
+
 export const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props => {
   const conf = props.configuration;
+  const componentType = conf?.type;
   const CustomRender = props.children;
   const compDiscovery = useContext(ComponentDiscoveryContext);
   const [componentLoaded, setComponentLoaded] = useState(false);
   const [Component, setComponent] = useState<ComponentType<IDynamicComponentProps>>();
 
   useEffect(() => {
-    if (CustomRender) {
-      setComponent(EditorUIEffectWrapper(ChildSlotProperyPatchWrapper(ChildrenContentWrapper)));
+    if (!componentType) {
       setComponentLoaded(true);
-    } else {
-      if (conf.type) {
-        (async () => {
-          let module: { default: any };
-          module = await loadRemoteModule(() => compDiscovery.loadComponentDesignTimeModule(props.configuration.type, 'pc'));
-          if (!module) {
-            module = await loadRemoteModule(() => compDiscovery.loadComponentRunTimeModule(props.configuration.type, 'pc'));
-          }
-          if (module && module.default) {
-            setComponent(EditorUIEffectWrapper(ChildSlotProperyPatchWrapper(module.default)));
-          }
-          setComponentLoaded(true);
-        })();
-      }
+      return;
     }
-  }, [conf.type]);
+    if (CustomRender) {
+      setComponent(componentEditorWrapper(ChildrenContentWrapper));
+      setComponentLoaded(true);
+    } else if (conf.type) {
+      (async () => {
+        let module: { default: any };
+        module = await loadRemoteModule(() => compDiscovery.loadComponentDesignTimeModule(componentType, 'pc'));
+        if (!module) {
+          module = await loadRemoteModule(() => compDiscovery.loadComponentRunTimeModule(componentType, 'pc'));
+        }
+        if (module && module.default) {
+          setComponent(componentEditorWrapper(module.default));
+        }
+        setComponentLoaded(true);
+      })();
+    }
+  }, [componentType]);
 
   return (
     <>
@@ -288,7 +295,7 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
             }
           }
         };
-        
+
         cancelRemove();
         await configuration.moveComponent(conf.id, parentId, slotProperty, evt.newIndex);
       },
@@ -479,5 +486,24 @@ const EditorUIEffectWrapper = (Component: ComponentType<IDynamicComponentProps>)
 
   wrapper.displayName = 'EditorUIEffectWrapper';
 
+  return wrapper;
+};
+
+const DynamicComponentValidate = (Component: ComponentType<IDynamicComponentProps>) => {
+
+  const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
+    const { store } = useContext(EditorContext);
+    const isDynamicComponent = store.treeStore.checkIsComponent(props.configuration.id);
+    return (
+      <>
+        {isDynamicComponent ? (
+          <Component {...props} />
+        ) : (
+          <div>该配置不是动态组件结构,请添加插槽配置或者取消使用DynamicComponent</div>
+        )}
+      </>
+    );
+  });
+  wrapper.displayName = 'DynamicComponentValidate';
   return wrapper;
 };

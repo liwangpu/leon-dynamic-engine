@@ -14,6 +14,7 @@ import { ModelRepository, PageRepository } from '../../models';
 import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
 import { IVideoPlayerComponentConfiguration } from '../../video-player';
 import { buttonGroupTypes, ComponentIndexTitleIncludeGroupTypes, FormInputGroupTypes, selfSlotGroupTypes } from '../../consts';
+import LowcodeInfrastructureComponent from '../../components/LowcodeInfrastructure';
 
 const { confirm } = Modal;
 
@@ -22,7 +23,6 @@ RegisterSharedSetter();
 
 const PageEditor: React.FC = memo(() => {
 
-  const packages = useContext(ComponentPackageContext);
   const { pageId, businessModel } = useParams();
   const { schema } = useLoaderData() as { model: IBusinessModel, schema: IProjectSchema };
   const schemaRef = useRef<IProjectSchema>(schema);
@@ -441,7 +441,9 @@ const PageEditor: React.FC = memo(() => {
 
   return (
     <div className={styles['page-editor']}>
-      <Editor packages={packages} plugins={plugins} ref={editorRef} />
+      <LowcodeInfrastructureComponent>
+        {({ packages }) => (<Editor packages={packages} plugins={plugins} ref={editorRef} />)}
+      </LowcodeInfrastructureComponent>
     </div>
   );
 });

@@ -1,6 +1,5 @@
 import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { ComponentDiscoveryContext, ComponentDiscoveryProvider, DataCenterEngineContext, DynamicComponentFactoryContext, IComponentConfiguration, IComponentDiscovery, IComponentHierarchyManager, IComponentHierarchyNode, IComponentPackage, IDataCenterEngine, IDynamicComponentContainerProps, IDynamicComponentContainerRendererRef, IDynamicComponentFactory, IDynamicComponentProps, IProjectSchema, useDynamicComponentEngine, useStoreMonitorHosting } from '@lowcode-engine/core';
-import { createStore } from '../../store';
 import * as _ from 'lodash';
 import './index.less';
 import { DynamicComponent, DynamicComponentContainer } from '../DynamicComponent';
@@ -21,8 +20,6 @@ export const _Renderer: React.FC<_RendererProps> = memo(props => {
   const engine = useDynamicComponentEngine();
   const DynamicComponent = engine.getDynamicComponentFactory();
   const validatedSchema = !!(props.schema && props.schema.id && props.schema.type);
-  const store = useMemo(() => createStore(), []);
-  useStoreMonitorHosting(STORE_NAME, store);
 
   const expressionMonitorRegister = useContext(ExpressionMonitorRegisterContext);
 
@@ -30,7 +27,7 @@ export const _Renderer: React.FC<_RendererProps> = memo(props => {
     const ctx = new RendererManager();
     if (_.isArray(expressionMonitorRegister)) {
       for (const register of expressionMonitorRegister) {
-        const r = register();
+        const r = register(ctx);
         if (_.isArray(r)) {
           ctx.expressionMonitor.registerMonitor(...r);
         }
@@ -39,12 +36,20 @@ export const _Renderer: React.FC<_RendererProps> = memo(props => {
     return ctx;
   }, []);
 
+  useStoreMonitorHosting(STORE_NAME, rendererContext.store);
+
   const dataCenterEngine = useMemo<IDataCenterEngine>(() => ({
     setData(field, val) {
-      store.setData(field, val);
+      rendererContext.store.dataStore.setData(field, val);
     },
     setState(componentId, property, data) {
-      store.setState(componentId, property, data);
+      rendererContext.store.stateStore.setState(componentId, property, data);
+    },
+    getState(componentId, property) {
+      return rendererContext.store.stateStore.getState(componentId, property);
+    },
+    getVisible(componentId) {
+      return rendererContext.store.stateStore.getVisible(componentId);
     },
   }), []);
 

@@ -11,6 +11,7 @@ import { getSnapshot } from 'mobx-state-tree';
 import { IBusinessModel } from '@lowcode-engine/primary-plugin';
 import { PageLayoutType } from '../../enums';
 import { usePageSchemaGenerator } from '../../hooks';
+import { faker } from '@faker-js/faker';
 
 interface PageDetailProps {
   pageType: string;
@@ -53,7 +54,7 @@ const PageDetail: React.FC<PageDetailProps> = observer(props => {
       businessModel,
       type: props.pageType,
       code,
-      title: code.toUpperCase(),
+      title: faker.random.words(2),
       layout: PageLayoutType.blank,
     };
   }, [businessModel, props.pageType]);

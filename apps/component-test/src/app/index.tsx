@@ -1,15 +1,27 @@
 import styles from './index.module.scss';
 import { memo, useMemo } from 'react';
 import { ComponentPackageContext } from './contexts';
-import { IComponentPackage } from '@lowcode-engine/core';
+import { IComponentPackage, IStoreMonitor, StoreMonitorContext } from '@lowcode-engine/core';
 import { SimpleNavsPage, INavItem } from '@app-test/spare-parts';
 import { ComponentPackage as PrimaryComponentMarket } from '@lowcode-engine/primary-component-package';
-import { DataStoreCollocationContext, DataStoreModel, IDataStoreCollocation } from '@lowcode-engine/renderer';
+import { STORE_NAME as RENDERER_STORE_NAME } from '@lowcode-engine/renderer';
 import { connectReduxDevtools } from 'mst-middlewares';
 
 const packages: Array<IComponentPackage> = [
   PrimaryComponentMarket.instance,
 ];
+
+const MONITOR_STORE = RENDERER_STORE_NAME;
+
+const dataStoreCollocation: IStoreMonitor = {
+  hosting: (name: string, store: any) => {
+
+    if (name === MONITOR_STORE) {
+      connectReduxDevtools(require("remotedev"), store);
+    }
+
+  }
+};
 
 const App: React.FC = memo(() => {
 
@@ -24,22 +36,22 @@ const App: React.FC = memo(() => {
     }
   ]), []);
 
-  const dataStoreCollocation = useMemo(() => {
-    const collocation: IDataStoreCollocation = {
-      hosting(store: DataStoreModel) {
-        connectReduxDevtools(require("remotedev"), store);
-      }
-    };
-    return collocation;
-  }, []);
+  // const dataStoreCollocation = useMemo(() => {
+  //   const collocation: IDataStoreCollocation = {
+  //     hosting(store: DataStoreModel) {
+  //       connectReduxDevtools(require("remotedev"), store);
+  //     }
+  //   };
+  //   return collocation;
+  // }, []);
 
   return (
     <div className={styles['tutorial-app']}>
-      <DataStoreCollocationContext.Provider value={dataStoreCollocation}>
+      <StoreMonitorContext.Provider value={dataStoreCollocation}>
         <ComponentPackageContext.Provider value={packages}>
           <SimpleNavsPage title='组件测试' routes={routes} />
         </ComponentPackageContext.Provider>
-      </DataStoreCollocationContext.Provider>
+      </StoreMonitorContext.Provider>
     </div>
   );
 });

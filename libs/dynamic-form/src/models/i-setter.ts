@@ -9,6 +9,7 @@ export interface ISetterBase {
   help?: string;
   disabled?: boolean;
   gridColumnSpan?: '1' | '1/2' | '1/3' | '1/4';
+  visible?: string;
   [key: string]: any;
 }
 

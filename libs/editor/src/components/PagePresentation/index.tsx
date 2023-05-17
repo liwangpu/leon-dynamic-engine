@@ -34,7 +34,10 @@ const PagePresentation: React.FC = observer(() => {
           return confs.splice(0, confs.length - 1);
         },
         getTreeInfo(id) {
-          return null;
+          const treeInfo = store.treeStore.selectComponentTreeInfo(id);
+          if (!treeInfo) { return; }
+          const parent = configuration.getParentComponent(id, true);
+          return { parent, slot: treeInfo.slotProperty, index: treeInfo.index };
         },
       },
       getDynamicComponentFactory: () => {
@@ -310,9 +313,12 @@ PagePresentation.displayName = 'PagePresentation';
 const RendererImplement: React.FC = observer(() => {
   const { store } = useContext(EditorContext);
   const schema = store.configurationStore.selectComponentConfigurationWithoutChildren(store.interactionStore.rootId);
+  const validatedSchema = !!(schema && schema.id && schema.type);
 
   return (
-    <Renderer schema={schema} />
+    <>
+      {validatedSchema && <Renderer schema={schema} />}
+    </>
   );
 });
 
