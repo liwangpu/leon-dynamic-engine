@@ -2,13 +2,15 @@ import { IMetadataRegister, SharedSetterType } from '@lowcode-engine/component-c
 import { SetterType } from '@lowcode-engine/dynamic-form';
 import { IPaginationComponentConfiguration, ISelectionColumnComponentConfiguration, ITableComponentConfiguration, ITableOperatorColumnComponentConfiguration } from '../../../models';
 import { ComponentTypes, TableFeature, TableSelectionMode, TableSlot } from '../../../enums';
-import { distinctUntilChanged, map, Observable, pipe, UnaryFunction } from 'rxjs';
+import { distinctUntilChanged, filter, map, Observable, pipe, UnaryFunction } from 'rxjs';
 import { GenerateNestedComponentId } from '@lowcode-engine/core';
 import { SubSink } from 'subsink';
+import * as _ from 'lodash';
 
 const checkTableFeature = (feature: TableFeature): UnaryFunction<Observable<ITableComponentConfiguration>, Observable<boolean>> => {
   return pipe(
     map(c => c.features),
+    filter(fs => !_.isNil(fs)),
     map(arr => arr && arr.includes(feature)),
     distinctUntilChanged()
   );

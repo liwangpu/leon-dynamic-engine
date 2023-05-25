@@ -1,5 +1,4 @@
 import { ComponentTypes } from '@lowcode-engine/primary-component-package';
-import { ComponentTypes as VideoPlayerComponentTypes } from '../video-player';
 
 /**
  * 这里的分组是业务上对各个基础组件进行划分,方便统一的管理

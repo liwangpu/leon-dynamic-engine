@@ -9,5 +9,5 @@ export function useStoreMonitorHosting(name: string, store: any) {
     if (storeMonitorContext) {
       storeMonitorContext.hosting(name, store);
     }
-  }, []);
+  }, [name, store]);
 }

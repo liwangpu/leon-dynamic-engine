@@ -1,20 +1,18 @@
-import React, { memo, useCallback, useContext, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 import styles from './index.module.less';
 import { useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Editor, IEditorRef, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
 import { ComponentGalleryPluginRegister, ComponentToolBarRegister, HierarchyIndicatorRegister, IBusinessModel, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
-import { ComponentPackageContext } from '../../contexts';
-import { ComponentTypes, RegisterSetter as RegisterPrimarySetter, GridSystemSection, ITabsComponentConfiguration, ITabComponentConfiguration, ITableComponentConfiguration, TableFeature, TableSelectionMode } from '@lowcode-engine/primary-component-package';
+import { ComponentTypes, RegisterSetter as RegisterPrimarySetter } from '@lowcode-engine/primary-component-package';
 import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/component-configuration-shared';
 import { Button, Modal, notification } from 'antd';
 import * as _ from 'lodash';
 import { ArrowLeftOutlined, ClearOutlined, EyeOutlined, SaveOutlined } from '@ant-design/icons';
-import { GenerateComponentCode, GenerateComponentId, GenerateNestedComponentId, IProjectSchema } from '@lowcode-engine/core';
+import { IProjectSchema } from '@lowcode-engine/core';
 import { ModelRepository, PageRepository } from '../../models';
-import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
-import { IVideoPlayerComponentConfiguration } from '../../video-player';
-import { buttonGroupTypes, ComponentIndexTitleIncludeGroupTypes, FormInputGroupTypes, selfSlotGroupTypes } from '../../consts';
 import LowcodeInfrastructureComponent from '../../components/LowcodeInfrastructure';
+import { useComponentConfigGenerator } from '../../hooks';
+import { ComponentSlotMapPluginRegister, ConfigurationAddingEffectPluginRegister, ConfigurationDeleteEffectPluginRegister, ConfigurationSelectorPluginRegister, ConfigurationTypeTransferEffectPluginRegister } from './plugins';
 
 const { confirm } = Modal;
 
@@ -28,6 +26,7 @@ const PageEditor: React.FC = memo(() => {
   const schemaRef = useRef<IProjectSchema>(schema);
   const editorRef = useRef<IEditorRef>();
   const navigate = useNavigate();
+  const confGenerator = useComponentConfigGenerator();
 
   const getCurrentSchema = () => {
     const ctx = editorRef.current.getContext();
@@ -101,237 +100,15 @@ const PageEditor: React.FC = memo(() => {
   const plugins = useMemo<Array<IPluginRegister>>(() => {
     return [
       // 组件插槽相关注册插件
-      ({ slot }) => {
-        return {
-          init() {
-            slot.registerMap({
-              [ComponentTypes.detailPage]: {
-                children: {
-                  rejects: [...buttonGroupTypes, ...FormInputGroupTypes, ...selfSlotGroupTypes]
-                },
-                operators: {
-                  accepts: [...buttonGroupTypes]
-                }
-              },
-              [ComponentTypes.listPage]: {
-                children: {
-                  rejects: [...buttonGroupTypes, ...FormInputGroupTypes, ...selfSlotGroupTypes]
-                },
-                operators: {
-                  accepts: [...buttonGroupTypes]
-                }
-              },
-              [ComponentTypes.block]: {
-                children: {
-                  rejects: [...buttonGroupTypes, ...selfSlotGroupTypes]
-                }
-              },
-              [ComponentTypes.buttonGroup]: {
-                children: {
-                  accepts: [ComponentTypes.button]
-                }
-              },
-              [ComponentTypes.tabs]: {
-                children: {
-                  accepts: [ComponentTypes.tab]
-                }
-              },
-              [ComponentTypes.tab]: {
-                children: {
-                  rejects: [...buttonGroupTypes, ...selfSlotGroupTypes]
-                }
-              },
-              [ComponentTypes.table]: {
-                operators: {
-                  accepts: [...buttonGroupTypes]
-                },
-                columns: {
-                  accepts: [...FormInputGroupTypes],
-                  rejects: [...buttonGroupTypes]
-                },
-                operatorColumn: {
-                  singleton: true
-                },
-                pagination: {
-                  singleton: true
-                },
-                serialNumberColumn: {
-                  singleton: true
-                },
-                selectionColumn: {
-                  singleton: true
-                }
-              },
-              [ComponentTypes.tableOperatorColumn]: {
-                children: {
-                  accepts: [ComponentTypes.button]
-                }
-              }
-            });
-          }
-        };
-      },
-      // 组件配置副作用注册插件
-      ({ configurationAddingEffect, configurationDeleteEffect, configurationTypeTransferEffect, configuration }) => {
-        return {
-          init() {
-            /********************************组件添加副作用********************************/
-            // configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, first: true }, ({ current, first, last, index, even, odd, count }) => {
-            //   console.log(`--------------------- block 1 ---------------------`);
-            //   console.log(`title:`, current.title, current.type);
-            //   console.log(`first:`, first);
-            //   console.log(`last:`, last);
-            //   console.log(`even:`, even);
-            //   console.log(`odd:`, odd);
-            //   console.log(`index:`, index);
-            //   console.log(`count:`, count);
-            //   if (current.type === ComponentTypes.number) {
-            //     showMessage('区块里面的第一个不能是数字输入框');
-            //     return null;
-            //   }
-            //   // showMessage('区块里面的内容不能超过3个');
-            //   return current;
-            // });
-
-            // configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, count: 4 }, ({ current, first, last, index, even, odd, count }) => {
-            //   console.log(`--------------------- block 2 ---------------------`);
-            //   // console.log(`title:`, current.title);
-            //   // console.log(`first:`, first);
-            //   // console.log(`last:`, last);
-            //   // console.log(`even:`, even);
-            //   // console.log(`odd:`, odd);
-            //   // console.log(`index:`, index);
-            //   // console.log(`count:`, count);
-            //   showMessage('区块里面的内容不能超过3个');
-            //   return null;
-            // });
-
-            configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, type: FormInputGroupTypes }, ({ current }) => {
-              // eslint-disable-next-line no-param-reassign
-              current.gridColumnSpan = GridSystemSection['1/2'];
-              return current;
-            });
-
-            configurationAddingEffect.registerHandler({ parentType: ComponentTypes.block, type: ComponentTypes.textarea }, ({ current }) => {
-              // eslint-disable-next-line no-param-reassign
-              current.gridRowSpan = 3;
-              return current;
-            });
-
-            configurationAddingEffect.registerHandler({ type: ComponentTypes.table, }, ({ current }: { current: ITableComponentConfiguration }) => {
-              // 添加表格默认支持操作列和分页
-              current.features = [
-                TableFeature.selectionColumn,
-                TableFeature.operationColumn,
-                TableFeature.pagination,
-              ];
-              current.pagination = { id: GenerateNestedComponentId(current.id, ComponentTypes.pagination), type: ComponentTypes.pagination, title: '分页器', pageSize: 20 };
-              current.selectionColumn = { id: GenerateNestedComponentId(current.id, ComponentTypes.tableSelectionColumn), type: ComponentTypes.tableSelectionColumn, selectionMode: TableSelectionMode.multiple };
-              current.operatorColumn = { id: GenerateNestedComponentId(current.id, ComponentTypes.tableOperatorColumn), type: ComponentTypes.tableOperatorColumn, title: '操作列', visible: true, tileButtonCount: 3 };
-
-              return current;
-            }
-            );
-
-            configurationAddingEffect.registerHandler({ type: ComponentTypes.tabs }, ({ current }: { current: ITabsComponentConfiguration }) => {
-              current.children = [
-                {
-                  id: GenerateComponentId(ComponentTypes.tab),
-                  type: ComponentTypes.tab,
-                  title: '页签 1',
-                  isDefault: true
-                },
-                {
-                  id: GenerateComponentId(ComponentTypes.tab),
-                  type: ComponentTypes.tab,
-                  title: '页签 2',
-                },
-                {
-                  id: GenerateComponentId(ComponentTypes.tab),
-                  type: ComponentTypes.tab,
-                  title: '页签 3',
-                },
-              ];
-
-              current.defaultActiveTab = current.children[0].id;
-              current.direction = 'horizontal';
-              current.fullHeight = true;
-              return current;
-            });
-
-            configurationAddingEffect.registerHandler({ type: VideoPlayerComponentTypes.videoPlayer }, ({ current }: { current: IVideoPlayerComponentConfiguration }) => {
-              current.vedioUrl = 'https://www.runoob.com/try/demo_source/movie.ogg';
-              return current;
-            });
-
-            configurationAddingEffect.registerHandler({}, ({ current }) => {
-              const typeCount = configuration.getComponentTypeCount(current.type);
-              // eslint-disable-next-line no-param-reassign
-              if (!current.code) {
-                current.code = GenerateComponentCode(current.type);
-              }
-              if (ComponentIndexTitleIncludeGroupTypes.has(current.type)) {
-                if (current.title) {
-                  // 取出组件标题,如果后面一位不是数字,加上数字标识
-                  const lastChar = current.title[current.title.length - 1];
-                  const isIndex = !isNaN(parseInt(lastChar));
-                  if (!isIndex) {
-                    current.title = `${current.title} ${typeCount + 1}`;
-                  }
-                }
-              }
-              return current;
-            });
-
-            /********************************组件删除副作用********************************/
-            configurationDeleteEffect.registerHandler({ type: ComponentTypes.tab, count: 1 }, () => {
-              showMessage('最后一个页签不能删除');
-              return false;
-            },
-              ({ current, parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
-                // 如果当前的页签是默认页签,那么需要把多页签组件默认页签信息更新
-                if (current.isDefault) {
-                  const firstTab = parent.children[0];
-
-                  configuration.updateComponents([
-                    ({ id: parent.id, type: parent.type, defaultActiveTab: firstTab.id } as Partial<ITabsComponentConfiguration>),
-                    ({ id: firstTab.id, type: firstTab.type, isDefault: true } as Partial<ITabComponentConfiguration>),
-                  ]);
-                }
-              });
-
-            /********************************组件转化类型副作用********************************/
-            configurationTypeTransferEffect.registerHandler({ destType: VideoPlayerComponentTypes.videoPlayer }, ({ current }: { current: IVideoPlayerComponentConfiguration }) => {
-              current.vedioUrl = 'https://www.runoob.com/try/demo_source/movie.ogg';
-              return current;
-            });
-
-          },
-        };
-      },
-      // // 组件面板配置数据选择器注册插件
-      // ({ configuration }) => {
-      //   return {
-      //     init() {
-      //       configuration.registerConfigurationSelector({
-      //         type: ComponentTypes.listPage
-      //       }, (editor, conf) => {
-      //         const tree = editor.store.treeStore.trees.get(conf.id);
-      //         const childrenIds = tree.slots.get('children');
-      //         if (childrenIds?.length) {
-      //           const children = [];
-      //           childrenIds.forEach(id => {
-      //             let sc = editor.store.configurationStore.configurations.get(id);
-      //             // let c = sc.toData(true);
-      //             children.push({ id: sc.id, type: sc.type, title: sc.title });
-      //           });
-      //           conf['children'] = children;
-      //         }
-      //         return conf;
-      //       });
-      //     },
-      //   };
-      // },
+      ComponentSlotMapPluginRegister(),
+      // 组件添加副作用注册插件
+      ConfigurationAddingEffectPluginRegister({ confGenerator }),
+      // 组件删除副作用注册插件
+      ConfigurationDeleteEffectPluginRegister(),
+      // 组件类型转换副作用注册插件
+      ConfigurationTypeTransferEffectPluginRegister(),
+      // 组件面板配置数据选择器注册插件
+      ConfigurationSelectorPluginRegister(),
       // 文档模型注册插件
       ({ project }) => {
         return {
@@ -370,12 +147,6 @@ const PageEditor: React.FC = memo(() => {
             ComponentTypes.buttonGroup,
           ]
         },
-        {
-          title: '其他',
-          components: [
-            VideoPlayerComponentTypes.videoPlayer
-          ]
-        }
       ]),
       // 模型库注册插件
       ModelGalleryPluginRegister(businessModel, id => {

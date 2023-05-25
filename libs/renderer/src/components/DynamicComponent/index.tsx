@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import { useComponentStyle } from '../../hooks';
 import classnames from 'classnames';
 import { RendererContext } from '../../contexts';
-import { IExpressionParam } from '../../models';
+import { IExpressionContext, IExpressionParam } from '../../models';
 import { IReactionDisposer, reaction } from 'mobx';
 
 export const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props => {
@@ -139,7 +139,8 @@ export const DataCenterDetectorWrapper = (Component: ComponentType<IDynamicCompo
           const effects = handler(param);
           if (!effects || !effects.length) { continue; }
 
-          const expressionContext = {
+          const expressionContext: IExpressionContext = {
+            current: conf,
             getState(componentId: string, property: string) {
               return _getState(componentId, property);
             },

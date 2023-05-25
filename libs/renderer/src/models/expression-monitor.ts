@@ -1,9 +1,15 @@
-import { EffectHandlerStorage, IBaseEffectFilter, IBaseEffectParam } from '@lowcode-engine/core';
+import { EffectHandlerStorage, IBaseEffectFilter, IBaseEffectParam, IComponentConfiguration } from '@lowcode-engine/core';
 import { IRendererContext } from './renderer-manager';
 
 export type IExpressionFilter = IBaseEffectFilter;
 
 export type IExpressionParam = IBaseEffectParam;
+
+export interface IExpressionContext {
+  getState(componentId: string, property: string): any;
+  getParent(id: string): IComponentConfiguration;
+  current: IComponentConfiguration;
+}
 
 export interface IExpressionEffect {
   key: string;

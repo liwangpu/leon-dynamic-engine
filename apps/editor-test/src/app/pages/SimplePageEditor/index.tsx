@@ -1,21 +1,32 @@
-import React, { memo, useContext, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import styles from './index.module.less';
-import { Editor, IPluginRegister } from '@lowcode-engine/editor';
+import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
 import { ComponentGalleryPluginRegister, ComponentToolBarRegister, HierarchyIndicatorRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
-import { ComponentPackageContext } from '../../contexts';
 import { ComponentTypes, RegisterSetter as RegisterPrimarySetter } from '@lowcode-engine/primary-component-package';
 import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/component-configuration-shared';
 import * as _ from 'lodash';
-import { IProjectSchema } from '@lowcode-engine/core';
-import { ComponentTypes as VideoPlayerComponentTypes } from '../../video-player';
-// import { generateListPageConfig } from '../../utils';
+import { ComponentTypes as VideoPlayerComponentTypes } from '../../packages/video-player';
+import { ComponentTypes as ImageViewerComponentTypes } from '../../packages/image-viewer';
+import LowcodeInfrastructureComponent from '../../components/LowcodeInfrastructure';
+import { Button, notification } from 'antd';
+import { ClearOutlined, SaveOutlined } from '@ant-design/icons';
+import { LocalShemaStore } from './local-schema-store';
+import { ConfigurationAddingEffectPluginRegister } from './plugins';
 
 RegisterPrimarySetter();
 RegisterSharedSetter();
 
 const PageEditorComponent: React.FC = memo(() => {
 
-  const packages = useContext(ComponentPackageContext);
+  const showMessage = useCallback((msg?: string) => {
+    notification.open({
+      message: '温馨提示',
+      description:
+        msg || '数据保存成功',
+      placement: 'bottomRight',
+      duration: 2.5
+    });
+  }, []);
 
   const plugins = useMemo<Array<IPluginRegister>>(() => {
     return [
@@ -23,11 +34,14 @@ const PageEditorComponent: React.FC = memo(() => {
       ({ project }) => {
         return {
           init() {
-            // project.import(SimpleSchemaStore.query());
-            // console.log(`title:`,SimpleSchemaStore.query());
+            const schema = LocalShemaStore.query();
+            // console.log(`import schema:`, schema);
+            project.import(schema);
           }
         };
       },
+      // 组件添加副作用注册插件
+      ConfigurationAddingEffectPluginRegister(),
       // 组件库注册插件
       ComponentGalleryPluginRegister([
         {
@@ -35,20 +49,6 @@ const PageEditorComponent: React.FC = memo(() => {
           components: [
             ComponentTypes.block,
             ComponentTypes.tabs,
-          ]
-        },
-        {
-          title: '数据容器',
-          components: [
-            ComponentTypes.table,
-          ]
-        },
-        {
-          title: '表单项',
-          components: [
-            ComponentTypes.text,
-            ComponentTypes.textarea,
-            ComponentTypes.number,
           ]
         },
         {
@@ -61,7 +61,8 @@ const PageEditorComponent: React.FC = memo(() => {
         {
           title: '其他',
           components: [
-            VideoPlayerComponentTypes.videoPlayer
+            VideoPlayerComponentTypes.videoPlayer,
+            ImageViewerComponentTypes.imageViewer,
           ]
         }
       ]),
@@ -78,12 +79,48 @@ const PageEditorComponent: React.FC = memo(() => {
         [ComponentTypes.tableOperatorColumn]: [],
         [ComponentTypes.pagination]: [],
       }),
+      // 顶部按钮注册插件
+      ({ skeleton, project }) => {
+        const skeletonKey = 'PAGE_OPERATION_ST';
+        return {
+          init() {
+            const saveSchema = () => {
+              const schema = project.export();
+              // console.log(`save schema:`, schema);
+              LocalShemaStore.save(schema);
+              showMessage('保存成功');
+            };
+
+            const clearSchema = () => {
+              LocalShemaStore.reset();
+              const schema = LocalShemaStore.query();
+              project.import(schema);
+            };
+
+            skeleton.add({
+              key: skeletonKey,
+              area: SkeletonAreaEnum.topRightArea,
+              content: (
+                <div className={styles['editor-operation']}>
+                  <Button type="primary" danger icon={<ClearOutlined />} onClick={clearSchema} >清空</Button>
+                  <Button type="primary" icon={<SaveOutlined />} onClick={saveSchema} >保存</Button>
+                </div >
+              )
+            });
+          },
+          destroy: async () => {
+            skeleton.remove(skeletonKey);
+          }
+        };
+      },
     ];
   }, []);
 
   return (
     <div className={styles['page']}>
-      <Editor packages={packages} plugins={plugins} />
+      <LowcodeInfrastructureComponent>
+        {({ packages }) => (<Editor packages={packages} plugins={plugins} />)}
+      </LowcodeInfrastructureComponent>
     </div>
   );
 });
@@ -92,24 +129,4 @@ PageEditorComponent.displayName = 'SimplePageEditorComponent';
 
 export default PageEditorComponent;
 
-// const SimpleSchemaStore = (() => {
 
-//   const STORAGE_KEY = 'simple-page-editor-schema';
-
-//   // const INITIAL_SCHEMA: IProjectSchema = generateListPageConfig();
-
-//   return {
-//     query() {
-//       const str = localStorage.getItem(STORAGE_KEY);
-//       if (str) {
-//         return JSON.parse(str);
-//       }
-
-//       return INITIAL_SCHEMA;
-//     },
-//     save(schema: IProjectSchema) {
-//       if (!schema) { return; }
-//       localStorage.setItem(STORAGE_KEY, JSON.stringify(schema))
-//     }
-//   };
-// })();

@@ -1,0 +1,29 @@
+.image-viewer {
+  position: relative;
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+  @h: 240px;
+  height: @h;
+  min-height: @h;
+  overflow: hidden;
+  background-color: #FFF;
+
+  &__title {
+    font-size: 14px;
+    font-weight: 500;
+    padding: 4px 12px;
+  }
+
+  &__image {
+    position: relative;
+    width: 100%;
+    flex: 1;
+
+    &>img{
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}

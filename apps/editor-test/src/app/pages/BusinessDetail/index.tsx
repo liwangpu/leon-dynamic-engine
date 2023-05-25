@@ -11,6 +11,7 @@ import { ModelRepository } from '../../models';
 const BusinessDetail: React.FC = observer(() => {
 
   const navigate = useNavigate();
+
   const { businessModel } = useParams();
   const [title, setTitle] = useState<string>();
 
