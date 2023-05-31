@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo } from 'react';
 import styles from './index.module.less';
-import { Editor, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
-import { ComponentGalleryPluginRegister, ComponentToolBarRegister, HierarchyIndicatorRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
+import { Editor, EditorPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
+import { ComponentGalleryPluginRegister, ComponentToolBarRegister, HierarchyIndicatorRegister } from '@lowcode-engine/primary-plugin';
 import { ComponentTypes, RegisterSetter as RegisterPrimarySetter } from '@lowcode-engine/primary-component-package';
 import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/component-configuration-shared';
 import * as _ from 'lodash';
@@ -28,7 +28,7 @@ const PageEditorComponent: React.FC = memo(() => {
     });
   }, []);
 
-  const plugins = useMemo<Array<IPluginRegister>>(() => {
+  const plugins = useMemo<Array<EditorPluginRegister>>(() => {
     return [
       // 文档模型注册插件
       ({ project }) => {
@@ -66,8 +66,8 @@ const PageEditorComponent: React.FC = memo(() => {
           ]
         }
       ]),
-      // schema源码插件
-      SchemaViewerPluginRegister(),
+      // // schema源码插件
+      // SchemaViewerPluginRegister(),
       // 路径组件注册插件
       HierarchyIndicatorRegister(),
       // 工具栏插件

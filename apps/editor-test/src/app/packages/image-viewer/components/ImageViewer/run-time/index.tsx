@@ -1,9 +1,9 @@
 import styles from './index.module.less';
-import { IDynamicComponentProps, useDynamicComponentEngine, useEventCenter } from '@lowcode-engine/core';
-import React, { memo, useRef } from 'react';
+import { IDynamicComponentProps } from '@lowcode-engine/core';
+import React, { memo } from 'react';
 import { IImageViewerComponentConfiguration } from '../../../models';
 
-const VideoPlayer: React.FC<IDynamicComponentProps<IImageViewerComponentConfiguration>> = memo(props => {
+const ImageViewer: React.FC<IDynamicComponentProps<IImageViewerComponentConfiguration>> = memo(props => {
 
   const { title, imageUrl } = props.configuration;
   console.log(`image view conf:`, props.configuration);
@@ -20,6 +20,6 @@ const VideoPlayer: React.FC<IDynamicComponentProps<IImageViewerComponentConfigur
   );
 });
 
-VideoPlayer.displayName = 'VideoPlayer';
+ImageViewer.displayName = 'ImageViewer';
 
-export default VideoPlayer;
+export default ImageViewer;

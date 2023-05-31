@@ -1,19 +1,19 @@
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import styles from './index.module.less';
 import * as _ from 'lodash';
-import { EditorContextManager, IEditorContext, IPlugin, IPluginRegister } from '../../models';
+import { EditorContextManager, IEditorContext, EditorPluginRegister } from '../../models';
 import { EditorContext } from '../../contexts';
 import Banner from '../Banner';
 import PluginPanel from '../PluginPanel';
 import PagePresentation from '../PagePresentation';
-import { ComponentDiscoveryContext, IComponentPackage, useStoreMonitorHosting } from '@lowcode-engine/core';
+import { ComponentDiscoveryContext, IComponentPackage, IPlugin, useStoreMonitorHosting } from '@lowcode-engine/core';
 import ComponentSettingPanel from '../ComponentSettingPanel';
 import { PagePresentationFooterAreaPanel } from '../PagePresentationFooterAreaPanel';
 import { STORE_NAME } from '../../consts';
 
 export interface IEditorProps {
   packages: Array<IComponentPackage>;
-  plugins?: Array<IPluginRegister>;
+  plugins?: Array<EditorPluginRegister>;
 };
 
 export interface IEditorRef {

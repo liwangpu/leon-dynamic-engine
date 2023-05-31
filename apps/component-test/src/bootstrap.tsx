@@ -6,6 +6,7 @@ import App from './app';
 
 const FullPage = React.lazy(() => import('./app/pages/FullPage'));
 const TableTest = React.lazy(() => import('./app/pages/TableTest'));
+const RendererTest = React.lazy(() => import('./app/pages/RendererTest'));
 
 
 function WrapperSuspense(WrappedComponent: React.ComponentType) {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: 'table-test',
         element: WrapperSuspense(TableTest),
+      },
+      {
+        path: 'renderer-test',
+        element: WrapperSuspense(RendererTest),
       },
       {
         index: true,

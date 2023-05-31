@@ -1,7 +1,7 @@
 import React, { useContext, useLayoutEffect, useMemo, useRef } from 'react';
 import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
-import { _Renderer as Renderer } from '@lowcode-engine/renderer';
+import { RendererContext, _Renderer as Renderer } from '@lowcode-engine/renderer';
 import { EditorContext, PagePresentationUtilContext, PagePresentationUtilContextProvider } from '../../contexts';
 import { DynamicComponentFactoryContext, IDynamicComponentFactory } from '@lowcode-engine/core';
 import { DynamicComponent, DynamicComponentContainer } from '../DynamicComponent';
@@ -19,35 +19,9 @@ const COMPONENT_HOVER = 'editor-dynamic-component--hover';
 
 const PagePresentation: React.FC = observer(() => {
 
-  const { event, dom, slot, store, configuration } = useContext(EditorContext);
+  const { event, dom, slot, store, configuration, componentFactory } = useContext(EditorContext);
   const presentationUtil = useMemo(() => new PagePresentationUtilContextProvider(), []);
   const presentationRef = useRef<HTMLDivElement>();
-
-  const componentFactory = useMemo<IDynamicComponentFactory>(() => {
-    return {
-      hierarchyManager: {
-        getParent(id) {
-          return configuration.getParentComponent(id);
-        },
-        getComponentPath(id) {
-          const confs = configuration.getComponentPath(id);
-          return confs.splice(0, confs.length - 1);
-        },
-        getTreeInfo(id) {
-          const treeInfo = store.treeStore.selectComponentTreeInfo(id);
-          if (!treeInfo) { return; }
-          const parent = configuration.getParentComponent(id, true);
-          return { parent, slot: treeInfo.slotProperty, index: treeInfo.index };
-        },
-      },
-      getDynamicComponentFactory: () => {
-        return DynamicComponent;
-      },
-      getDynamicComponentContainerFactory: () => {
-        return DynamicComponentContainer;
-      },
-    };
-  }, []);
 
   useLayoutEffect(() => {
     const subs = new SubSink();
@@ -210,10 +184,10 @@ const PagePresentation: React.FC = observer(() => {
 
         if (activeComponentId) {
           e.stopPropagation();
-          const lastActiveComponentId = store.interactionStore.activeComponentId;
+          const lastActiveComponentId = store.interaction.activeComponentId;
           if (activeComponentId === lastActiveComponentId) { return; }
 
-          store.interactionStore.activeComponent(activeComponentId);
+          store.interaction.activeComponent(activeComponentId);
         }
       };
 
@@ -311,14 +285,14 @@ const PagePresentation: React.FC = observer(() => {
 PagePresentation.displayName = 'PagePresentation';
 
 const RendererImplement: React.FC = observer(() => {
-  const { store } = useContext(EditorContext);
-  const schema = store.configurationStore.selectComponentConfigurationWithoutChildren(store.interactionStore.rootId);
+  const context = useContext(EditorContext);
+  const schema = context.store.structure.selectComponentConfigurationWithoutChildren(context.store.structure.rootComponentId);
   const validatedSchema = !!(schema && schema.id && schema.type);
 
   return (
-    <>
+    <RendererContext.Provider value={context as any}>
       {validatedSchema && <Renderer schema={schema} />}
-    </>
+    </RendererContext.Provider>
   );
 });
 

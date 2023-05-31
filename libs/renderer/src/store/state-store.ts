@@ -154,3 +154,11 @@ export const StateStore = types.model({
 
 
 export type StateStoreModel = Instance<typeof StateStore>;
+
+export const STATE_INITIAL_STATE = Object.freeze({
+  expressionDefinitions: {},
+  expressionResults: {},
+  state: {},
+  visible: {},
+  disabled: {},
+});

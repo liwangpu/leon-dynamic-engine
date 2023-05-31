@@ -27,3 +27,21 @@ export function useDataCenter(conf: IComponentConfiguration) {
     }
   };
 }
+
+
+
+export function useStateCenter<T = any>(componentId: string, property: string): [T, (s?: T) => void] {
+  const engine = useContext(DataCenterEngineContext);
+  const state: T = engine ? engine.getState(componentId, property) : null;
+
+  const setState = (s: T) => {
+    if (!engine) { return; }
+
+    engine.setState(componentId, property, s);
+  };
+
+  return [
+    state,
+    setState,
+  ];
+}

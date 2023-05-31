@@ -1,5 +1,5 @@
 import { IComponentConfiguration, ISlotPropertyDefinition } from '@lowcode-engine/core';
-import { IEditorContext } from './editor-manager';
+import { IRendererContext } from './renderer-manager';
 
 export interface ISlotManager {
   checkSlotSingleton(componentType: string, slotProperty: string): boolean;
@@ -18,7 +18,7 @@ export class SlotManager implements ISlotManager {
   private readonly allSlotMap = new Map<string, ISlotPropertyDefinition>();
   private readonly componentMatchedSlotPropertyMap = new Map<string, Array<string>>();
   private readonly slotPropertySingletonMap = new Map<string, boolean>();
-  public constructor(protected context: IEditorContext) { }
+  public constructor(protected context: IRendererContext) { }
 
   public checkSlotSingleton(componentType: string, slotProperty: string): boolean {
     const key = `${componentType}@${slotProperty}`;

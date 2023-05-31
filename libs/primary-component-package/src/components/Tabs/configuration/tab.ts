@@ -62,26 +62,26 @@ const registerMetadata: IMetadataRegister = register => {
         }
       ],
       onLoad: async (config: ITabComponentConfiguration, obs: Observable<ITabComponentConfiguration>) => {
-        subs.sink = obs
-          .pipe(map(c => c.isDefault))
-          .pipe(distinctUntilChanged())
-          .subscribe((isDefault: boolean) => {
-            const { id } = config;
-            const { store } = editor;
-            const parentId = store.treeStore.selectComponentParentId(id);
-            const parentConfig = store.configurationStore.configurations.get(parentId);
-            const { origin: { defaultActiveTab } } = parentConfig as ITabsComponentConfiguration;
+        // subs.sink = obs
+        //   .pipe(map(c => c.isDefault))
+        //   .pipe(distinctUntilChanged())
+        //   .subscribe((isDefault: boolean) => {
+        //     const { id } = config;
+        //     const { store } = editor;
+        //     const parentId = store.treeStore.selectComponentParentId(id);
+        //     const parentConfig = store.configurationStore.configurations.get(parentId);
+        //     const { origin: { defaultActiveTab } } = parentConfig as ITabsComponentConfiguration;
 
-            if (isDefault) {
-              if (defaultActiveTab !== id) {
-                editor.configuration.updateComponents([
-                  { id: parentId, defaultActiveTab: id, type: ComponentTypes.tabs },
-                  { id: defaultActiveTab, isDefault: false, type: ComponentTypes.tab },
-                ]);
-              }
-            } 
+        //     if (isDefault) {
+        //       if (defaultActiveTab !== id) {
+        //         editor.configuration.updateComponents([
+        //           { id: parentId, defaultActiveTab: id, type: ComponentTypes.tabs },
+        //           { id: defaultActiveTab, isDefault: false, type: ComponentTypes.tab },
+        //         ]);
+        //       }
+        //     } 
             
-          });
+        //   });
       },
       onDestroy: async () => {
         subs.unsubscribe();

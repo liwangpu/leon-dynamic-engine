@@ -141,6 +141,7 @@
     &--vertical {
       overflow-x: hidden;
       overflow-y: auto;
+
       &>:global(.dynamic-component) {
         margin-bottom: 10px;
       }
@@ -149,6 +150,7 @@
     &--horizontal {
       overflow-x: auto;
       overflow-y: hidden;
+
       &>.editor-dynamic-component--preview.dragging {
         @s: @component-dragging-size;
         flex: 0 0 @s  !important;
@@ -162,7 +164,7 @@
         border-width: 0 !important;
       }
 
-      &>:global(.dynamic-component) {
+      &>:global(.dynamic-component:not(:last-child)) {
         margin-right: 6px;
       }
     }

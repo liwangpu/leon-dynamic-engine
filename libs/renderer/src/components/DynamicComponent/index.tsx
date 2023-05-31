@@ -1,28 +1,25 @@
-import { ComponentDiscoveryContext, DynamicComponentFactoryContext, IComponentConfiguration, IDynamicComponentContainerProps, IDynamicComponentContainerRendererRef, IDynamicComponentProps, useDataCenter, useDynamicComponentEngine } from '@lowcode-engine/core';
+import { IComponentConfiguration, IDynamicComponentContainerProps, IDynamicComponentContainerRendererRef, IDynamicComponentProps, useDataCenter } from '@lowcode-engine/core';
 import { observer } from 'mobx-react-lite';
-import React, { useContext, useEffect, useRef, useState, ComponentType, useImperativeHandle, useMemo, memo, forwardRef } from 'react';
+import React, { useContext, useEffect, useRef, useState, useImperativeHandle, useMemo, forwardRef, ComponentType } from 'react';
 import * as _ from 'lodash';
-import { useComponentStyle } from '../../hooks';
 import classnames from 'classnames';
 import { RendererContext } from '../../contexts';
-import { IExpressionContext, IExpressionParam } from '../../models';
-import { IReactionDisposer, reaction } from 'mobx';
 
 export const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props => {
   const conf = props.configuration;
-  const compDiscovery = useContext(ComponentDiscoveryContext);
+  const { componentDiscovery } = useContext(RendererContext);
   const [componentLoaded, setComponentLoaded] = useState(false);
   const Component = useRef<any>(null);
 
   useEffect(() => {
     if (conf.type) {
       (async () => {
-        const module = await compDiscovery.loadComponentRunTimeModule(props.configuration.type, 'pc').then(m => {
+        const module = await componentDiscovery.loadComponentRunTimeModule(props.configuration.type, 'pc').then(m => {
           if (!m?.default) { return Promise.resolve(null); }
           return Promise.resolve(m)
         });
         if (module) {
-          Component.current = DataCenterDetectorWrapper(UIEffectWrapper(module.default));
+          Component.current = DataCenterDetectorWrapper(ComponentAttributeWrapper(module.default));
           setComponentLoaded(true);
         }
       })();
@@ -114,71 +111,12 @@ DynamicComponentContainer.displayName = 'DynamicComponentContainer';
 export const DataCenterDetectorWrapper = (Component: ComponentType<IDynamicComponentProps>) => {
 
   const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
-    const { store } = useContext(RendererContext);
-    const factory = useContext(DynamicComponentFactoryContext);
+    const { store, hierarchy, style: styleManger } = useContext(RendererContext);
     const conf = props.configuration;
     const { setData, _getState, getVisible } = useDataCenter(conf);
-    const style = useComponentStyle(conf);
-    const dynamicEngine = useDynamicComponentEngine();
     const field = _.get(props, 'configuration.field');
-    const { expressionMonitor } = useContext(RendererContext);
-
-    // const value = store.data.get(field);
     const visible = getVisible();
-    // const disabled = store.getFieldDisabled(field);
-
-    const treeInfo = dynamicEngine.hierarchyManager.getTreeInfo(conf.id) || {};
-
-    useEffect(() => {
-      const param: IExpressionParam = { current: conf, ...treeInfo };
-      const expressionHandlers = expressionMonitor.getHandler(param);
-      const disposers: Array<IReactionDisposer> = [];
-      const effectKeys: Array<string> = [];
-      if (_.isArray(expressionHandlers) && expressionHandlers.length) {
-        for (const handler of expressionHandlers) {
-          const effects = handler(param);
-          if (!effects || !effects.length) { continue; }
-
-          const expressionContext: IExpressionContext = {
-            current: conf,
-            getState(componentId: string, property: string) {
-              return _getState(componentId, property);
-            },
-            getParent(id: string) {
-              return factory.hierarchyManager.getParent(id);
-            }
-          };
-
-          for (const exp of effects) {
-            store.stateStore.setExpressionDefinition(exp);
-            effectKeys.push(exp.key);
-            const disposer = reaction(() => {
-              const jsFn = new Function(exp.expression);
-              let result: any;
-              try {
-                result = jsFn.apply(expressionContext);
-              } catch (error) {
-                console.error(`表达式执行失败,表达式信息为:`, expressionContext);
-              }
-              return result;
-            }, (result, prev) => {
-              store.stateStore.setExpressionResult(exp.key, result);
-            }, { fireImmediately: true });
-            disposers.push(disposer);
-          }
-        }
-      }
-
-      return () => {
-        disposers.forEach(disposer => disposer());
-        effectKeys.forEach(key => {
-          store.stateStore.deleteExpressionDefinition(key);
-        });
-      };
-    }, [props.configuration]);
-
     const value = null;
-    // const visible = true;
     const disabled = false;
 
     const onChange = (val: any) => {
@@ -200,24 +138,36 @@ export const DataCenterDetectorWrapper = (Component: ComponentType<IDynamicCompo
   return wrapper;
 };
 
-const UIEffectWrapper = (Component: ComponentType<IDynamicComponentProps>) => {
+export const ComponentAttributeWrapper = (Component: ComponentType<IDynamicComponentProps>) => {
 
-  const wrapper: React.FC<IDynamicComponentProps> = memo(props => {
+  const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
+    const { hierarchy, style: styleManger } = useContext(RendererContext);
     const conf = props.configuration;
-    const style = useComponentStyle(conf);
+    const [style, setStyle] = useState<{ [key: string]: any }>();
+
+    useEffect(() => {
+      const treeInfo = hierarchy.getTreeInfo(conf.id) || {};
+      const param = { current: conf, ...treeInfo };
+      const styleHandlers = styleManger.getHandler(param);
+
+      if (styleHandlers?.length) {
+        (async () => {
+          const _style = {};
+          for (const h of styleHandlers) {
+            const s = h(param);
+            _.merge(_style, s)
+          }
+          setStyle(_style);
+        })();
+      }
+    }, [conf]);
 
     return (
-      <div className='dynamic-component'
-        style={style}
-        data-dynamic-component={conf.id}
-        data-dynamic-component-type={conf.type}
-      >
-        <Component {...props} />
-      </div>
+      <Component {...props} style={style} />
     );
   });
 
-  wrapper.displayName = 'UIEffectWrapper';
+  wrapper.displayName = 'DataCenterDetectorWrapper';
 
   return wrapper;
 };

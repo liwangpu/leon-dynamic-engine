@@ -6,16 +6,18 @@ import styles from './index.module.less';
 
 const Text: React.FC<IDynamicComponentProps<ITextComponentConfiguration>> = memo(props => {
 
-  const conf = props.configuration;
+  const { title, field, placeholder } = props.configuration;
+
+  // console.log(`text conf:`, props.configuration, props.style);
 
   const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
-    if (!conf.field) { return; }
+    if (!field) { return; }
     props.onChange(el.target.value);
   };
   return (
-    <div className={styles['item']}>
-      <label className={styles['item__title']}>{conf.title}</label>
-      <Input placeholder={conf.placeholder || '请输入文本'} onChange={onChange} disabled={props.disabled} />
+    <div className={styles['item']} style={props.style}>
+      <label className={styles['item__title']}>{title}</label>
+      <Input placeholder={placeholder || '请输入文本'} onChange={onChange} disabled={props.disabled} />
     </div>
   );
 });

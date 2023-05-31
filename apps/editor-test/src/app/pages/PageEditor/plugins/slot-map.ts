@@ -1,4 +1,4 @@
-import { IPluginRegister } from '@lowcode-engine/editor'
+import { EditorPluginRegister } from '@lowcode-engine/editor'
 import { ComponentTypes } from '@lowcode-engine/primary-component-package';
 import { buttonGroupTypes, ComponentIndexTitleIncludeGroupTypes, FormInputGroupTypes, selfSlotGroupTypes } from '../../../consts';
 
@@ -6,7 +6,7 @@ import { buttonGroupTypes, ComponentIndexTitleIncludeGroupTypes, FormInputGroupT
  * 组件插槽相关注册插件
  * @returns 注册插件
  */
-export function ComponentSlotMapPluginRegister(): IPluginRegister {
+export function ComponentSlotMapPluginRegister(): EditorPluginRegister {
 
   return ({ slot }) => {
     return {

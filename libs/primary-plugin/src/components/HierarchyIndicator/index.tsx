@@ -15,12 +15,12 @@ export interface IHierarchyIndicatorProps {
 const HierarchyIndicator: React.FC<IHierarchyIndicatorProps> = observer(({ typeIgnores }) => {
 
   const { store } = useContext(EditorContext);
-  const { interactionStore } = store;
-  const { activeComponentId } = interactionStore;
-  const hierarchyList = store.selectHierarchyList(activeComponentId, typeIgnores);
+  const { interaction } = store;
+  const { activeComponentId } = interaction;
+  const hierarchyList = store.structure.selectHierarchyList(activeComponentId, typeIgnores);
 
   const onHierarchyActive = (id: string) => {
-    interactionStore.activeComponent(id);
+    interaction.activeComponent(id);
   };
 
   return (

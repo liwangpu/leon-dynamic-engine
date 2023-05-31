@@ -7,10 +7,22 @@ export const InteractionStore = types.model({
   editingComponentIds: types.optional(types.array(types.string), [])
 })
   .actions(self => ({
-    activeComponent: (id: string): void => {
+    activeComponent: (id: string) => {
       self.activeComponentId = id;
       if (!self.editingComponentIds.some(eid => eid === id)) {
         self.editingComponentIds.push(id);
+      }
+    },
+    clearEditings: () => {
+      self.editingComponentIds.clear();
+    },
+    removeEditingComponent: (ids: string | Array<string>) => {
+      if (_.isArray(ids)) {
+        (ids as Array<string>).forEach(id => {
+          self.editingComponentIds.remove(id);
+        });
+      } else {
+        self.editingComponentIds.remove(ids);
       }
     }
   }));

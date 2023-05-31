@@ -20,8 +20,8 @@ export interface IComponentToolBarProps {
 }
 
 const ComponentToolBar: React.FC<IComponentToolBarProps> = observer(({ store, toolBarMap, configuration }) => {
-  const componentId = store.interactionStore.activeComponentId;
-  const componentType = store.treeStore.selectComponentType(componentId);
+  const componentId = store.interaction.activeComponentId;
+  const componentType = store.structure.selectComponentType(componentId);
   const componentDiscovery = useContext(ComponentDiscoveryContext);
   const [componentTitle, setComponentTitle] = useState<string>('未定义');
 

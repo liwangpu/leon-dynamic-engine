@@ -1,8 +1,8 @@
-import { IPluginRegister } from '@lowcode-engine/editor';
+import { EditorPluginRegister } from '@lowcode-engine/editor';
 import { ComponentTypes } from '@lowcode-engine/primary-component-package';
 import { ComponentTypes as VideoPlayerComponentTypes, IVideoPlayerComponentConfiguration } from '../../../packages/video-player';
 
-export function ConfigurationSelectorPluginRegister(): IPluginRegister {
+export function ConfigurationSelectorPluginRegister(): EditorPluginRegister {
 
   return ({ configuration }) => {
     return {

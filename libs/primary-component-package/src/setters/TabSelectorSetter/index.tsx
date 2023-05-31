@@ -16,7 +16,7 @@ interface ISelectBoxValue {
 const SelectorWrapper: React.FC<{ value?: string, onChange?: (val: string) => void, multiple?: boolean }> = observer(({ value, onChange, multiple }) => {
 
   const { store } = useContext(EditorContext);
-  const infos = store.configurationStore.selectAllComponentBasicInfo([ComponentTypes.tab, ComponentTypes.tabs]);
+  const infos = store.structure.selectAllComponentBasicInfo([ComponentTypes.tab, ComponentTypes.tabs]);
   // console.log(`infos:`, infos);
   // console.log(`tabsGroupEnabledInfos:`, tabsGroupEnabledInfos);
 

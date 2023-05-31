@@ -2,16 +2,16 @@ import { IComponentDescription, IComponentPackage, IComponentSlotInfo, IConfigur
 import * as _ from 'lodash';
 import { IProjectSchema } from './i-project-schema';
 import { IComponentConfiguration } from './i-component-configuration';
-import { IComponentHierarchyNode } from '../contexts';
+// import { IComponentHierarchyNode } from '../contexts';
 
 export interface ISchemaAnalysisResult {
   configurations: Map<string, IComponentConfiguration>;
-  trees: Map<string, IComponentHierarchyNode>;
+  trees: Map<string, any>;
   rootId: string;
 }
 
 export interface IComponentDiscovery extends IComponentPackage {
-  analyseSchema(schema: IProjectSchema): Promise<ISchemaAnalysisResult>;
+  // analyseSchema(schema: IProjectSchema): Promise<ISchemaAnalysisResult>;
 }
 
 export class ComponentDiscoveryProvider implements IComponentDiscovery {
@@ -72,52 +72,52 @@ export class ComponentDiscoveryProvider implements IComponentDiscovery {
     return this.loadModuleFromPackage(type, pck => pck.loadComponentConfigurationModule, arguments);
   }
 
-  public async analyseSchema(schema: IProjectSchema): Promise<ISchemaAnalysisResult> {
-    const slotInfoMap = await this.queryComponentSlotInfo();
-    const componentConfMap = new Map<string, IComponentConfiguration>();
-    const treeNodeMap = new Map<string, IComponentHierarchyNode>();
-    const traverseComponent = (conf: IComponentConfiguration, parentId?: string, slotProperty?: string, slotIndex?: number) => {
-      /**
-       * 这里遍历项目的schema,主要做以下几件事
-       *  生成扁平组件树节点
-       *  记录下组件配置节点的引用
-       */
-      const treeNode: IComponentHierarchyNode = {
-        id: conf.id,
-        type: conf.type,
-        parentId,
-        slotProperty,
-        slotIndex,
-        slots: {}
-      };
-      componentConfMap.set(conf.id, conf);
-      const slotInfo = slotInfoMap[conf.type];
+  // public async analyseSchema(schema: IProjectSchema): Promise<ISchemaAnalysisResult> {
+  //   const slotInfoMap = await this.queryComponentSlotInfo();
+  //   const componentConfMap = new Map<string, IComponentConfiguration>();
+  //   const treeNodeMap = new Map<string, IComponentHierarchyNode>();
+  //   const traverseComponent = (conf: IComponentConfiguration, parentId?: string, slotProperty?: string, slotIndex?: number) => {
+  //     /**
+  //      * 这里遍历项目的schema,主要做以下几件事
+  //      *  生成扁平组件树节点
+  //      *  记录下组件配置节点的引用
+  //      */
+  //     const treeNode: IComponentHierarchyNode = {
+  //       id: conf.id,
+  //       type: conf.type,
+  //       parentId,
+  //       slotProperty,
+  //       slotIndex,
+  //       slots: {}
+  //     };
+  //     componentConfMap.set(conf.id, conf);
+  //     const slotInfo = slotInfoMap[conf.type];
 
-      if (slotInfo) {
-        for (const slot in slotInfo) {
-          const definition = slotInfo[slot];
-          if (!conf[slot]) { continue; }
-          const children: Array<IComponentConfiguration> = definition.singleton ? [conf[slot]] : conf[slot];
-          children.forEach((c, idx) => {
-            traverseComponent(c, conf.id, slot, idx);
-          });
-          treeNode.slots[slot] = children.map(c => c.id);
-        }
-      }
+  //     if (slotInfo) {
+  //       for (const slot in slotInfo) {
+  //         const definition = slotInfo[slot];
+  //         if (!conf[slot]) { continue; }
+  //         const children: Array<IComponentConfiguration> = definition.singleton ? [conf[slot]] : conf[slot];
+  //         children.forEach((c, idx) => {
+  //           traverseComponent(c, conf.id, slot, idx);
+  //         });
+  //         treeNode.slots[slot] = children.map(c => c.id);
+  //       }
+  //     }
 
-      treeNodeMap.set(treeNode.id, treeNode);
-    };
+  //     treeNodeMap.set(treeNode.id, treeNode);
+  //   };
 
-    if (schema) {
-      traverseComponent(schema);
-    }
+  //   if (schema) {
+  //     traverseComponent(schema);
+  //   }
 
-    return {
-      configurations: componentConfMap,
-      trees: treeNodeMap,
-      rootId: schema.id,
-    };
-  }
+  //   return {
+  //     configurations: componentConfMap,
+  //     trees: treeNodeMap,
+  //     rootId: schema.id,
+  //   };
+  // }
 
   private async shareAndCacheConcurrentRequest(requestName: string, requestFn: (...args: Array<any>) => Promise<any>): Promise<any> {
     let requestStatusKey = `doing_query_status_of_${requestName}`;

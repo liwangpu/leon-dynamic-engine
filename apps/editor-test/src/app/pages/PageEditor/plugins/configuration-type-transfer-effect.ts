@@ -1,7 +1,7 @@
-import { IPluginRegister } from '@lowcode-engine/editor';
+import { EditorPluginRegister } from '@lowcode-engine/editor';
 import { ComponentTypes as VideoPlayerComponentTypes, IVideoPlayerComponentConfiguration } from '../../../packages/video-player';
 
-export function ConfigurationTypeTransferEffectPluginRegister(): IPluginRegister {
+export function ConfigurationTypeTransferEffectPluginRegister(): EditorPluginRegister {
 
   return ({ configurationTypeTransferEffect }) => {
     return {

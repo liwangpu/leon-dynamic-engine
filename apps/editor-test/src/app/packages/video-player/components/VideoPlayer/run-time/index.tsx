@@ -9,9 +9,9 @@ const VideoPlayer: React.FC<IDynamicComponentProps<IVideoPlayerComponentConfigur
   const { registerAction } = useEventCenter(props.configuration);
   const videoPlayerRef = useRef<any>();
 
-  const { hierarchyManager } = useDynamicComponentEngine();
-  const parent = hierarchyManager.getParent(id);
-  console.log(`video parent:`, parent);
+  // const { hierarchyManager } = useDynamicComponentEngine();
+  // const parent = hierarchyManager.getParent(id);
+  // console.log(`video parent:`, parent);
 
   registerAction('start', async () => {
 

@@ -128,10 +128,10 @@ export class ConfigurationManager implements IConfigurationManager {
 
   public getComponent(id: string, withSlot?: boolean): IComponentConfiguration {
     if (!id) { return null; }
-    if (!this.context.store.treeStore.trees.has(id)) {
+    if (!this.context.store.structure.trees.has(id)) {
       return null;
     }
-    const conf = withSlot ? this.context.store.configurationStore.selectComponentConfigurationWithChildren(id) : this.context.store.configurationStore.selectComponentConfigurationWithoutChildren(id, true);
+    const conf = withSlot ? this.context.store.structure.selectComponentConfigurationWithChildren(id) : this.context.store.structure.selectComponentConfigurationWithoutChildren(id, true);
 
     // 根据插槽是否是单数还是复数,修改类型
     if (withSlot) {
@@ -156,25 +156,25 @@ export class ConfigurationManager implements IConfigurationManager {
   }
 
   public getComponentPath(id: string): Array<IComponentConfiguration> {
-    const pathInfo = this.context.store.selectHierarchyList(id);
+    const pathInfo = this.context.store.structure.selectHierarchyList(id);
     return pathInfo.map(p => this.getComponent(p.id, true));
   }
 
   public hasComponent(id: string): boolean {
     if (!id) { return false; }
-    return this.context.store.treeStore.trees.has(id);
+    return this.context.store.structure.trees.has(id);
   }
 
   public getComponentTypeCount(type: string): number {
-    return this.context.store.treeStore.selectComponentTypeCount(type);
+    return this.context.store.structure.selectComponentTypeCount(type);
   }
 
   public getComponentType(id: string): string {
-    return this.context.store.treeStore.selectComponentType(id);
+    return this.context.store.structure.selectComponentType(id);
   }
 
   public getParentId(id: string): string {
-    return this.context.store.treeStore.selectComponentParentId(id);
+    return this.context.store.structure.selectComponentParentId(id);
   }
 
   public async addComponent(conf: Partial<IComponentConfiguration>, parentId: string, index: number, slotProperty: string): Promise<boolean> {
@@ -189,7 +189,7 @@ export class ConfigurationManager implements IConfigurationManager {
     // 新增的组件可能会有插槽组件数据,这里需要解析一下插槽配置
     const _addComponent = async (subConf: Partial<IComponentConfiguration>, parentId: string, index: number, slotProperty: string) => {
       const slotProperties = this.context.slot.getSlotProperties(subConf.type);
-      const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
+      const parentConf = store.structure.selectComponentConfigurationWithoutChildren(parentId);
       const componentPath = this.getComponentPath(parentId);
       const placement = this.calculateComponentPlacement(subConf.id, parentId, slotProperty, index);
       subConf = await this.context.configurationAddingEffect.handleAdd({
@@ -204,7 +204,7 @@ export class ConfigurationManager implements IConfigurationManager {
       }
 
       const pureConf: IComponentConfiguration = _.omit(subConf, slotProperties) as any;
-      store.addComponent(pureConf, parentId, index, slotProperty);
+      store.structure.addComponent(pureConf, parentId, index, slotProperty);
       for (const sp of slotProperties) {
         const singleton = this.context.slot.checkSlotSingleton(subConf.type, sp);
         let components: Array<IComponentConfiguration> = [];
@@ -239,7 +239,7 @@ export class ConfigurationManager implements IConfigurationManager {
       return false;
     }
     const current = this.getComponent(id, true);
-    const currentTree = this.context.store.treeStore.trees.get(id);
+    const currentTree = this.context.store.structure.trees.get(id);
     if (!currentTree) { return false; }
 
     let parent: IComponentConfiguration = this.getComponent(currentTree.parentId, true);
@@ -277,7 +277,7 @@ export class ConfigurationManager implements IConfigurationManager {
        */
       if (!conf) { return; }
 
-      const { parentId, slotProperty, index } = store.treeStore.selectComponentTreeInfo(conf.id);
+      const { parentId, slotProperty, index } = store.structure.selectComponentTreeInfo(conf.id);
       const parentConf = this.getComponent(parentId, true);
       const componentPath = this.getComponentPath(conf.id);
       const placement = this.calculateComponentPlacement(conf.id, parentId, slotProperty, index);
@@ -293,9 +293,9 @@ export class ConfigurationManager implements IConfigurationManager {
       if (!conf) {
         return;
       } else {
-        store.clearSlotComponents(conf.id);
-        store.treeStore.changeComponentType(conf.id, conf.type);
-        store.configurationStore.resetConfiguration(conf.id);
+        store.structure.clearSlotComponents(conf.id);
+        store.structure.changeComponentType(conf.id, conf.type);
+        store.structure.resetConfiguration(conf.id);
       }
     }
 
@@ -318,26 +318,26 @@ export class ConfigurationManager implements IConfigurationManager {
         const slotValue: Array<Partial<IComponentConfiguration>> = singleton ? [subConf[slotProperty]] : subConf[slotProperty];
         // id维护到父组件插槽上
         const childrenIds = slotValue.map(x => x.id);
-        const originChildrenIds = store.treeStore.selectSlotChildrenIds(subConf.id, slotProperty);
+        const originChildrenIds = store.structure.selectSlotChildrenIds(subConf.id, slotProperty);
         // 先检查是否有已经删除的组件
         const deletedIds = _.difference(originChildrenIds, childrenIds);
         if (deletedIds.length) {
           deletedIds.forEach(oid => {
-            store.deleteComponent(oid);
+            store.structure.deleteComponent(oid);
           });
         }
 
         for (const c of slotValue) {
           // 先看看没有没有新增的组件,因为新增的组件需要维护到组件树上
           if (!originChildrenIds || !originChildrenIds.some(oid => oid === c.id)) {
-            store.treeStore.addComponentTree(c as any, subConf.id, slotProperty);
+            store.structure.addComponentTree(c as any, subConf.id, slotProperty);
           }
           await maintainSlot(c);
         }
-        store.treeStore.updateSlot(subConf.id, slotProperty, childrenIds);
+        store.structure.updateSlot(subConf.id, slotProperty, childrenIds);
         delete subConf[slotProperty];
       }
-      store.configurationStore.updateComponentConfiguration(subConf);
+      store.structure.updateComponentConfiguration(subConf);
     };
 
     await maintainSlot({ type, ...conf });
@@ -352,7 +352,7 @@ export class ConfigurationManager implements IConfigurationManager {
   }
 
   public activeComponent(id: string): void {
-    this.context.store.interactionStore.activeComponent(id);
+    this.context.store.interaction.activeComponent(id);
   }
 
   public async moveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<boolean> {
@@ -360,14 +360,14 @@ export class ConfigurationManager implements IConfigurationManager {
     if (!canMove) { return false; }
 
     const store = this.context.store;
-    store.treeStore.moveComponent(id, parentId, index, slotProperty);
+    store.structure.moveComponent(id, parentId, index, slotProperty);
     return true;
   }
 
   private async canMoveComponent(id: string, parentId: string, slotProperty: string, index: number): Promise<boolean> {
     const store = this.context.store;
     // 先判定是否是不是原地移动
-    const originTreeInfo = store.treeStore.selectComponentTreeInfo(id);
+    const originTreeInfo = store.structure.selectComponentTreeInfo(id);
     if (parentId === originTreeInfo.parentId && slotProperty === originTreeInfo.slotProperty && index === originTreeInfo.index) {
       return false;
     }
@@ -380,18 +380,21 @@ export class ConfigurationManager implements IConfigurationManager {
   }
 
   private async canDeleteComponent(id: string): Promise<boolean> {
-    const treeInfo = this.context.store.treeStore.selectComponentTreeInfo(id);
+    const treeInfo = this.context.store.structure.selectComponentTreeInfo(id);
+    if (!treeInfo) {
+      return false;
+    }
     return this.mockValidatePlacementChange(id, treeInfo.parentId, treeInfo.slotProperty, -1);
   }
 
   private async mockValidatePlacementChange(id: string, parentId: string, slotProperty: string, index: number): Promise<boolean> {
     const store = this.context.store;
-    const parentConf = store.configurationStore.selectComponentConfigurationWithoutChildren(parentId);
+    const parentConf = store.structure.selectComponentConfigurationWithoutChildren(parentId);
     const componentPath = this.getComponentPath(parentId);
 
     // 对于拖动,仅仅判断当前是不够的,因为如果是原来节点移动位置,同层级可能会触发不满足的条件,所以也需要把同层级的hanlder重新再走一遍
     // 这里需要模拟如果当前节点移动导致同层级节点下标改变的情况
-    const sameLevelChildIds = store.treeStore.selectSlotChildrenIds(parentId, slotProperty);
+    const sameLevelChildIds = store.structure.selectSlotChildrenIds(parentId, slotProperty);
     // console.log(`origin:`, sameLevelChildIds);
     if (sameLevelChildIds.some(sid => sid === id)) {
       const fromIndex = sameLevelChildIds.indexOf(id);
@@ -431,7 +434,7 @@ export class ConfigurationManager implements IConfigurationManager {
     const store = this.context.store;
     // 如果只传递了id,没有传递parentId,slotProperty和index,那么是拿来查看当前的位置信息
     if (_.isNil(parentId) && _.isNil(slotProperty) && _.isNil(index)) {
-      return store.treeStore.selectComponentTreeInfo(id);
+      return store.structure.selectComponentTreeInfo(id);
     }
 
     const generatePlacement = (idx: number, count: number) => {
@@ -440,16 +443,16 @@ export class ConfigurationManager implements IConfigurationManager {
     };
 
     index = index || 0;
-    let count: number = store.treeStore.selectSlotChildrenCount(parentId, slotProperty);
+    const count: number = store.structure.selectSlotChildrenCount(parentId, slotProperty);
     // 先查看是不是新增到组件树的节点,如果是,那么查看它要放置的插槽位置
-    const created = !store.treeStore.trees.has(id);
+    const created = !store.structure.trees.has(id);
     if (created) {
       // 如果是新增的节点,那么count要在原来数量上+1
       return generatePlacement(index, count + 1);
     }
 
 
-    let treeInfo = store.treeStore.selectComponentTreeInfo(id);
+    const treeInfo = store.structure.selectComponentTreeInfo(id);
     // 如果是已有节点,那么判断它是不是同插槽移动
     if (parentId && treeInfo.parentId === parentId) {
       return generatePlacement(index, count);

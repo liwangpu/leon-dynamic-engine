@@ -31,19 +31,14 @@ const App: React.FC = memo(() => {
       path: '/app/full-page',
     },
     {
+      title: '渲染器测试',
+      path: '/app/renderer-test',
+    },
+    {
       title: '表格测试',
       path: '/app/table-test',
-    }
+    },
   ]), []);
-
-  // const dataStoreCollocation = useMemo(() => {
-  //   const collocation: IDataStoreCollocation = {
-  //     hosting(store: DataStoreModel) {
-  //       connectReduxDevtools(require("remotedev"), store);
-  //     }
-  //   };
-  //   return collocation;
-  // }, []);
 
   return (
     <div className={styles['tutorial-app']}>

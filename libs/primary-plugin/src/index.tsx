@@ -1,14 +1,14 @@
-import { IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
+import { EditorPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
 import { ComponentGallery, ComponentGroup } from './components/ComponentGallery';
 import { DeploymentUnitOutlined, AppstoreFilled, CodeFilled } from '@ant-design/icons';
 import { IConfigurationTransfer, IModelLoader, ModelGallery } from './components/ModelGallery';
-import SchemaViewer from './components/SchemaViewer';
+// import SchemaViewer from './components/SchemaViewer';
 import ComponentToolBar, { IComponentToolBarMap } from './components/ComponentToolBar';
 import { INotification } from './models';
 import * as _ from 'lodash';
 import HierarchyIndicator from './components/HierarchyIndicator';
 
-export function ModelGalleryPluginRegister(mainModelId: string, modelLoader: IModelLoader, configurationTransfer: IConfigurationTransfer): IPluginRegister {
+export function ModelGalleryPluginRegister(mainModelId: string, modelLoader: IModelLoader, configurationTransfer: IConfigurationTransfer): EditorPluginRegister {
   return (function _ModelGalleryPluginRegister({ skeleton, event }) {
     const skeletonKey = 'MODEL_GALLERY_PLUGIN';
     return {
@@ -31,7 +31,7 @@ export function ModelGalleryPluginRegister(mainModelId: string, modelLoader: IMo
   });
 }
 
-export function ComponentGalleryPluginRegister(componentGroups: Array<{ title: string, components: Array<string> }> = []): IPluginRegister {
+export function ComponentGalleryPluginRegister(componentGroups: Array<{ title: string, components: Array<string> }> = []): EditorPluginRegister {
   return (function _ComponentGalleryPluginRegister({ componentDiscovery, skeleton, event }) {
     const skeletonKey = 'COMPONENT_GALLER_PLUGIN';
     return {
@@ -61,27 +61,27 @@ export function ComponentGalleryPluginRegister(componentGroups: Array<{ title: s
   });
 }
 
-export function SchemaViewerPluginRegister(): IPluginRegister {
-  return (function _SchemaViewerPluginRegister({ skeleton, project, event }) {
-    const skeletonKey = 'PAGE_SCHEMA_PLUGIN';
-    return {
-      init: async () => {
-        skeleton.add({
-          key: skeletonKey,
-          title: '元数据',
-          area: SkeletonAreaEnum.leftArea,
-          icon: <CodeFilled />,
-          content: <SchemaViewer project={project} />
-        });
-      },
-      destroy: async () => {
-        skeleton.remove(skeletonKey);
-      }
-    };
-  });
-}
+// export function SchemaViewerPluginRegister(): IPluginRegister {
+//   return (function _SchemaViewerPluginRegister({ skeleton, project, event }) {
+//     const skeletonKey = 'PAGE_SCHEMA_PLUGIN';
+//     return {
+//       init: async () => {
+//         skeleton.add({
+//           key: skeletonKey,
+//           title: '元数据',
+//           area: SkeletonAreaEnum.leftArea,
+//           icon: <CodeFilled />,
+//           content: <SchemaViewer project={project} />
+//         });
+//       },
+//       destroy: async () => {
+//         skeleton.remove(skeletonKey);
+//       }
+//     };
+//   });
+// }
 
-export function ComponentToolBarRegister(toolBarMap?: IComponentToolBarMap): IPluginRegister {
+export function ComponentToolBarRegister(toolBarMap?: IComponentToolBarMap): EditorPluginRegister {
   return function _ContextMenuRegister({ skeleton, store, configuration }) {
     const skeletonKey = 'COMPONENT_TOOLBAR_PLUGIN';
     return {
@@ -99,7 +99,7 @@ export function ComponentToolBarRegister(toolBarMap?: IComponentToolBarMap): IPl
   }
 }
 
-export function HierarchyIndicatorRegister(typeIgnores?: Array<string>): IPluginRegister {
+export function HierarchyIndicatorRegister(typeIgnores?: Array<string>): EditorPluginRegister {
   const skeletonKey = 'HIERARCHY_INDICATOR_PLUGIN';
   return function _HierarchyIndicatorRegister({ skeleton }) {
     return {

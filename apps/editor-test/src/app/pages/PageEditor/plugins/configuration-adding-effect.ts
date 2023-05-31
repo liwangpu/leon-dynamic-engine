@@ -1,5 +1,5 @@
 import { GenerateComponentCode, GenerateComponentId } from '@lowcode-engine/core';
-import { IPluginRegister } from '@lowcode-engine/editor';
+import { EditorPluginRegister } from '@lowcode-engine/editor';
 import { ComponentTypes, GridSystemSection, ITableComponentConfiguration, ITabsComponentConfiguration } from '@lowcode-engine/primary-component-package';
 import { buttonGroupTypes, ComponentIndexTitleIncludeGroupTypes, FormInputGroupTypes, selfSlotGroupTypes } from '../../../consts';
 import { useComponentConfigGenerator } from '../../../hooks';
@@ -9,7 +9,7 @@ import { useComponentConfigGenerator } from '../../../hooks';
  * @param options 
  * @returns 
  */
-export function ConfigurationAddingEffectPluginRegister(options: { confGenerator: ReturnType<typeof useComponentConfigGenerator> }): IPluginRegister {
+export function ConfigurationAddingEffectPluginRegister(options: { confGenerator: ReturnType<typeof useComponentConfigGenerator> }): EditorPluginRegister {
 
   return ({ configurationAddingEffect, configuration }) => {
     return {
@@ -87,11 +87,6 @@ export function ConfigurationAddingEffectPluginRegister(options: { confGenerator
           current.fullHeight = true;
           return current;
         });
-
-        // configurationAddingEffect.registerHandler({ type: VideoPlayerComponentTypes.videoPlayer }, ({ current }: { current: IVideoPlayerComponentConfiguration }) => {
-        //   current.vedioUrl = 'https://www.runoob.com/try/demo_source/movie.ogg';
-        //   return current;
-        // });
 
         configurationAddingEffect.registerHandler({}, ({ current }) => {
           const typeCount = configuration.getComponentTypeCount(current.type);

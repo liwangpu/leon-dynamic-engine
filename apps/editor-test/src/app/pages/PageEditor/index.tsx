@@ -1,8 +1,8 @@
 import React, { memo, useCallback, useMemo, useRef } from 'react';
 import styles from './index.module.less';
 import { useLoaderData, useNavigate, useParams } from "react-router-dom";
-import { Editor, IEditorRef, IPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
-import { ComponentGalleryPluginRegister, ComponentToolBarRegister, HierarchyIndicatorRegister, IBusinessModel, ModelGalleryPluginRegister, SchemaViewerPluginRegister } from '@lowcode-engine/primary-plugin';
+import { Editor, IEditorRef, EditorPluginRegister, SkeletonAreaEnum } from '@lowcode-engine/editor';
+import { ComponentGalleryPluginRegister, ComponentToolBarRegister, HierarchyIndicatorRegister, IBusinessModel, ModelGalleryPluginRegister } from '@lowcode-engine/primary-plugin';
 import { ComponentTypes, RegisterSetter as RegisterPrimarySetter } from '@lowcode-engine/primary-component-package';
 import { RegisterSetter as RegisterSharedSetter } from '@lowcode-engine/component-configuration-shared';
 import { Button, Modal, notification } from 'antd';
@@ -13,6 +13,7 @@ import { ModelRepository, PageRepository } from '../../models';
 import LowcodeInfrastructureComponent from '../../components/LowcodeInfrastructure';
 import { useComponentConfigGenerator } from '../../hooks';
 import { ComponentSlotMapPluginRegister, ConfigurationAddingEffectPluginRegister, ConfigurationDeleteEffectPluginRegister, ConfigurationSelectorPluginRegister, ConfigurationTypeTransferEffectPluginRegister } from './plugins';
+import { ExpressionMonitorPluginRegister, StyleHandlerPluginRegister } from '../PagePreview/plugins';
 
 const { confirm } = Modal;
 
@@ -97,118 +98,120 @@ const PageEditor: React.FC = memo(() => {
     window.open(`/app/page-preview/${businessModel}/${pageId}?showNav=true`, `preview-page@${businessModel}#${pageId}`);
   }, []);
 
-  const plugins = useMemo<Array<IPluginRegister>>(() => {
-    return [
-      // 组件插槽相关注册插件
-      ComponentSlotMapPluginRegister(),
-      // 组件添加副作用注册插件
-      ConfigurationAddingEffectPluginRegister({ confGenerator }),
-      // 组件删除副作用注册插件
-      ConfigurationDeleteEffectPluginRegister(),
-      // 组件类型转换副作用注册插件
-      ConfigurationTypeTransferEffectPluginRegister(),
-      // 组件面板配置数据选择器注册插件
-      ConfigurationSelectorPluginRegister(),
-      // 文档模型注册插件
-      ({ project }) => {
-        return {
-          init() {
-            project.import(schema);
-          }
-        };
+  const plugins = useMemo<Array<EditorPluginRegister>>(() => [
+    // 组件插槽相关注册插件
+    ComponentSlotMapPluginRegister(),
+    // 组件添加副作用注册插件
+    ConfigurationAddingEffectPluginRegister({ confGenerator }),
+    // 组件删除副作用注册插件
+    ConfigurationDeleteEffectPluginRegister(),
+    // 组件类型转换副作用注册插件
+    ConfigurationTypeTransferEffectPluginRegister(),
+    // 组件面板配置数据选择器注册插件
+    ConfigurationSelectorPluginRegister(),
+    // 组件样式管理器
+    (StyleHandlerPluginRegister() as unknown) as EditorPluginRegister,
+    // 组件表达式管理器
+    (ExpressionMonitorPluginRegister() as unknown) as EditorPluginRegister,
+    // 文档模型注册插件
+    ({ project }) => {
+      return {
+        init() {
+          project.import(schema);
+        }
+      };
+    },
+    // 组件库注册插件
+    ComponentGalleryPluginRegister([
+      {
+        title: '容器',
+        components: [
+          ComponentTypes.block,
+          ComponentTypes.tabs,
+        ]
       },
-      // 组件库注册插件
-      ComponentGalleryPluginRegister([
-        {
-          title: '容器',
-          components: [
-            ComponentTypes.block,
-            ComponentTypes.tabs,
-          ]
-        },
-        {
-          title: '数据容器',
-          components: [
-            ComponentTypes.table,
-          ]
-        },
-        {
-          title: '表单项',
-          components: [
-            ComponentTypes.text,
-            ComponentTypes.textarea,
-            ComponentTypes.number,
-          ]
-        },
-        {
-          title: '按钮',
-          components: [
-            ComponentTypes.button,
-            ComponentTypes.buttonGroup,
-          ]
-        },
-      ]),
-      // 模型库注册插件
-      ModelGalleryPluginRegister(businessModel, id => {
-        return ModelRepository.getInstance().get(id);
-      }, data => {
-        return { type: 'text', title: data.name };
-      }),
-      // schema源码插件
-      SchemaViewerPluginRegister(),
-      // 路径组件注册插件
-      HierarchyIndicatorRegister(),
-      // 工具栏插件
-      ComponentToolBarRegister({
-        [ComponentTypes.listPage]: [],
-        [ComponentTypes.detailPage]: [],
-        [ComponentTypes.tableSerialNumberColumn]: [],
-        [ComponentTypes.tableSelectionColumn]: [],
-        [ComponentTypes.tableOperatorColumn]: [],
-        [ComponentTypes.pagination]: [],
-      }),
-      // 页面返回按钮注册插件
-      ({ skeleton }) => {
-        const skeletonKey = 'EDITOR_RETURN_ST';
-        return {
-          init() {
-            skeleton.add({
-              key: skeletonKey,
-              area: SkeletonAreaEnum.topLeftArea,
-              content: (
-                <Button type="text" icon={<ArrowLeftOutlined />} onClick={goBack} size='small'>返回</Button>
-              )
-            });
-          },
-          destroy: async () => {
-            skeleton.remove(skeletonKey);
-          }
-        };
+      {
+        title: '数据容器',
+        components: [
+          ComponentTypes.table,
+        ]
       },
-      // 设计器保存按钮区域注册插件
-      ({ skeleton }) => {
-        const skeletonKey = 'PAGE_OPERATION_ST';
-        return {
-          init() {
-            skeleton.add({
-              key: skeletonKey,
-              area: SkeletonAreaEnum.topRightArea,
-              content: (
-                <div className={styles['editor-operation']}>
-                  <Button type="primary" danger icon={<ClearOutlined />} onClick={clearSchema} >清空</Button>
-                  <Button type="default" icon={<EyeOutlined />} onClick={previewPage} >预览</Button>
-                  <Button type="primary" icon={<SaveOutlined />} onClick={saveSchema} >保存</Button>
-                </div >
-              )
-            });
-          },
-          destroy: async () => {
-            skeleton.remove(skeletonKey);
-          }
-        };
+      {
+        title: '表单项',
+        components: [
+          ComponentTypes.text,
+          ComponentTypes.textarea,
+          ComponentTypes.number,
+        ]
       },
-    ];
-  }, []);
+      {
+        title: '按钮',
+        components: [
+          ComponentTypes.button,
+          ComponentTypes.buttonGroup,
+        ]
+      },
+    ]),
+    // 模型库注册插件
+    ModelGalleryPluginRegister(businessModel, id => {
+      return ModelRepository.getInstance().get(id);
+    }, data => {
+      return { type: 'text', title: data.name };
+    }),
+    // // schema源码插件
+    // SchemaViewerPluginRegister(),
+    // 路径组件注册插件
+    HierarchyIndicatorRegister(),
+    // 工具栏插件
+    ComponentToolBarRegister({
+      [ComponentTypes.listPage]: [],
+      [ComponentTypes.detailPage]: [],
+      [ComponentTypes.tableSerialNumberColumn]: [],
+      [ComponentTypes.tableSelectionColumn]: [],
+      [ComponentTypes.tableOperatorColumn]: [],
+      [ComponentTypes.pagination]: [],
+    }),
+    // 页面返回按钮注册插件
+    ({ skeleton }) => {
+      const skeletonKey = 'EDITOR_RETURN_ST';
+      return {
+        init() {
+          skeleton.add({
+            key: skeletonKey,
+            area: SkeletonAreaEnum.topLeftArea,
+            content: (
+              <Button type="text" icon={<ArrowLeftOutlined />} onClick={goBack} size='small'>返回</Button>
+            )
+          });
+        },
+        destroy: async () => {
+          skeleton.remove(skeletonKey);
+        }
+      };
+    },
+    // 设计器保存按钮区域注册插件
+    ({ skeleton }) => {
+      const skeletonKey = 'PAGE_OPERATION_ST';
+      return {
+        init() {
+          skeleton.add({
+            key: skeletonKey,
+            area: SkeletonAreaEnum.topRightArea,
+            content: (
+              <div className={styles['editor-operation']}>
+                <Button type="primary" danger icon={<ClearOutlined />} onClick={clearSchema} >清空</Button>
+                <Button type="default" icon={<EyeOutlined />} onClick={previewPage} >预览</Button>
+                <Button type="primary" icon={<SaveOutlined />} onClick={saveSchema} >保存</Button>
+              </div >
+            )
+          });
+        },
+        destroy: async () => {
+          skeleton.remove(skeletonKey);
+        }
+      };
+    },
+  ], []);
 
   return (
     <div className={styles['page-editor']}>

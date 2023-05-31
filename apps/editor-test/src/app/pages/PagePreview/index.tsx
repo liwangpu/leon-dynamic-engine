@@ -3,12 +3,13 @@ import styles from './index.module.less';
 import { observer } from 'mobx-react-lite';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { StoreContext } from '../../contexts';
-import { Renderer } from '@lowcode-engine/renderer';
-import { INavigationBackContext, NavigationBackContext } from '@lowcode-engine/primary-component-package';
+import { GRID_SYSTEM_SECTION_TOTAL, RendererPluginRegister, Renderer } from '@lowcode-engine/renderer';
+import { IFormItemConfiguration, INavigationBackContext, NavigationBackContext } from '@lowcode-engine/primary-component-package';
 import { Button } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { EventActionType, EventCenterEngineContext, IEventCenterEngineContext, IOpenUrlEventAction } from '@lowcode-engine/core';
 import LowcodeInfrastructureComponent from '../../components/LowcodeInfrastructure';
+import { ExpressionMonitorPluginRegister, StyleHandlerPluginRegister } from './plugins';
 
 const PagePreview: React.FC = observer(() => {
 
@@ -70,12 +71,19 @@ const PagePreview: React.FC = observer(() => {
     }
   }, []);
 
+  const plugins = useMemo<Array<RendererPluginRegister>>(() => [
+    // 组件样式管理器
+    StyleHandlerPluginRegister(),
+    // 组件表达式管理器
+    ExpressionMonitorPluginRegister(),
+  ], []);
+
   return (
     <div className={styles['page-preview']}>
       <EventCenterEngineContext.Provider value={eventEngineContext}>
         <NavigationBackContext.Provider value={navigationBackContext}>
           <LowcodeInfrastructureComponent>
-            {({ packages }) => (<Renderer schema={schema} packages={packages} />)}
+            {({ packages }) => (<Renderer schema={schema} packages={packages} plugins={plugins} />)}
           </LowcodeInfrastructureComponent>
         </NavigationBackContext.Provider>
       </EventCenterEngineContext.Provider>

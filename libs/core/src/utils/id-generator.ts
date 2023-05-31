@@ -15,5 +15,5 @@ export function GenerateNestedComponentId(parentId: string, componentType: strin
 }
 
 export function GenerateComponentCode(type: string): string {
-  return GenerateShortId(type, 8).toLocaleLowerCase().replace('-', '_');
+  return GenerateShortId(type, 8).toLocaleUpperCase().replace('-', '_');
 };

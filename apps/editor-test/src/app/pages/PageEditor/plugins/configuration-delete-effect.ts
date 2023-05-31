@@ -1,9 +1,9 @@
-import { IPluginRegister } from '@lowcode-engine/editor';
+import { EditorPluginRegister } from '@lowcode-engine/editor';
 import { ComponentTypes, ITabComponentConfiguration, ITabsComponentConfiguration } from '@lowcode-engine/primary-component-package';
 
-export function ConfigurationDeleteEffectPluginRegister(): IPluginRegister {
+export function ConfigurationDeleteEffectPluginRegister(): EditorPluginRegister {
 
-  return ({ configurationDeleteEffect, configuration }) => {
+  return ({ configurationDeleteEffect, configuration, store }) => {
     return {
       init() {
         configurationDeleteEffect.registerHandler({ type: ComponentTypes.tab, count: 1 }, () => {
@@ -22,6 +22,32 @@ export function ConfigurationDeleteEffectPluginRegister(): IPluginRegister {
             // }
 
             // console.log(`current:`,current);
+          });
+
+        configurationDeleteEffect.registerHandler(
+          { type: ComponentTypes.tab },
+          null,
+          ({ current, parent }: { current: ITabComponentConfiguration, parent: ITabsComponentConfiguration }) => {
+            if (parent.children?.length) {
+
+              const defaultTab = parent.children.find(c => c.isDefault) || parent.children[0];
+              if (defaultTab) {
+                store.state.setState(parent.id, 'activeKey', defaultTab.id);
+              }
+
+              configuration.updateComponents([
+                ({
+                  id: defaultTab.id,
+                  type: defaultTab.type,
+                  isDefault: true,
+                } as ITabComponentConfiguration),
+                ({
+                  id: parent.id,
+                  type: parent.type,
+                  defaultActiveTab: defaultTab.id,
+                } as ITabsComponentConfiguration),
+              ]);
+            }
           });
       }
     };

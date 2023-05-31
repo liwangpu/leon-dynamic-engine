@@ -21,8 +21,8 @@ const DynamicComponentSettingPanel: React.FC<DynamicComponentSettingPanelProps> 
   const [panelLoaded, setPanelLoaded] = useState(false);
   const [ConfigPanel, setConfigPanel] = useState<ComponentType<PanelWrapperProps>>();
   const { store, componentDiscovery } = useContext(EditorContext);
-  const componentType = store.treeStore.selectComponentType(props.componentId);
-  const activeComponentId = store.interactionStore.activeComponentId;
+  const componentType = store.structure.selectComponentType(props.componentId);
+  const activeComponentId = store.interaction.activeComponentId;
 
   useEffect(() => {
     (async () => {
@@ -63,9 +63,9 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
   const Wrapper: React.FC<PanelWrapperProps> = observer(props => {
 
     const editorCtx = useContext(EditorContext);
-    const conf = editorCtx.store.configurationStore.selectComponentConfigurationWithoutChildren(props.componentId, true); // 不包含插槽等属性
-    const parentType = editorCtx.store.treeStore.selectParentComponentType(props.componentId);
-    const parentSlotProperty = editorCtx.store.treeStore.selectParentSlotProperty(props.componentId);
+    const conf = editorCtx.store.structure.selectComponentConfigurationWithoutChildren(props.componentId, true); // 不包含插槽等属性
+    const parentType = editorCtx.store.structure.selectParentComponentType(props.componentId);
+    const parentSlotProperty = editorCtx.store.structure.selectParentSlotProperty(props.componentId);
     const settingItemCxt = useMemo(() => {
       let ctx: ISetterPanelContext = {
         type: conf.type,

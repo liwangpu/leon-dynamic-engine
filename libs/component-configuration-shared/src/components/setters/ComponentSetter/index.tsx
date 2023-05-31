@@ -10,7 +10,7 @@ const Setter: React.FC<IComponentSetter> = observer(props => {
 
   const { label, required, help, disabled, componentFilter } = props;
   const { store } = useContext(EditorContext);
-  const infos = store.configurationStore.selectAllComponentBasicInfo();
+  const infos = store.structure.selectAllComponentBasicInfo();
 
   const components = useMemo<Array<{ value: string; label: string }>>(() => {
     return infos

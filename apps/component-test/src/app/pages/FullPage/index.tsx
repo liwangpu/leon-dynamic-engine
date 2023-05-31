@@ -101,13 +101,17 @@ const EditorPage: React.FC = memo(() => {
   const [schema, setSchema] = useState<IProjectSchema>(getSchemaCache());
   const hasCache = !!localStorage.getItem(FULL_PAGE_CACHE_KEY);
 
+  
+
   return (
     <div className={styles['page']}>
       <div className={styles['page__header']}>
         <Button type="primary" size='small' danger disabled={!hasCache} onClick={clearSchemaCache}>清除缓存</Button>
       </div>
       <div className={styles['page__content']}>
-        <RealTimeRenderer value={schema} onChange={setSchemaCache} />
+        {/* <RealTimeRenderer value={schema} onChange={setSchemaCache} /> */}
+
+
       </div>
     </div>
   );

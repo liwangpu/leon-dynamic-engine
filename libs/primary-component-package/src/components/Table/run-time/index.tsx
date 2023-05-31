@@ -75,7 +75,7 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
   }, [conf.columns]);
 
   return (
-    <div className={styles['table']}>
+    <div className={styles['table']} style={props.style}>
       <div className={styles['table__operators']}>{Operators}</div>
       <AntdTable
         rowSelection={getRowSelection()}

@@ -54,7 +54,7 @@ const RealTimeRenderer: React.FC<IRealTimeRendererProps> = observer(props => {
       </div>
       <div className={styles['layout__right']}>
         <div className={styles['wrapper']}>
-          <Renderer schema={props.value} packages={packages} />
+          {/* <Renderer packages={packages} /> */}
         </div>
       </div>
     </div>

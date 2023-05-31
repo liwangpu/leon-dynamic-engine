@@ -39,12 +39,6 @@ const registerMetadata: IMetadataRegister = register => {
                       required: true,
                     },
                     {
-                      key: 'code',
-                      setter: SetterType.string,
-                      name: 'code',
-                      label: '编码',
-                    },
-                    {
                       key: 'vedioUrl',
                       setter: SetterType.string,
                       name: 'vedioUrl',

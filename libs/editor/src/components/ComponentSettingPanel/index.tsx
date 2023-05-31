@@ -11,7 +11,7 @@ const EditingPanels = (componentIds: Array<string>) => {
 
 const ComponentSettingPanel = observer(() => {
   const { store } = useContext(EditorContext);
-  const editingComponentIds = store.interactionStore.editingComponentIds;
+  const editingComponentIds = store.interaction.editingComponentIds;
 
   return (
     <div className={styles['component-setting-panel']}>

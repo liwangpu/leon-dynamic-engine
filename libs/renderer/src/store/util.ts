@@ -1,9 +1,7 @@
 import { IComponentConfiguration } from '@lowcode-engine/core';
 import * as _ from 'lodash';
 import { SnapshotIn } from 'mobx-state-tree';
-import { ConfigurationModel } from './configuration-store';
-import { ComponentTreeModel } from './tree-store';
-import { EditorStoreModel, INITIAL_STATE } from './editor-store';
+import { ComponentTreeModel, ConfigurationModel, STRUCTURE_INITIAL_STATE, StructureStoreModel } from './structure-store';
 
 export interface IComponentSlotMap {
   [componentType: string]: Array<string>;
@@ -22,15 +20,15 @@ function getHierarchyProperties(slotMap: IComponentSlotMap, componentType: strin
   return properties;
 }
 
-export function generateDesignState(metadata: IComponentConfiguration, slotMap: IComponentSlotMap = {}, singletonMap: ISlotSingletonMap = {}): SnapshotIn<EditorStoreModel> {
-  const state: SnapshotIn<EditorStoreModel> = _.cloneDeep(INITIAL_STATE);
+export function generateDesignState(metadata: IComponentConfiguration, slotMap: IComponentSlotMap = {}, singletonMap: ISlotSingletonMap = {}): SnapshotIn<any> {
+  const state: SnapshotIn<StructureStoreModel> = _.cloneDeep(STRUCTURE_INITIAL_STATE);
   if (!metadata) { return state; }
   const componentTrees: { [id: string]: SnapshotIn<ComponentTreeModel> } = {};
   const componentConfigurations: { [id: string]: SnapshotIn<ConfigurationModel> } = {};
 
   const generateComponentMetadataAndTree = (md: IComponentConfiguration, parentId?: string, slotProperty?: string, singleton?: boolean) => {
     const id: string = md.id!;
-    const ctree: SnapshotIn<ComponentTreeModel> = { id, type: md.type, singleton: !!singleton };
+    const ctree: SnapshotIn<ComponentTreeModel> = { id, type: md.type };
     if (parentId) {
       ctree.parentId = parentId;
     }
@@ -73,22 +71,22 @@ export function generateDesignState(metadata: IComponentConfiguration, slotMap: 
 
   generateComponentMetadataAndTree(metadata);
 
-  state.treeStore.trees = componentTrees;
-  state.configurationStore.configurations = componentConfigurations;
+  state.trees = componentTrees;
+  state.configurations = componentConfigurations;
   return state;
 }
 
-export function nestComponentTree(state: SnapshotIn<EditorStoreModel>, slotMap: IComponentSlotMap = {}, singletonMap: ISlotSingletonMap = {}): IComponentConfiguration {
-  const treeIds = Object.keys(state.treeStore.trees);
-  const configIds = Object.keys(state.configurationStore.configurations);
+export function nestComponentTree(state: SnapshotIn<StructureStoreModel>, slotMap: IComponentSlotMap = {}, singletonMap: ISlotSingletonMap = {}): IComponentConfiguration {
+  const treeIds = Object.keys(state.trees);
+  const configIds = Object.keys(state.configurations);
   const getTree = (id: string) => {
-    return state.treeStore.trees[id];
+    return state.trees[id];
   };
 
   const generateConfig = (id: string): IComponentConfiguration => {
     const tree = getTree(id);
     const hasConfig = configIds.some(cid => cid === id);
-    let conf: IComponentConfiguration = hasConfig ? { ...state.configurationStore.configurations[id].origin } : { id };
+    let conf: IComponentConfiguration = hasConfig ? { ...state.configurations[id].origin } : { id };
     conf.type = tree.type;
     return conf;
   };
@@ -119,7 +117,7 @@ export function nestComponentTree(state: SnapshotIn<EditorStoreModel>, slotMap: 
     }
   };
 
-  const rootId = state.interactionStore.rootId;
+  const rootId = state.rootComponentId;
   supplementChildrenConfig(rootId);
 
   return componentConfMap.get(rootId);

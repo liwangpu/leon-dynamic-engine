@@ -5,9 +5,9 @@ import Sortable from 'sortablejs';
 import { EditorContext, PagePresentationUtilContext } from '../../contexts';
 import { EventTopicEnum } from '../../enums';
 import * as _ from 'lodash';
-import { DataCenterDetectorWrapper, useComponentStyle } from '@lowcode-engine/renderer';
 import classnames from 'classnames';
 import { IDynamicContainerDragDropEventData } from '../../models';
+import { ComponentAttributeWrapper, DataCenterDetectorWrapper } from '@lowcode-engine/renderer';
 
 const loadRemoteModule = async (loader: () => Promise<any>) => {
   try {
@@ -18,7 +18,7 @@ const loadRemoteModule = async (loader: () => Promise<any>) => {
 };
 
 const componentEditorWrapper = (Component: ComponentType<IDynamicComponentProps>) => {
-  return DynamicComponentValidate(DataCenterDetectorWrapper(EditorUIEffectWrapper(ChildSlotProperyPatchWrapper(Component))));
+  return DynamicComponentValidate(DataCenterDetectorWrapper(ComponentAttributeWrapper(EditorUIEffectWrapper(ChildSlotProperyPatchWrapper(Component)))));
 };
 
 export const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props => {
@@ -28,7 +28,6 @@ export const DynamicComponent: React.FC<IDynamicComponentProps> = observer(props
   const compDiscovery = useContext(ComponentDiscoveryContext);
   const [componentLoaded, setComponentLoaded] = useState(false);
   const [Component, setComponent] = useState<ComponentType<IDynamicComponentProps>>();
-
   useEffect(() => {
     if (!componentType) {
       setComponentLoaded(true);
@@ -74,8 +73,8 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
   const { store, slot, dom, event, configuration } = useContext(EditorContext);
   const pagePresentationUtil = useContext(PagePresentationUtilContext);
   const slotRendererRef = useRef<HTMLDivElement>();
-  const conf = store.configurationStore.selectComponentConfigurationWithoutChildren(componentId, true);
-  const slotComponentConfs = store.configurationStore.selectComponentFirstLayerChildren(componentId, slotProperty);
+  const conf = store.structure.selectComponentConfigurationWithoutChildren(componentId, true);
+  const slotComponentConfs = store.structure.selectComponentFirstLayerChildren(componentId, slotProperty);
   const containerClassName = useMemo(() => {
     const arr: Array<any> = [
       'editor-dynamic-component-container',
@@ -191,8 +190,8 @@ export const DynamicComponentContainer = observer(forwardRef<IDynamicComponentCo
       swapThreshold: 0.65,
       setData: (dataTransfer, dragEl: HTMLElement) => {
         const id = dragEl.getAttribute('data-dynamic-component');
-        const conf = store.configurationStore.selectComponentConfigurationWithoutChildren(id);
-        const componentTitle = store.configurationStore.selectComponentTitle(id);
+        const conf = store.structure.selectComponentConfigurationWithoutChildren(id);
+        const componentTitle = store.structure.selectComponentTitle(id);
         if (pagePresentationUtil.dragPreviewNode) {
           pagePresentationUtil.dragPreviewNode.innerHTML = componentTitle;
           pagePresentationUtil.dragPreviewNode.classList.remove('hidden');
@@ -351,7 +350,7 @@ const ChildSlotProperyPatchWrapper = (Component: ComponentType<IDynamicComponent
     // 补充子组件配置
     if (slotProperties?.length) {
       slotProperties.forEach(property => {
-        const slotComponentConfs = store.configurationStore.selectComponentFirstLayerChildren(componentId, property);
+        const slotComponentConfs = store.structure.selectComponentFirstLayerChildren(componentId, property);
         if (slotComponentConfs?.length) {
           if (slot.checkSlotSingleton(conf.type, property)) {
             conf[property] = slotComponentConfs[0];
@@ -376,14 +375,12 @@ const EditorUIEffectWrapper = (Component: ComponentType<IDynamicComponentProps>)
   const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
     const { store, dom, event } = useContext(EditorContext);
     const conf = props.configuration;
-    const { activeComponentId } = store.interactionStore;
-    const style = useComponentStyle(props.configuration);
+    const { activeComponentId } = store.interaction;
     const activeEventFlag = useRef<boolean>();
     const componentHostRef = useRef<HTMLDivElement>(null);
     const componentRootRef = useRef<HTMLElement>(null);
     const toolbarIntersectingFlagRef = useRef<HTMLDivElement>(null);
     const componentId = conf.id;
-
     useLayoutEffect(() => {
       const componentHost = componentHostRef.current;
       if (componentHost.children.length) {
@@ -470,7 +467,7 @@ const EditorUIEffectWrapper = (Component: ComponentType<IDynamicComponentProps>)
         )}
         data-dynamic-component={componentId}
         data-dynamic-component-type={conf.type}
-        style={style}
+        style={props.style}
         ref={componentHostRef}
       >
         <div className='toolbar-intersecting-flag' ref={toolbarIntersectingFlagRef} />
@@ -493,7 +490,7 @@ const DynamicComponentValidate = (Component: ComponentType<IDynamicComponentProp
 
   const wrapper: React.FC<IDynamicComponentProps> = observer(props => {
     const { store } = useContext(EditorContext);
-    const isDynamicComponent = store.treeStore.checkIsComponent(props.configuration.id);
+    const isDynamicComponent = store.structure.checkIsComponent(props.configuration.id);
     return (
       <>
         {isDynamicComponent ? (

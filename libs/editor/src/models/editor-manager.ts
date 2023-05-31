@@ -1,35 +1,34 @@
-import { ComponentDiscoveryProvider, IComponentDiscovery, IComponentPackage } from '@lowcode-engine/core';
-import { createStore, EditorStoreModel } from '../store';
-import { ConfigurationAddingEffectManager, IConfigurationAddingEffectManager, IConfigurationDeleteEffectManager, IConfigurationTypeTransferEffectManager, ConfigurationTypeTransferEffectManager, ConfigurationDeleteEffectManager, IConfigurationMoveEffectManager, ConfigurationMoveEffectManager } from './configuration-effect-manager';
-import { ConfigurationManager, IConfigurationManager } from './configuration-manager';
-import { DomManager, IDomManager } from './dom-manager';
-import { EditorStorage, IEditorStorage } from './editor-storage';
-import { EventManager, IEventManager } from './event-manager';
-import { IProjectManager, ProjectSchemaManager } from './project-schema-manager';
-import { ISkeletonManager, SkeletonManager } from './skeleton-manager';
-import { ISlotManager, SlotManager } from './slot-manager';
+import type { IComponentPackage, IPluginRegister } from '@lowcode-engine/core';
+import type { IRendererContext } from '@lowcode-engine/renderer';
+import { RendererContextManager } from '@lowcode-engine/renderer';
+import type { EditorStoreModel } from '../store';
+import { createStore } from '../store';
+import { ComponentFactoryManager } from './component-factory-manager';
+import type { IConfigurationAddingEffectManager, IConfigurationDeleteEffectManager, IConfigurationTypeTransferEffectManager, IConfigurationMoveEffectManager } from './configuration-effect-manager';
+import { ConfigurationAddingEffectManager, ConfigurationTypeTransferEffectManager, ConfigurationDeleteEffectManager, ConfigurationMoveEffectManager } from './configuration-effect-manager';
+import type { IConfigurationManager } from './configuration-manager';
+import { ConfigurationManager } from './configuration-manager';
+import type { IDomManager } from './dom-manager';
+import { DomManager } from './dom-manager';
+import type { IEditorStorage } from './editor-storage';
+import { EditorStorage } from './editor-storage';
+import type { IEventManager } from './event-manager';
+import { EventManager } from './event-manager';
+import { ProjectSchemaManager } from './project-schema-manager';
+import type { ISkeletonManager } from './skeleton-manager';
+import { SkeletonManager } from './skeleton-manager';
 
-export interface IEditorContext {
+type IRendererContextType = Omit<IRendererContext, "store">;
+
+export interface IEditorContext extends IRendererContextType {
   /**
    * 扩展面板管理器
    */
   skeleton: ISkeletonManager;
   /**
-   * 项目管理器
-   */
-  project: IProjectManager;
-  /**
-   * 组件注册服务
-   */
-  componentDiscovery: IComponentDiscovery;
-  /**
    * 事件中心管理器
    */
   event: IEventManager;
-  /**
-   * 插槽管理器
-   */
-  slot: ISlotManager;
   /**
    * 组件配置管理器
    */
@@ -44,23 +43,36 @@ export interface IEditorContext {
   storage: IEditorStorage;
 }
 
-export class EditorContextManager implements IEditorContext {
+export type EditorPluginRegister = IPluginRegister<IEditorContext>;
+
+export class EditorContextManager extends RendererContextManager implements IEditorContext {
 
   public readonly skeleton = new SkeletonManager(this);
-  public readonly project = new ProjectSchemaManager(this);
+
   public readonly dom = new DomManager(this);
+
   public readonly event = new EventManager(this);
-  public readonly slot = new SlotManager(this);
+
+  public readonly project = new ProjectSchemaManager(this);
+
+  public readonly componentFactory = new ComponentFactoryManager(this);
+
   public readonly configurationAddingEffect = new ConfigurationAddingEffectManager(this);
+
   public readonly configurationDeleteEffect = new ConfigurationDeleteEffectManager(this);
+
   public readonly configurationMoveEffect = new ConfigurationMoveEffectManager(this);
+
   public readonly configurationTypeTransferEffect = new ConfigurationTypeTransferEffectManager(this);
+
   public readonly storage = new EditorStorage(this);
+
   public readonly configuration = new ConfigurationManager(this);
-  public store = createStore();
-  public componentDiscovery;
+
+  public readonly store: any = createStore();
+
   public constructor(packages: Array<IComponentPackage>) {
-    this.componentDiscovery = new ComponentDiscoveryProvider(packages);
+    super(packages);
   }
 
 }

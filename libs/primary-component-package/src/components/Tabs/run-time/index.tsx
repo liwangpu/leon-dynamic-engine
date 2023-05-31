@@ -1,4 +1,4 @@
-import { IDynamicComponentProps, useDataCenter, useDynamicComponentEngine } from '@lowcode-engine/core';
+import { IDynamicComponentProps, useDataCenter, useDynamicComponentEngine, useStateCenter } from '@lowcode-engine/core';
 import React, { memo, useEffect, useMemo } from 'react';
 import { Tabs as AntdTabs } from 'antd';
 import styles from './index.module.less';
@@ -9,9 +9,11 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
   const conf = props.configuration;
   const children = conf.children || [];
   const dynamicEngine = useDynamicComponentEngine();
-  const { setState } = useDataCenter(conf);
+  // const { setState } = useDataCenter(conf);
+  const [activeKey, setActiveKey] = useStateCenter<string>(conf.id, 'activeKey');
   const DynamicComponent = dynamicEngine.getDynamicComponentFactory();
   const isVertical = conf.direction === 'vertical';
+  // console.log(`tabs:`, conf, props.style);
 
   const Items = useMemo(() => {
     if (!children || !children.length) { return []; }
@@ -28,21 +30,17 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = memo
     }));
   }, [children]);
 
-  const onTabChange = (tabId: string) => {
-    setState('activeKey', tabId);
-  };
-
   useEffect(() => {
-    setState('activeKey', conf.defaultActiveTab);
+    setActiveKey(conf.defaultActiveTab);
   }, []);
 
   return (
-    <div className={styles['tabs']}>
+    <div className={styles['tabs']} style={props.style}>
       <AntdTabs
         className='runtime-tabs'
         defaultActiveKey={conf.defaultActiveTab}
         tabPosition={isVertical ? 'left' : 'top'}
-        onChange={onTabChange}
+        onChange={tabId => setActiveKey(tabId)}
         items={Items}
       />
     </div>
