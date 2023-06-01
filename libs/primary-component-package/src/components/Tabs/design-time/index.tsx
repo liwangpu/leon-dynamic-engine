@@ -65,6 +65,7 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = obse
         configuration={conf}
         slot={CommonSlot.children}
         direction={isVertical ? 'vertical' : 'horizontal'}
+        dropOnly={true}
         ref={tabNavsContainerRef}
       >
         {(cs: Array<ITabComponentConfiguration>) => cs.map(c => {
@@ -76,7 +77,7 @@ const Tabs: React.FC<IDynamicComponentProps<ITabsComponentConfiguration>> = obse
                   [styles['nav--active']]: c.id === activeKey
                 }
               )}
-                onClick={() =>  setActiveKey(c.id)}
+                onClick={() => setActiveKey(c.id)}
                 title={c.title}
               >
                 <p className={styles['nav__title']}>{c.title}</p>
