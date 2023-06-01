@@ -12,6 +12,9 @@ function getMetadataRegeditKey(context: ISetterPanelContext) {
   if (context.parentType) {
     key += `/parentType:${context.parentType}`;
   }
+  if (context.rootType) {
+    key += `/parentType:${context.rootType}`;
+  }
   if (context.slot) {
     key += `/slot:${context.slot}`;
   }
@@ -51,12 +54,14 @@ export async function DynamicConfigPanelLoader(type: string, loader: () => Promi
     useEffect(() => {
       (async () => {
         // 先找最精确匹配的设置面板,如果找不到然后逐次降低优先级
-        const matchedFilters = [
-          setterContext,
-          { type: setterContext.type, parentType: setterContext.parentType },
-          { type: setterContext.type, slot: setterContext.slot },
-          { type: setterContext.type },
-        ];
+        const matchedFilters = (function* () {
+          yield setterContext;
+          yield { type: setterContext.type, rootType: setterContext.parentType };
+          yield { type: setterContext.type, parentType: setterContext.parentType };
+          yield { type: setterContext.type, slot: setterContext.slot };
+          yield { type: setterContext.type };
+        })();
+
         let metaGenerator: IFormMetadataGenerator;
         for (const f of matchedFilters) {
           metaGenerator = getMetdata(f);

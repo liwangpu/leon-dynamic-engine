@@ -121,27 +121,23 @@ export class EffectHandlerStorage<Handler = (...args) => any, Filter extends IBa
     const matchedHandlers: Array<Handler> = [];
     for (const [filter, handler] of this.handlers) {
       let matched = true;
+      const self = this;
+      const matchConditions = (function* () {
+        if (_.isFunction(self.preCompare)) {
+          yield self.preCompare(filter, context);
+        }
+        yield placementMatch(filter.first, context.first);
+        yield placementMatch(filter.last, context.last);
+        yield placementMatch(filter.even, context.even);
+        yield placementMatch(filter.odd, context.odd);
+        yield placementMatch(filter.index, context.index);
+        yield placementMatch(filter.count, context.count);
+        yield contextItemMatchFilterItem(filter.parentType, parentType);
+        yield contextItemMatchFilterItem(filter.slot, context.slot);
+        yield contextItemMatchFilterItem(filter.type, currentType);
+      })();
 
-      const matchConditions = [
-        () => {
-          if (_.isFunction(this.preCompare)) {
-            return this.preCompare(filter, context);
-          }
-          return true;
-        },
-        () => placementMatch(filter.first, context.first),
-        () => placementMatch(filter.last, context.last),
-        () => placementMatch(filter.even, context.even),
-        () => placementMatch(filter.odd, context.odd),
-        () => placementMatch(filter.index, context.index),
-        () => placementMatch(filter.count, context.count),
-        () => contextItemMatchFilterItem(filter.parentType, parentType),
-        () => contextItemMatchFilterItem(filter.slot, context.slot),
-        () => contextItemMatchFilterItem(filter.type, currentType),
-      ];
-
-      for (const condition of matchConditions) {
-        const r = condition();
+      for (const r of matchConditions) {
         if (!r) {
           matched = false;
           break;

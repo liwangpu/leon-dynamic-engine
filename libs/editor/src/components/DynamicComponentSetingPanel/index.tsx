@@ -65,12 +65,14 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
     const editorCtx = useContext(EditorContext);
     const conf = editorCtx.store.structure.selectComponentConfigurationWithoutChildren(props.componentId, true); // 不包含插槽等属性
     const parentType = editorCtx.store.structure.selectParentComponentType(props.componentId);
+    const rootComponent = editorCtx.store.structure.selectRootComponent();
     const parentSlotProperty = editorCtx.store.structure.selectParentSlotProperty(props.componentId);
     const settingItemCxt = useMemo(() => {
       let ctx: ISetterPanelContext = {
         type: conf.type,
         parentType,
-        slot: parentSlotProperty
+        slot: parentSlotProperty,
+        rootType: rootComponent?.type,
       };
       return ctx;
     }, [conf.type, parentType, parentSlotProperty]);

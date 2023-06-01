@@ -215,12 +215,12 @@ export const StructureStore = types.model({
       if (!tree) { return null; }
       return tree.type;
     },
-    selectRootComponent: (id: string): IComponentConfiguration => {
-      let current = self.trees.get(id);
-      while (current && current.parentId) {
-        current = self.trees.get(current.parentId);
+    selectRootComponent: (): IComponentConfiguration => {
+      const conf = self.configurations.get(self.rootComponentId);
+      if (!conf) {
+        return null;
       }
-      return current && self.configurations.get(current.id).origin;
+      return conf.origin;
     },
     selectAllComponentBasicInfo: (ts?: Array<string>) => {
       const componentIds = self.trees.keys();
