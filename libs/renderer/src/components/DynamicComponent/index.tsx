@@ -155,7 +155,7 @@ export const ComponentAttributeWrapper = (Component: ComponentType<IDynamicCompo
           const _style = {};
           for (const h of styleHandlers) {
             const s = h(param);
-            _.merge(_style, s)
+            _.merge(_style, s, props.style || {})
           }
           setStyle(_style);
         })();
