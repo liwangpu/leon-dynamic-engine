@@ -380,10 +380,25 @@ export class ConfigurationManager implements IConfigurationManager {
   }
 
   private async canDeleteComponent(id: string): Promise<boolean> {
-    const treeInfo = this.context.store.structure.selectComponentTreeInfo(id);
+    const store = this.context.store;
+    const treeInfo = store.structure.selectComponentTreeInfo(id);
     if (!treeInfo) {
       return false;
     }
+    const placement = this.calculateComponentPlacement(id, treeInfo.parentId, treeInfo.slotProperty, treeInfo.index);
+    const parentConf = this.getComponent(treeInfo.parentId, true);
+    const currentConf = this.getComponent(id, true);
+    const canDelete = await this.context.configurationDeleteEffect.handleDelete({
+      current: currentConf,
+      parent: parentConf,
+      slot: treeInfo.slotProperty,
+      ...placement,
+    });
+
+    if (!canDelete) {
+      return false;
+    }
+
     return this.mockValidatePlacementChange(id, treeInfo.parentId, treeInfo.slotProperty, -1);
   }
 
