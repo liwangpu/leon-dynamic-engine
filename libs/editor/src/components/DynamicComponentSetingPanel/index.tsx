@@ -75,7 +75,7 @@ const ConfigPanelRenderWrapper = (ComponentSettingPanel: ComponentType<any>) => 
         rootType: rootComponent?.type,
       };
       return ctx;
-    }, [conf.type, parentType, parentSlotProperty]);
+    }, [conf.type, parentType, parentSlotProperty, rootComponent.id]);
 
     const configSelector = editorCtx.configuration.getConfigurationSelector(settingItemCxt);
     const value = _.isFunction(configSelector) ? _.cloneDeep(configSelector(editorCtx, conf)) : conf;

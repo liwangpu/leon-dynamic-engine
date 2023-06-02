@@ -7,13 +7,13 @@ import { IFormMetadataGenerator, IMetadataRegister } from '../../models';
 import styles from './index.module.less';
 import * as _ from 'lodash';
 
-function getMetadataRegeditKey(context: ISetterPanelContext) {
+function getMetadataRegeditKey(context: Partial<ISetterPanelContext>) {
   let key = `type:${context.type}`;
   if (context.parentType) {
     key += `/parentType:${context.parentType}`;
   }
   if (context.rootType) {
-    key += `/parentType:${context.rootType}`;
+    key += `/rootType:${context.rootType}`;
   }
   if (context.slot) {
     key += `/slot:${context.slot}`;
@@ -29,7 +29,7 @@ export async function DynamicConfigPanelLoader(type: string, loader: () => Promi
     metadataRegistry.set(key, generator);
   };
 
-  const getMetdata = (context: ISetterPanelContext) => {
+  const getMetdata = (context: Partial<ISetterPanelContext>) => {
     const key = getMetadataRegeditKey(context);
     return metadataRegistry.get(key);
   };
@@ -46,7 +46,7 @@ export async function DynamicConfigPanelLoader(type: string, loader: () => Promi
   const DynamicConfigPanel: React.FC<IComponentConfigurationPanelProps> = memo(props => {
 
     const { value, onChange } = props;
-    const setterContext = useContext(ComponentSetterPanelContext);
+    const panelContext = useContext(ComponentSetterPanelContext);
     const editorContext = useContext(EditorContext);
     const [metadata, setMetadata] = useState<IFormMetadata>();
     const [metadataLoaded, setMetadataLoaded] = useState<boolean>();
@@ -55,11 +55,16 @@ export async function DynamicConfigPanelLoader(type: string, loader: () => Promi
       (async () => {
         // 先找最精确匹配的设置面板,如果找不到然后逐次降低优先级
         const matchedFilters = (function* () {
-          yield setterContext;
-          yield { type: setterContext.type, rootType: setterContext.parentType };
-          yield { type: setterContext.type, parentType: setterContext.parentType };
-          yield { type: setterContext.type, slot: setterContext.slot };
-          yield { type: setterContext.type };
+          yield panelContext;
+          yield { type: panelContext.type, parentType: panelContext.parentType, rootType: panelContext.rootType };
+          yield { type: panelContext.type, parentType: panelContext.parentType, slot: panelContext.slot };
+          yield { parentType: panelContext.parentType, slot: panelContext.slot, rootType: panelContext.rootType };
+          yield { type: panelContext.type, rootType: panelContext.rootType };
+          yield { type: panelContext.type, parentType: panelContext.parentType };
+          yield { parentType: panelContext.parentType, rootType: panelContext.rootType };
+          yield { type: panelContext.type, slot: panelContext.slot };
+          yield { slot: panelContext.slot, rootType: panelContext.rootType };
+          yield { type: panelContext.type };
         })();
 
         let metaGenerator: IFormMetadataGenerator;
@@ -79,7 +84,7 @@ export async function DynamicConfigPanelLoader(type: string, loader: () => Promi
         setMetadata(md);
         setMetadataLoaded(true);
       })();
-    }, [setterContext]);
+    }, [panelContext]);
 
     useEffect(() => {
       return () => {
