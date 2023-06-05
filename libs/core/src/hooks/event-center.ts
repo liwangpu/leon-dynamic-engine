@@ -22,6 +22,7 @@ export function useEventCenter(conf: IComponentConfiguration) {
     },
     registerAction: (action: string, executor: (data?: any) => Promise<any>) => {
       if (!engine) { return; }
+      engine.registerAction(conf,action,executor);
     },
   };
 }
