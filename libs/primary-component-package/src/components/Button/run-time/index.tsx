@@ -10,7 +10,7 @@ const Button: React.FC<IDynamicComponentProps<IButtonComponentConfiguration>> = 
   const { dispatch } = useEventCenter(props.configuration);
   const buttonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    dispatch(event[ButtonEventType.click]);
+    dispatch(props.configuration, event[ButtonEventType.click]);
   };
 
   return (

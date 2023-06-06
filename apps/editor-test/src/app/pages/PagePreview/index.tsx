@@ -32,37 +32,6 @@ const PagePreview: React.FC = observer(() => {
     }
   }), [showNavigation]);
 
-  // const eventEngineContext = useMemo<IEventCenterEngineContext>(() => {
-
-  //   const openUrlHandler = async (action: IOpenUrlEventAction, data?: any) => {
-  //     window.open(action.params.url, action.params.target);
-  //   };
-
-  //   return {
-  //     dispatch: async (event, data) => {
-
-  //       if (event.execute && event.execute.actions) {
-  //         for (const act of event.execute.actions) {
-  //           switch (act.type) {
-  //             case EventActionType.openUrl:
-  //               await openUrlHandler(act, data);
-  //               break;
-  //             default:
-  //               console.warn(`没有找到对应动作类型的执行器,动作将不生效`, act, data);
-  //               break;
-  //           }
-  //         }
-  //       }
-  //     },
-  //     registerAction: (component, action, executor) => {
-
-  //     },
-  //     deRegisterAction: (component) => {
-
-  //     },
-  //   };
-  // }, []);
-
   const eventCenter = useEventCenterProvider();
 
   const goback = useCallback(() => {

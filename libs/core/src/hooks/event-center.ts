@@ -13,16 +13,16 @@ export function useEventCenter(conf: IComponentConfiguration) {
   }, []);
 
   return {
-    dispatch: async (event: IEvent, data?: any) => {
+    dispatch: async (component: IComponentConfiguration, event: IEvent, data?: any) => {
       if (!engine) {
         console.warn(`事件引擎没有实施,事件将不会生效`);
         return;
       }
-      return engine.dispatch(event, data);
+      return engine.dispatch(component, event, data);
     },
     registerAction: (action: string, executor: (data?: any) => Promise<any>) => {
       if (!engine) { return; }
-      engine.registerAction(conf,action,executor);
+      engine.registerAction(conf, action, executor);
     },
   };
 }

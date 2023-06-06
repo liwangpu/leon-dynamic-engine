@@ -6,12 +6,16 @@ export function useEventCenterProvider(): IEventCenterEngineContext {
 
   const eventCenter = useMemo<IEventCenterEngineContext>(() => {
     return {
-      dispatch(event, data) {
+      dispatch(component, event, data) {
+
+        // switch(event.execute){
+
+        // }
 
         return null;
       },
       registerAction(component, action, executor) {
-        console.log(`re:`, component);
+        // console.log(`re:`, component);
       },
       deRegisterAction(component) {
 
