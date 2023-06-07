@@ -45,7 +45,6 @@ export function ConfigurationAddingEffectPluginRegister(): EditorPluginRegister 
             },
           ];
 
-          current.defaultActiveTab = current.children[0].id;
           current.direction = 'horizontal';
           current.fullHeight = true;
           return current;

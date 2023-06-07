@@ -1,33 +1,46 @@
-// class Stack {
+import { IEventAction } from '@lowcode-engine/core';
+import * as _ from 'lodash';
 
-//   constructor() {
-//     this.items = [];
-//   }
+export class ActionQueue {
 
-//   push(element) {
-//     this.items.push(element);
-//   }
+  private frontIndex: number = 0;
+  private backIndex: number = 0;
+  private action: { [key: number]: IEventAction } = {};
+  public constructor(actions: Array<IEventAction>) {
+    this.action = {}
+    this.frontIndex = 0;
+    this.backIndex = 0;
+    if (_.isArray(actions)) {
+      actions.forEach(it => this.enqueue(it));
+    }
+  }
 
-//   pop() {
-//     return this.items.pop();
-//   }
+  public get size() {
+    return this.backIndex - this.frontIndex;
+  }
 
-//   peek() {
-//     return this.items[this.items.length - 1];
-//   }
+  public enqueue(item: IEventAction): void {
+    this.action[this.backIndex] = item
+    this.backIndex++
+  }
 
-//   isEmpty() {
-//     return this.items.length === 0;
-//   }
+  public dequeue() {
+    const item = this.action[this.frontIndex];
+    delete this.action[this.frontIndex];
+    this.frontIndex++;
+    return item;
+  }
 
-//   size() {
-//     return this.items.length;
-//   }
+  public peek() {
+    return this.action[this.frontIndex];
+  }
 
-//   clear() {
-//     this.items = [];
-//   }
-// }
+
+
+  // get printQueue() {
+  //   return this.items;
+  // }
+}
 
 export interface IActionHandlerRequest {
 
