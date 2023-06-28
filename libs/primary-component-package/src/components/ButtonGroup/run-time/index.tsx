@@ -15,7 +15,7 @@ const ButtonGroup: React.FC<IDynamicComponentProps<IButtonGroupComponentConfigur
     const buttonConf = children.find(c => c.id === id);
     const event = buttonConf.event;
     if (!event) { return; }
-    dispatch(event[ButtonEventType.click]);
+    dispatch(buttonConf, event[ButtonEventType.click]);
   };
 
   const menuProps: MenuProps = {
@@ -25,7 +25,6 @@ const ButtonGroup: React.FC<IDynamicComponentProps<IButtonGroupComponentConfigur
     })),
     onClick: e => handleMenuClick(e.key),
   };
-
 
   return (
     <div>

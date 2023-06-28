@@ -81,8 +81,6 @@ export function ConfigurationAddingEffectPluginRegister(options: { confGenerator
               title: '页签 3',
             },
           ];
-
-          current.defaultActiveTab = current.children[0].id;
           current.direction = 'horizontal';
           current.fullHeight = true;
           return current;

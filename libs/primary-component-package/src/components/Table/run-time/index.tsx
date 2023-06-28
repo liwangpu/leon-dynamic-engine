@@ -1,4 +1,4 @@
-import { IDynamicComponentProps, useDynamicComponentEngine } from '@lowcode-engine/core';
+import { IDynamicComponentProps, useDynamicComponentEngine, useEventCenter } from '@lowcode-engine/core';
 import { Button, Table as AntdTable } from 'antd';
 import React, { memo, useMemo } from 'react';
 import { ITableComponentConfiguration } from '../../../models';
@@ -11,6 +11,12 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
   const conf = props.configuration;
   const dynamicEngine = useDynamicComponentEngine();
   const DynamicComponent = dynamicEngine.getDynamicComponentFactory();
+  const { registerAction } = useEventCenter(props.configuration);
+
+  registerAction('start', async () => {
+
+  });
+
   const OperatorColumn = useMemo(() => {
     if (!conf.operatorColumn || !conf.operatorColumn.children) { return null; }
     return conf.operatorColumn.children.map(c => (<Button key={c.id} type="text" size='small'>{c.title}</Button>))
@@ -29,8 +35,6 @@ const Table: React.FC<IDynamicComponentProps<ITableComponentConfiguration>> = me
       }),
     };
   };
-
-
 
   const Operators = useMemo(() => {
     if (!conf.operators || !conf.operators.length) { return null; }

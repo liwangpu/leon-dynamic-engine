@@ -10,7 +10,11 @@ const Button: React.FC<IDynamicComponentProps<IButtonComponentConfiguration>> = 
   const { dispatch } = useEventCenter(props.configuration);
   const buttonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    dispatch(event[ButtonEventType.click]);
+    if (!event || !event[ButtonEventType.click]) {
+      console.warn(`因为没有定义任何事件,所以点击按钮将不会生效!`);
+      return;
+    }
+    dispatch(props.configuration, event[ButtonEventType.click]);
   };
 
   return (

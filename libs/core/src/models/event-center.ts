@@ -28,4 +28,9 @@ export interface IExecuteComponentEventAction extends IEventActionBase {
   type: EventActionType.executeComponentAction;
 }
 
-export type IEventAction = IOpenUrlEventAction | IExecuteComponentEventAction;
+export interface IDefaultEventAction extends IEventActionBase {
+  type: string;
+  params?: { [key: string]: any };
+}
+
+export type IEventAction = IOpenUrlEventAction | IExecuteComponentEventAction | IDefaultEventAction;
