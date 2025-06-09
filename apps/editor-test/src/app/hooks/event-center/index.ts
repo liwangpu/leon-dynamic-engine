@@ -1,12 +1,22 @@
-import { EventActionType, IEventAction, IEventCenterEngineContext } from '@lowcode-engine/core';
-import { useEffect, useMemo, useRef } from 'react';
-import { ActionHandlerConstructor, IActionHandlerContext, ActionQueue, IActionHandler, IActionHandlerRequest } from './action-handler';
+import {
+  EventActionType,
+  IEventAction,
+  IEventCenterEngineContext,
+} from '@lowcode-engine/core';
+import { useMemo, useRef } from 'react';
+import {
+  ActionHandlerConstructor,
+  IActionHandlerContext,
+  ActionQueue, IActionHandlerRequest
+} from './action-handler';
 import { DefaultActionHandler } from './concrete-handlers/default-handler';
 import { FlowActionHandler } from './concrete-handlers/flow-handler';
 import { OpenUrlActionHandler } from './concrete-handlers/open-url-handler';
 import { SpecialActionHandler } from './concrete-handlers/speccial-handler';
 
-function getActionHandler(type: EventActionType | string): ActionHandlerConstructor {
+function getActionHandler(
+  type: EventActionType | string
+): ActionHandlerConstructor {
   switch (type) {
     case EventActionType.openUrl:
       return OpenUrlActionHandler;
@@ -27,7 +37,7 @@ const mockActions: Array<IEventAction> = [
     params: {
       url: 'https://www.jd.com',
       target: '_blank',
-    }
+    },
   },
   {
     id: 'a2',
@@ -36,25 +46,25 @@ const mockActions: Array<IEventAction> = [
     params: {
       url: 'https://www.baidu.com',
       target: '_blank',
-    }
+    },
   },
   {
     id: 'z1',
     title: '一个特殊的动作',
     type: 'special',
-    params: {}
+    params: {},
   },
   {
     id: 'a3',
     title: '执行流1',
     type: 'flow',
-    params: {}
+    params: {},
   },
   {
     id: 'a4',
     title: '执行流1',
     type: 'flow',
-    params: {}
+    params: {},
   },
   {
     id: 'k1',
@@ -63,47 +73,44 @@ const mockActions: Array<IEventAction> = [
     params: {
       url: 'https://www.meituan.com',
       target: '_blank',
-    }
+    },
   },
   {
     id: 'a5',
     title: '执行流1',
     type: 'flow',
-    params: {}
+    params: {},
   },
   {
     id: 'a6',
     title: '某某某事件',
     type: 'flow',
-    params: {}
+    params: {},
   },
 ];
 
 export function useEventCenterProvider(): IEventCenterEngineContext {
-
   // const context = useMemo<IActionHandlerContext>(() => {
   //   return null;
   // }, []);
   const contextRef = useRef<IActionHandlerContext>();
   // const context
 
-  useEffect(() => {
+  // useEffect(() => {
 
-  }, []);
+  // }, []);
 
   const eventCenter = useMemo<IEventCenterEngineContext>(() => {
     return {
       async dispatch(component, event, data) {
-        // const actionQueue = new ActionQueue(event.execute?.actions);
-        console.log(`-----------------------------------------------------------`,);
-
         // 初始化动作队列
-        const actionQueue = new ActionQueue(mockActions);
+        const actionQueue = new ActionQueue(event.execute?.actions);
+        // const actionQueue = new ActionQueue(mockActions);
         // 动作处理上下文
         const context: IActionHandlerContext = null;
 
         // 动作处理请求参数
-        const actionRequest: IActionHandlerRequest = { actionQueue, };
+        const actionRequest: IActionHandlerRequest = { actionQueue };
         // 取消动作处理回调
         // const cancelNext = () => {
         //   actionQueue.clear();
@@ -112,16 +119,16 @@ export function useEventCenterProvider(): IEventCenterEngineContext {
         // 执行动作队列
         while (actionQueue.size > 0) {
           const action = actionQueue.dequeue();
-          let handler: IActionHandler;
+          // const handler: IActionHandler;
           const Handler = getActionHandler(action.type);
-          handler = new Handler(context);
+          const handler = new Handler(context);
 
           const result = await handler.handle(actionRequest, action, data);
           if (!result || !result.done) {
             actionQueue.clear();
           }
         }
-        console.log(`动作执行完毕!`,);
+        console.log(`动作执行完毕!`);
         return null;
       },
       registerAction(component, action, executor) {
